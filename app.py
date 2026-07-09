@@ -387,6 +387,26 @@ def table_exists(table_name):
     return cursor.fetchone() is not None
 
 
+def index_exists(table_name, index_name):
+    db = get_db()
+    if db.is_mysql:
+        return fetch_scalar(
+            db.execute(
+                """
+                SELECT COUNT(*)
+                FROM information_schema.statistics
+                WHERE table_schema = DATABASE()
+                  AND table_name = ?
+                  AND index_name = ?
+                """,
+                (table_name, index_name),
+            )
+        ) > 0
+
+    cursor = db.execute(f"PRAGMA index_list({table_name})")
+    return any(row[1] == index_name for row in cursor.fetchall())
+
+
 def role_display_name(role):
     role = normalize_role_value(role)
     if role == "owner":
@@ -554,11 +574,7 @@ def ensure_category_columns():
             )
 
     if db.is_mysql:
-        index_exists = db.execute(
-            "SHOW INDEX FROM categories WHERE Key_name = ?",
-            ("idx_categories_name_key",),
-        ).fetchone()
-        if not index_exists:
+        if not index_exists("categories", "idx_categories_name_key"):
             execute_commit("CREATE UNIQUE INDEX idx_categories_name_key ON categories (name_key)")
     else:
         execute_commit("CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_name_key ON categories (name_key)")
@@ -797,11 +813,7 @@ def ensure_user_columns():
         execute_commit("ALTER TABLE users ADD COLUMN owner_id BIGINT NULL" if db.is_mysql else "ALTER TABLE users ADD COLUMN owner_id INTEGER")
 
     if db.is_mysql:
-        owner_index = db.execute(
-            "SHOW INDEX FROM users WHERE Key_name = ?",
-            ("idx_users_owner_id",),
-        ).fetchone()
-        if not owner_index:
+        if not index_exists("users", "idx_users_owner_id"):
             execute_commit("CREATE INDEX idx_users_owner_id ON users (owner_id)")
     else:
         execute_commit("CREATE INDEX IF NOT EXISTS idx_users_owner_id ON users (owner_id)")
@@ -824,10 +836,7 @@ def ensure_cashier_invitation_table():
             )
             """
         )
-        if not db.execute(
-            "SHOW INDEX FROM cashier_invitations WHERE Key_name = ?",
-            ("idx_cashier_invitations_owner_id",),
-        ).fetchone():
+        if not index_exists("cashier_invitations", "idx_cashier_invitations_owner_id"):
             execute_commit("CREATE INDEX idx_cashier_invitations_owner_id ON cashier_invitations (owner_id)")
     else:
         execute_script_commit(
@@ -979,7 +988,7 @@ def ensure_pos_transactions_columns():
     db = get_db()
     if db.is_mysql:
         cursor = db.execute("SHOW COLUMNS FROM pos_transactions")
-        columns = {row[0] for row in cursor.fetchall()}
+        columns = {row["Field"] if isinstance(row, dict) else row[0] for row in cursor.fetchall()}
         if "owner_id" not in columns:
             execute_commit("ALTER TABLE pos_transactions ADD COLUMN owner_id BIGINT NULL")
     else:
@@ -1081,11 +1090,7 @@ def ensure_menu_columns():
         )
 
     if db.is_mysql:
-        index_exists = db.execute(
-            "SHOW INDEX FROM menus WHERE Key_name = ?",
-            ("idx_menus_category_id",),
-        ).fetchone()
-        if not index_exists:
+        if not index_exists("menus", "idx_menus_category_id"):
             execute_commit("CREATE INDEX idx_menus_category_id ON menus (category_id)")
     else:
         execute_commit("CREATE INDEX IF NOT EXISTS idx_menus_category_id ON menus (category_id)")

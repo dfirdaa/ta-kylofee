@@ -416,6 +416,15 @@ def is_duplicate_column_error(exc):
     )
 
 
+def is_duplicate_index_error(exc):
+    return (
+        pymysql is not None
+        and isinstance(exc, (pymysql.err.OperationalError, pymysql.err.InternalError))
+        and exc.args
+        and exc.args[0] == 1061
+    )
+
+
 def add_column_if_missing(table_name, column_name, mysql_definition, sqlite_definition):
     if column_name in get_table_columns(table_name):
         return
@@ -427,6 +436,20 @@ def add_column_if_missing(table_name, column_name, mysql_definition, sqlite_defi
     except Exception as exc:
         if db.is_mysql and is_duplicate_column_error(exc):
             app.logger.info("Column %s.%s already exists; continuing.", table_name, column_name)
+            return
+        raise
+
+
+def create_index_if_missing(table_name, index_name, create_sql):
+    if index_exists(table_name, index_name):
+        return
+
+    db = get_db()
+    try:
+        execute_commit(create_sql)
+    except Exception as exc:
+        if db.is_mysql and is_duplicate_index_error(exc):
+            app.logger.info("Index %s.%s already exists; continuing.", table_name, index_name)
             return
         raise
 
@@ -444,9 +467,20 @@ def get_app_setting(setting_key):
 
 
 def set_app_setting(setting_key, value):
+    db = get_db()
     key_column = app_setting_key_column()
+    if db.is_mysql:
+        return execute_commit(
+            f"""
+            INSERT INTO app_settings ({key_column}, value)
+            VALUES (?, ?)
+            ON DUPLICATE KEY UPDATE value = VALUES(value)
+            """,
+            (setting_key, value),
+        )
+
     return execute_commit(
-        f"INSERT INTO app_settings ({key_column}, value) VALUES (?, ?)",
+        f"INSERT OR REPLACE INTO app_settings ({key_column}, value) VALUES (?, ?)",
         (setting_key, value),
     )
 
@@ -606,8 +640,11 @@ def ensure_category_columns():
             )
 
     if db.is_mysql:
-        if not index_exists("categories", "idx_categories_name_key"):
-            execute_commit("CREATE UNIQUE INDEX idx_categories_name_key ON categories (name_key)")
+        create_index_if_missing(
+            "categories",
+            "idx_categories_name_key",
+            "CREATE UNIQUE INDEX idx_categories_name_key ON categories (name_key)",
+        )
     else:
         execute_commit("CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_name_key ON categories (name_key)")
 
@@ -845,8 +882,11 @@ def ensure_user_columns():
         add_column_if_missing("users", "owner_id", "BIGINT NULL", "INTEGER")
 
     if db.is_mysql:
-        if not index_exists("users", "idx_users_owner_id"):
-            execute_commit("CREATE INDEX idx_users_owner_id ON users (owner_id)")
+        create_index_if_missing(
+            "users",
+            "idx_users_owner_id",
+            "CREATE INDEX idx_users_owner_id ON users (owner_id)",
+        )
     else:
         execute_commit("CREATE INDEX IF NOT EXISTS idx_users_owner_id ON users (owner_id)")
 
@@ -868,8 +908,11 @@ def ensure_cashier_invitation_table():
             )
             """
         )
-        if not index_exists("cashier_invitations", "idx_cashier_invitations_owner_id"):
-            execute_commit("CREATE INDEX idx_cashier_invitations_owner_id ON cashier_invitations (owner_id)")
+        create_index_if_missing(
+            "cashier_invitations",
+            "idx_cashier_invitations_owner_id",
+            "CREATE INDEX idx_cashier_invitations_owner_id ON cashier_invitations (owner_id)",
+        )
     else:
         execute_script_commit(
             """
@@ -1114,8 +1157,11 @@ def ensure_menu_columns():
         add_column_if_missing("menus", "category_id", "BIGINT NULL", "INTEGER")
 
     if db.is_mysql:
-        if not index_exists("menus", "idx_menus_category_id"):
-            execute_commit("CREATE INDEX idx_menus_category_id ON menus (category_id)")
+        create_index_if_missing(
+            "menus",
+            "idx_menus_category_id",
+            "CREATE INDEX idx_menus_category_id ON menus (category_id)",
+        )
     else:
         execute_commit("CREATE INDEX IF NOT EXISTS idx_menus_category_id ON menus (category_id)")
 

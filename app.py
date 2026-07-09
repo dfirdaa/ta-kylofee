@@ -37,8 +37,8 @@ except ImportError:  # pragma: no cover - app still runs before dependency insta
     qrcode = None
 
 BASE_DIR = Path(__file__).resolve().parent
-DATABASE = BASE_DIR / "database.db"
 load_dotenv(BASE_DIR / ".env")
+DATABASE = Path(os.getenv("SQLITE_DATABASE_PATH", "/tmp/database.db" if os.getenv("VERCEL") else BASE_DIR / "database.db"))
 
 
 # ======================
@@ -83,6 +83,7 @@ except ImportError:
 DB_REMOTE_CONFIGURED = bool(DB_HOST and DB_USER and DB_NAME and pymysql is not None)
 DB_USE_MYSQL = DB_REMOTE_CONFIGURED and not DB_FORCE_SQLITE
 REMOTE_DB_FAILED = False
+SCHEMA_READY = False
 
 
 def get_mysql_ssl_options():
@@ -3558,6 +3559,22 @@ def initialize_database():
         init_pos_tables()
 
 
-if __name__ == "__main__":
+def ensure_schema_ready():
+    global SCHEMA_READY
+    if SCHEMA_READY:
+        return
+
     initialize_database()
+    SCHEMA_READY = True
+
+
+@app.before_request
+def prepare_database_for_request():
+    if request.endpoint == "static":
+        return
+    ensure_schema_ready()
+
+
+if __name__ == "__main__":
+    ensure_schema_ready()
     app.run(debug=True)

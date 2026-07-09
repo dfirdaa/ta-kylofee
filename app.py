@@ -953,6 +953,13 @@ def normalize_invite_code(value):
 
 def attach_legacy_transaction_owner_ids():
     db = get_db()
+    if not table_exists("pos_transactions"):
+        return
+
+    columns = get_table_columns("pos_transactions")
+    if "owner_id" not in columns or "staff_id" not in columns:
+        return
+
     try:
         execute_commit(
             """
@@ -1060,17 +1067,40 @@ def format_cashier_invitation(invitation):
 
 
 def ensure_pos_transactions_columns():
-    db = get_db()
-    if db.is_mysql:
-        cursor = db.execute("SHOW COLUMNS FROM pos_transactions")
-        columns = {row["Field"] if isinstance(row, dict) else row[0] for row in cursor.fetchall()}
-        if "owner_id" not in columns:
-            add_column_if_missing("pos_transactions", "owner_id", "BIGINT NULL", "INTEGER")
-    else:
-        cursor = db.execute("PRAGMA table_info(pos_transactions)")
-        columns = {row[1] for row in cursor.fetchall()}
-        if "owner_id" not in columns:
-            add_column_if_missing("pos_transactions", "owner_id", "BIGINT NULL", "INTEGER")
+    if not table_exists("pos_transactions"):
+        return
+
+    columns = get_table_columns("pos_transactions")
+    if "order_code" not in columns:
+        add_column_if_missing("pos_transactions", "order_code", "VARCHAR(60)", "TEXT")
+    if "transaction_date" not in columns:
+        add_column_if_missing("pos_transactions", "transaction_date", "DATE", "TEXT")
+    if "transaction_time" not in columns:
+        add_column_if_missing("pos_transactions", "transaction_time", "TIME", "TEXT")
+    if "customer_name" not in columns:
+        add_column_if_missing("pos_transactions", "customer_name", "VARCHAR(255) DEFAULT 'Walk-in Customer'", "TEXT DEFAULT 'Walk-in Customer'")
+    if "payment_method" not in columns:
+        add_column_if_missing("pos_transactions", "payment_method", "VARCHAR(80) DEFAULT 'Tunai'", "TEXT DEFAULT 'Tunai'")
+    if "subtotal_amount" not in columns:
+        add_column_if_missing("pos_transactions", "subtotal_amount", "BIGINT NOT NULL DEFAULT 0", "INTEGER NOT NULL DEFAULT 0")
+    if "discount_amount" not in columns:
+        add_column_if_missing("pos_transactions", "discount_amount", "BIGINT NOT NULL DEFAULT 0", "INTEGER NOT NULL DEFAULT 0")
+    if "tax_amount" not in columns:
+        add_column_if_missing("pos_transactions", "tax_amount", "BIGINT NOT NULL DEFAULT 0", "INTEGER NOT NULL DEFAULT 0")
+    if "operational_cost" not in columns:
+        add_column_if_missing("pos_transactions", "operational_cost", "BIGINT NOT NULL DEFAULT 0", "INTEGER NOT NULL DEFAULT 0")
+    if "total_amount" not in columns:
+        add_column_if_missing("pos_transactions", "total_amount", "BIGINT NOT NULL DEFAULT 0", "INTEGER NOT NULL DEFAULT 0")
+    if "item_count" not in columns:
+        add_column_if_missing("pos_transactions", "item_count", "INT NOT NULL DEFAULT 0", "INTEGER NOT NULL DEFAULT 0")
+    if "status" not in columns:
+        add_column_if_missing("pos_transactions", "status", "VARCHAR(40) NOT NULL DEFAULT 'Selesai'", "TEXT NOT NULL DEFAULT 'Selesai'")
+    if "owner_id" not in columns:
+        add_column_if_missing("pos_transactions", "owner_id", "BIGINT NULL", "INTEGER")
+    if "staff_id" not in columns:
+        add_column_if_missing("pos_transactions", "staff_id", "BIGINT NULL", "INTEGER")
+    if "created_at" not in columns:
+        add_column_if_missing("pos_transactions", "created_at", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", "TEXT")
 
 
 def init_db():

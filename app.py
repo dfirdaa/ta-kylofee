@@ -3610,9 +3610,15 @@ def ensure_schema_ready():
 
 @app.before_request
 def prepare_database_for_request():
-    if request.endpoint == "static":
+    if request.endpoint == "static" or request.path in {"/favicon.ico", "/favicon.png"}:
         return
     ensure_schema_ready()
+
+
+@app.route("/favicon.ico")
+@app.route("/favicon.png")
+def favicon():
+    return "", 204
 
 
 if __name__ == "__main__":

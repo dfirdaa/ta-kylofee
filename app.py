@@ -1246,6 +1246,63 @@ def migrate_legacy_menu_columns():
         )
 
 
+def legacy_menu_field_values(menu_data):
+    columns = get_table_columns("menus")
+    aliases = {
+        "name": ("menu_name", "product_name", "item_name", "nama", "nama_menu", "title"),
+        "category": ("menu_category", "product_category", "kategori", "category_name"),
+        "price": ("menu_price", "product_price", "harga", "harga_menu"),
+        "image": ("image_url", "photo", "photo_url", "gambar", "gambar_menu"),
+    }
+    values = {}
+    for source_key, candidates in aliases.items():
+        for column in candidates:
+            if column in columns and source_key in menu_data:
+                values[column] = menu_data[source_key]
+    return values
+
+
+def insert_menu_record(menu_data):
+    values = {
+        "name": menu_data["name"],
+        "category": menu_data["category"],
+        "category_id": menu_data.get("category_id"),
+        "code": menu_data["code"],
+        "price": menu_data["price"],
+        "stock": menu_data.get("stock", 0),
+        "description": menu_data.get("description", ""),
+        "image": menu_data.get("image", ""),
+        "is_active": 1 if menu_data.get("is_active", True) else 0,
+    }
+    values.update(legacy_menu_field_values(values))
+
+    columns = list(values.keys())
+    placeholders = ", ".join(["?"] * len(columns))
+    return execute_commit(
+        f"INSERT INTO menus ({', '.join(columns)}) VALUES ({placeholders})",
+        tuple(values[column] for column in columns),
+    )
+
+
+def update_menu_record(menu_id, menu_data):
+    values = {
+        "name": menu_data["name"],
+        "category": menu_data["category"],
+        "category_id": menu_data.get("category_id"),
+        "price": menu_data["price"],
+    }
+    for optional_key in ("stock", "description", "image", "is_active"):
+        if optional_key in menu_data:
+            values[optional_key] = menu_data[optional_key]
+    values.update(legacy_menu_field_values(values))
+
+    assignments = ", ".join(f"{column} = ?" for column in values)
+    return execute_commit(
+        f"UPDATE menus SET {assignments} WHERE id = ?",
+        (*values.values(), menu_id),
+    )
+
+
 def init_menu_table():
     db = get_db()
     init_category_table()
@@ -2723,22 +2780,18 @@ def owner_menu_add():
         category_name = selected_category["name"]
         menu_code = generate_menu_code(category_name, form_data["name"])
 
-        execute_commit(
-            """
-            INSERT INTO menus (name, category, category_id, code, price, stock, description, image, is_active)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                form_data["name"],
-                category_name,
-                selected_category["id"],
-                menu_code,
-                price,
-                stock,
-                form_data["description"],
-                image_path,
-                1 if form_data["is_active"] else 0,
-            ),
+        insert_menu_record(
+            {
+                "name": form_data["name"],
+                "category": category_name,
+                "category_id": selected_category["id"],
+                "code": menu_code,
+                "price": price,
+                "stock": stock,
+                "description": form_data["description"],
+                "image": image_path,
+                "is_active": form_data["is_active"],
+            }
         )
         flash("Menu berhasil ditambahkan.", "success")
         return redirect(url_for("owner_menu"))
@@ -2834,23 +2887,18 @@ def owner_menu_edit(menu_id):
             )
 
         category_name = selected_category["name"]
-        execute_commit(
-            """
-            UPDATE menus
-            SET name = ?, category = ?, category_id = ?, price = ?, stock = ?, description = ?, image = ?, is_active = ?
-            WHERE id = ?
-            """,
-            (
-                form_data["name"],
-                category_name,
-                selected_category["id"],
-                price,
-                stock,
-                form_data["description"],
-                image_path,
-                1 if form_data["is_active"] else 0,
-                menu_id,
-            ),
+        update_menu_record(
+            menu_id,
+            {
+                "name": form_data["name"],
+                "category": category_name,
+                "category_id": selected_category["id"],
+                "price": price,
+                "stock": stock,
+                "description": form_data["description"],
+                "image": image_path,
+                "is_active": 1 if form_data["is_active"] else 0,
+            },
         )
         flash("Menu berhasil diperbarui.", "success")
         return redirect(url_for("owner_menu"))
@@ -3197,9 +3245,14 @@ def add_owner_menu():
     try:
         category_name = category["name"]
         code = generate_menu_code(category_name, name)
-        execute_commit(
-            "INSERT INTO menus (name, category, category_id, code, price) VALUES (?, ?, ?, ?, ?)",
-            (name, category_name, category["id"], code, price),
+        insert_menu_record(
+            {
+                "name": name,
+                "category": category_name,
+                "category_id": category["id"],
+                "code": code,
+                "price": price,
+            }
         )
         return jsonify({"success": True, "message": "Menu berhasil ditambahkan.", "code": code})
     except Exception:
@@ -3226,9 +3279,14 @@ def update_owner_menu(menu_id):
 
     try:
         category_name = category["name"]
-        execute_commit(
-            "UPDATE menus SET name = ?, category = ?, category_id = ?, price = ? WHERE id = ?",
-            (name, category_name, category["id"], price, menu_id),
+        update_menu_record(
+            menu_id,
+            {
+                "name": name,
+                "category": category_name,
+                "category_id": category["id"],
+                "price": price,
+            },
         )
         return jsonify({"success": True, "message": "Menu berhasil diperbarui."})
     except Exception:

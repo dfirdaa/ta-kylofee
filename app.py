@@ -167,6 +167,10 @@ app.config["SECRET_KEY"] = os.environ.get(
     "SECRET_KEY",
     "dev-secret-key-change-this-before-production",
 )
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = bool(os.getenv("VERCEL"))
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
 app.config["UPLOAD_FOLDER"] = BASE_DIR / "static" / "uploads" / "menu"
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 MYSQL_SSL_OPTIONS = get_mysql_ssl_options() if DB_USE_MYSQL else {}
@@ -1254,10 +1258,60 @@ def get_owner_name():
     )
 
 
+def set_authenticated_session(user_data):
+    role = normalize_role_value(user_data.get("role"))
+    owner_id = user_data.get("id") if role == "owner" else user_data.get("owner_id")
+
+    session.permanent = True
+    session["user_id"] = user_data.get("id")
+    session["full_name"] = user_data.get("full_name")
+    session["name"] = user_data.get("full_name")
+    session["username"] = user_data.get("full_name")
+    session["role"] = role
+    session["role_label"] = role_display_name(role)
+    session["owner_id"] = owner_id
+    session.modified = True
+
+
+def get_session_user():
+    user_id = session.get("user_id")
+    if not user_id:
+        return None
+
+    user = get_db().execute(
+        """
+        SELECT id, full_name, email, role, owner_id, is_active
+        FROM users
+        WHERE id = ?
+        """,
+        (user_id,),
+    ).fetchone()
+    return row_to_dict(user) if user else None
+
+
+def refresh_authenticated_session():
+    user_data = get_session_user()
+    if not user_data:
+        session.clear()
+        return None
+
+    role = normalize_role_value(user_data.get("role"))
+    if role == CASHIER_ROLE:
+        if int(user_data.get("is_active", 1) or 0) != 1 or not user_data.get("owner_id"):
+            session.clear()
+            return None
+    elif role != "owner":
+        session.clear()
+        return None
+
+    set_authenticated_session(user_data)
+    return user_data
+
+
 def login_required(view_func):
     @wraps(view_func)
     def wrapped_view(**kwargs):
-        if not session.get("user_id"):
+        if not refresh_authenticated_session():
             flash("Silakan login terlebih dahulu.", "error")
             return redirect(url_for("login"))
         return view_func(**kwargs)
@@ -1278,29 +1332,12 @@ def redirect_for_role():
 def staff_required(view_func):
     @wraps(view_func)
     def wrapped_view(**kwargs):
-        if not session.get("user_id"):
+        user_data = refresh_authenticated_session()
+        if not user_data:
             flash("Silakan login terlebih dahulu.", "error")
             return redirect(url_for("login"))
-        if normalize_role_value(session.get("role")) != CASHIER_ROLE:
+        if normalize_role_value(user_data.get("role")) != CASHIER_ROLE:
             return redirect_for_role()
-
-        user = get_db().execute(
-            "SELECT role, is_active, owner_id FROM users WHERE id = ?",
-            (session.get("user_id"),),
-        ).fetchone()
-        user_data = row_to_dict(user)
-        if not user_data or normalize_role_value(user_data.get("role")) != CASHIER_ROLE:
-            session.clear()
-            flash("Sesi tidak valid. Silakan login ulang.", "error")
-            return redirect(url_for("login"))
-        if int(user_data.get("is_active", 1) or 0) != 1:
-            session.clear()
-            flash("Akun kasir ini sedang nonaktif. Silakan hubungi Owner.", "error")
-            return redirect(url_for("login"))
-        if not user_data.get("owner_id"):
-            session.clear()
-            flash("Akun kasir belum terhubung dengan Owner. Silakan hubungi Owner untuk dibuatkan ulang.", "error")
-            return redirect(url_for("login"))
 
         return view_func(**kwargs)
 
@@ -1310,21 +1347,12 @@ def staff_required(view_func):
 def owner_required(view_func):
     @wraps(view_func)
     def wrapped_view(**kwargs):
-        if not session.get("user_id"):
+        user_data = refresh_authenticated_session()
+        if not user_data:
             flash("Silakan login terlebih dahulu.", "error")
             return redirect(url_for("login"))
-        if normalize_role_value(session.get("role")) != "owner":
+        if normalize_role_value(user_data.get("role")) != "owner":
             return redirect_for_role()
-
-        user = get_db().execute(
-            "SELECT role FROM users WHERE id = ?",
-            (session.get("user_id"),),
-        ).fetchone()
-        user_data = row_to_dict(user)
-        if not user_data or normalize_role_value(user_data.get("role")) != "owner":
-            session.clear()
-            flash("Sesi tidak valid. Silakan login ulang.", "error")
-            return redirect(url_for("login"))
         return view_func(**kwargs)
 
     return wrapped_view
@@ -2236,16 +2264,20 @@ def menu_image_url(image_path):
 
 @app.route("/")
 def opening():
-    if session.get("user_id"):
+    if session.get("user_id") and refresh_authenticated_session():
         return redirect_for_role()
+    if session.get("user_id"):
+        session.clear()
     return render_template("opening.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     init_db()
-    if session.get("user_id"):
+    if session.get("user_id") and refresh_authenticated_session():
         return redirect_for_role()
+    if session.get("user_id"):
+        session.clear()
 
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
@@ -2272,12 +2304,7 @@ def login():
             return render_template("login.html", email=email)
 
         session.clear()
-        session["user_id"] = user_data["id"]
-        session["full_name"] = user_data["full_name"]
-        session["name"] = user_data["full_name"]
-        session["username"] = user_data["full_name"]
-        session["role"] = user_role
-        session["owner_id"] = user_data["id"] if user_role == "owner" else user_data.get("owner_id")
+        set_authenticated_session(user_data)
         flash(f"Login sebagai {role_display_name(user_role)} berhasil.", "success")
         return redirect_for_role()
 
@@ -2420,8 +2447,10 @@ def register_user(role):
 @app.route("/register/owner", methods=["GET", "POST"])
 def register_owner():
     init_db()
-    if session.get("user_id"):
+    if session.get("user_id") and refresh_authenticated_session():
         return redirect_for_role()
+    if session.get("user_id"):
+        session.clear()
     if request.method == "POST":
         return register_user("owner")
     return render_template("register_owner.html")
@@ -2430,8 +2459,10 @@ def register_owner():
 @app.route("/register/kasir", methods=["GET", "POST"])
 def register_cashier():
     init_db()
-    if session.get("user_id"):
+    if session.get("user_id") and refresh_authenticated_session():
         return redirect_for_role()
+    if session.get("user_id"):
+        session.clear()
     if request.method == "POST":
         return register_user("staff")
     return render_template("register_staff.html")

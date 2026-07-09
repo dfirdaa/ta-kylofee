@@ -431,6 +431,26 @@ def add_column_if_missing(table_name, column_name, mysql_definition, sqlite_defi
         raise
 
 
+def app_setting_key_column():
+    return "`key`" if get_db().is_mysql else "key"
+
+
+def get_app_setting(setting_key):
+    key_column = app_setting_key_column()
+    return get_db().execute(
+        f"SELECT value FROM app_settings WHERE {key_column} = ?",
+        (setting_key,),
+    ).fetchone()
+
+
+def set_app_setting(setting_key, value):
+    key_column = app_setting_key_column()
+    return execute_commit(
+        f"INSERT INTO app_settings ({key_column}, value) VALUES (?, ?)",
+        (setting_key, value),
+    )
+
+
 def role_display_name(role):
     role = normalize_role_value(role)
     if role == "owner":
@@ -1156,11 +1176,7 @@ def init_menu_table():
 
     ensure_menu_columns()
 
-    cursor = db.execute(
-        "SELECT value FROM app_settings WHERE key = ?",
-        ("menus_seed_migration_done",),
-    )
-    migration_done = cursor.fetchone()
+    migration_done = get_app_setting("menus_seed_migration_done")
 
     if migration_done is None:
         # Remove old hard-coded/default menu seed once, without touching users.
@@ -1170,10 +1186,7 @@ def init_menu_table():
                 execute_commit("DELETE FROM sqlite_sequence WHERE name = 'menus'")
             except Exception:
                 pass
-        execute_commit(
-            "INSERT INTO app_settings (key, value) VALUES (?, ?)",
-            ("menus_seed_migration_done", "1"),
-        )
+        set_app_setting("menus_seed_migration_done", "1")
 
     migrate_menu_categories()
 

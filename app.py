@@ -1513,6 +1513,16 @@ def get_user_by_email(email):
     ).fetchone()
 
 
+def get_default_owner_id():
+    row = get_db().execute(
+        "SELECT id FROM users WHERE LOWER(role) = ? ORDER BY id ASC LIMIT 1",
+        ("owner",),
+    ).fetchone()
+    if row is None:
+        return None
+    return row["id"] if isinstance(row, dict) else row[0]
+
+
 def validate_auth_fields(full_name=None, email=None, password=None):
     errors = []
     if full_name is not None and not full_name.strip():
@@ -2469,32 +2479,15 @@ def register_user(role):
     password = request.form.get("password", "")
     password_confirm = request.form.get("password_confirm", "")
     staff_phone = request.form.get("staff_phone", "").strip()
-    invite_code = request.form.get("invite_code", "").strip()
 
     errors = validate_auth_fields(full_name=full_name, email=email, password=password)
     if password != password_confirm:
         errors.append("Password dan konfirmasi password harus sama.")
 
     if role == CASHIER_ROLE:
-        invitation = None
-        if not invite_code:
-            errors.append("Kode undangan owner wajib diisi untuk pendaftaran kasir.")
-            owner_id = None
-        else:
-            invitation = get_cashier_invitation(invite_code)
-            if not invitation:
-                errors.append("Kode undangan owner tidak valid.")
-                owner_id = None
-            elif invitation.get("status") != "Aktif":
-                errors.append("Kode undangan owner sudah tidak aktif atau sudah digunakan.")
-                owner_id = None
-            else:
-                expires_at = parse_iso_timestamp(invitation.get("expires_at"))
-                if expires_at and expires_at < datetime.now():
-                    errors.append("Kode undangan owner sudah kedaluwarsa.")
-                    owner_id = None
-                else:
-                    owner_id = invitation.get("owner_id")
+        owner_id = get_default_owner_id()
+        if not owner_id:
+            errors.append("Belum ada akun Owner. Daftarkan Owner terlebih dahulu sebelum membuat akun kasir.")
     else:
         owner_id = None
 
@@ -2507,7 +2500,6 @@ def register_user(role):
             full_name=full_name,
             email=email,
             staff_phone=staff_phone,
-            invite_code=invite_code,
         )
 
     password_hash = generate_password_hash(password)
@@ -2555,22 +2547,7 @@ def register_user(role):
             full_name=full_name,
             email=email,
             staff_phone=staff_phone,
-            invite_code=invite_code,
         )
-
-    if role == CASHIER_ROLE and invitation:
-        try:
-            execute_commit(
-                "UPDATE cashier_invitations SET status = ?, used_at = ?, used_by_cashier_id = ? WHERE id = ?",
-                (
-                    "Digunakan",
-                    datetime.now().isoformat(timespec="seconds"),
-                    cashier_id,
-                    invitation["id"],
-                ),
-            )
-        except Exception:
-            pass
 
     role_label = role_display_name(role)
 
@@ -3331,7 +3308,6 @@ def owner_users():
         owner_name=get_owner_name(),
         active_page="staff",
         staff_members=[format_staff_member(staff) for staff in staff_rows],
-        invitations=get_owner_invitations(session.get("user_id")),
         page=page,
         total_pages=total_pages,
         total=total,
@@ -3342,35 +3318,7 @@ def owner_users():
 @app.route("/owner/staff/invite", methods=["GET", "POST"])
 @owner_required
 def owner_staff_invite():
-    init_db()
-    owner_id = session.get("user_id")
-    if request.method == "POST":
-        expires_days = request.form.get("expires_days", "7")
-        try:
-            expires_days = int(expires_days)
-            if expires_days < 1 or expires_days > 30:
-                raise ValueError()
-        except ValueError:
-            expires_days = 7
-        try:
-            invitation = create_cashier_invitation(owner_id, expires_days=expires_days)
-            flash("Kode undangan kasir berhasil dibuat.", "success")
-            return render_template(
-                "owner_staff_invite.html",
-                owner_name=get_owner_name(),
-                active_page="staff",
-                invitation=invitation,
-                invitations=get_owner_invitations(owner_id),
-            )
-        except Exception:
-            flash("Gagal membuat kode undangan. Silakan coba lagi.", "error")
-    return render_template(
-        "owner_staff_invite.html",
-        owner_name=get_owner_name(),
-        active_page="staff",
-        invitation=None,
-        invitations=get_owner_invitations(session.get("user_id")),
-    )
+    return redirect(url_for("owner_staff"))
 
 
 @app.route("/owner/staff")

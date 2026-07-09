@@ -407,6 +407,30 @@ def index_exists(table_name, index_name):
     return any(row[1] == index_name for row in cursor.fetchall())
 
 
+def is_duplicate_column_error(exc):
+    return (
+        pymysql is not None
+        and isinstance(exc, pymysql.err.OperationalError)
+        and exc.args
+        and exc.args[0] == 1060
+    )
+
+
+def add_column_if_missing(table_name, column_name, mysql_definition, sqlite_definition):
+    if column_name in get_table_columns(table_name):
+        return
+
+    db = get_db()
+    definition = mysql_definition if db.is_mysql else sqlite_definition
+    try:
+        execute_commit(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {definition}")
+    except Exception as exc:
+        if db.is_mysql and is_duplicate_column_error(exc):
+            app.logger.info("Column %s.%s already exists; continuing.", table_name, column_name)
+            return
+        raise
+
+
 def role_display_name(role):
     role = normalize_role_value(role)
     if role == "owner":
@@ -544,25 +568,13 @@ def ensure_category_columns():
     columns = get_table_columns("categories")
 
     if "name_key" not in columns:
-        execute_commit(
-            "ALTER TABLE categories ADD COLUMN name_key VARCHAR(255)"
-            if db.is_mysql
-            else "ALTER TABLE categories ADD COLUMN name_key TEXT"
-        )
+        add_column_if_missing("categories", "name_key", "VARCHAR(255)", "TEXT")
     if "description" not in columns:
-        execute_commit("ALTER TABLE categories ADD COLUMN description TEXT")
+        add_column_if_missing("categories", "description", "TEXT", "TEXT")
     if "created_at" not in columns:
-        execute_commit(
-            "ALTER TABLE categories ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
-            if db.is_mysql
-            else "ALTER TABLE categories ADD COLUMN created_at TEXT"
-        )
+        add_column_if_missing("categories", "created_at", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", "TEXT")
     if "updated_at" not in columns:
-        execute_commit(
-            "ALTER TABLE categories ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
-            if db.is_mysql
-            else "ALTER TABLE categories ADD COLUMN updated_at TEXT"
-        )
+        add_column_if_missing("categories", "updated_at", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", "TEXT")
 
     rows = fetch_all_dict(db.execute("SELECT id, name, name_key FROM categories"))
     for row in rows:
@@ -800,17 +812,17 @@ def ensure_user_columns():
         columns = {row[1] for row in cursor.fetchall()}
 
     if "staff_phone" not in columns:
-        execute_commit("ALTER TABLE users ADD COLUMN staff_phone VARCHAR(40)" if db.is_mysql else "ALTER TABLE users ADD COLUMN staff_phone TEXT")
+        add_column_if_missing("users", "staff_phone", "VARCHAR(40)", "TEXT")
     if "staff_position" not in columns:
-        execute_commit("ALTER TABLE users ADD COLUMN staff_position VARCHAR(100) DEFAULT 'Kasir'" if db.is_mysql else "ALTER TABLE users ADD COLUMN staff_position TEXT DEFAULT 'Kasir'")
+        add_column_if_missing("users", "staff_position", "VARCHAR(100) DEFAULT 'Kasir'", "TEXT DEFAULT 'Kasir'")
     if "joined_date" not in columns:
-        execute_commit("ALTER TABLE users ADD COLUMN joined_date DATE" if db.is_mysql else "ALTER TABLE users ADD COLUMN joined_date TEXT")
+        add_column_if_missing("users", "joined_date", "DATE", "TEXT")
     if "staff_status" not in columns:
-        execute_commit("ALTER TABLE users ADD COLUMN staff_status VARCHAR(40) DEFAULT 'Aktif'" if db.is_mysql else "ALTER TABLE users ADD COLUMN staff_status TEXT DEFAULT 'Aktif'")
+        add_column_if_missing("users", "staff_status", "VARCHAR(40) DEFAULT 'Aktif'", "TEXT DEFAULT 'Aktif'")
     if "is_active" not in columns:
-        execute_commit("ALTER TABLE users ADD COLUMN is_active TINYINT NOT NULL DEFAULT 1" if db.is_mysql else "ALTER TABLE users ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1")
+        add_column_if_missing("users", "is_active", "TINYINT NOT NULL DEFAULT 1", "INTEGER NOT NULL DEFAULT 1")
     if "owner_id" not in columns:
-        execute_commit("ALTER TABLE users ADD COLUMN owner_id BIGINT NULL" if db.is_mysql else "ALTER TABLE users ADD COLUMN owner_id INTEGER")
+        add_column_if_missing("users", "owner_id", "BIGINT NULL", "INTEGER")
 
     if db.is_mysql:
         if not index_exists("users", "idx_users_owner_id"):
@@ -990,12 +1002,12 @@ def ensure_pos_transactions_columns():
         cursor = db.execute("SHOW COLUMNS FROM pos_transactions")
         columns = {row["Field"] if isinstance(row, dict) else row[0] for row in cursor.fetchall()}
         if "owner_id" not in columns:
-            execute_commit("ALTER TABLE pos_transactions ADD COLUMN owner_id BIGINT NULL")
+            add_column_if_missing("pos_transactions", "owner_id", "BIGINT NULL", "INTEGER")
     else:
         cursor = db.execute("PRAGMA table_info(pos_transactions)")
         columns = {row[1] for row in cursor.fetchall()}
         if "owner_id" not in columns:
-            execute_commit("ALTER TABLE pos_transactions ADD COLUMN owner_id INTEGER")
+            add_column_if_missing("pos_transactions", "owner_id", "BIGINT NULL", "INTEGER")
 
 
 def init_db():
@@ -1071,23 +1083,15 @@ def ensure_menu_columns():
         columns = {row[1] for row in cursor.fetchall()}
 
     if "stock" not in columns:
-        execute_commit("ALTER TABLE menus ADD COLUMN stock INTEGER NOT NULL DEFAULT 0")
+        add_column_if_missing("menus", "stock", "INTEGER NOT NULL DEFAULT 0", "INTEGER NOT NULL DEFAULT 0")
     if "description" not in columns:
-        # MySQL/TiDB may reject DEFAULT on TEXT, so no default is used here.
-        if db.is_mysql:
-            execute_commit("ALTER TABLE menus ADD COLUMN description TEXT")
-        else:
-            execute_commit("ALTER TABLE menus ADD COLUMN description TEXT")
+        add_column_if_missing("menus", "description", "TEXT", "TEXT")
     if "image" not in columns:
-        execute_commit("ALTER TABLE menus ADD COLUMN image TEXT")
+        add_column_if_missing("menus", "image", "TEXT", "TEXT")
     if "is_active" not in columns:
-        execute_commit("ALTER TABLE menus ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1")
+        add_column_if_missing("menus", "is_active", "INTEGER NOT NULL DEFAULT 1", "INTEGER NOT NULL DEFAULT 1")
     if "category_id" not in columns:
-        execute_commit(
-            "ALTER TABLE menus ADD COLUMN category_id BIGINT NULL"
-            if db.is_mysql
-            else "ALTER TABLE menus ADD COLUMN category_id INTEGER"
-        )
+        add_column_if_missing("menus", "category_id", "BIGINT NULL", "INTEGER")
 
     if db.is_mysql:
         if not index_exists("menus", "idx_menus_category_id"):

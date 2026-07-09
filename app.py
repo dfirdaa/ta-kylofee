@@ -1145,6 +1145,14 @@ def ensure_menu_columns():
         cursor.execute("PRAGMA table_info(menus)")
         columns = {row[1] for row in cursor.fetchall()}
 
+    if "name" not in columns:
+        add_column_if_missing("menus", "name", "VARCHAR(255)", "TEXT")
+    if "category" not in columns:
+        add_column_if_missing("menus", "category", "VARCHAR(100)", "TEXT")
+    if "code" not in columns:
+        add_column_if_missing("menus", "code", "VARCHAR(100)", "TEXT")
+    if "price" not in columns:
+        add_column_if_missing("menus", "price", "BIGINT NOT NULL DEFAULT 0", "INTEGER NOT NULL DEFAULT 0")
     if "stock" not in columns:
         add_column_if_missing("menus", "stock", "INTEGER NOT NULL DEFAULT 0", "INTEGER NOT NULL DEFAULT 0")
     if "description" not in columns:
@@ -1156,6 +1164,8 @@ def ensure_menu_columns():
     if "category_id" not in columns:
         add_column_if_missing("menus", "category_id", "BIGINT NULL", "INTEGER")
 
+    migrate_legacy_menu_columns()
+
     if db.is_mysql:
         create_index_if_missing(
             "menus",
@@ -1164,6 +1174,46 @@ def ensure_menu_columns():
         )
     else:
         execute_commit("CREATE INDEX IF NOT EXISTS idx_menus_category_id ON menus (category_id)")
+
+
+def first_existing_column(columns, candidates):
+    for candidate in candidates:
+        if candidate in columns:
+            return candidate
+    return None
+
+
+def migrate_legacy_menu_columns():
+    if not table_exists("menus"):
+        return
+
+    columns = get_table_columns("menus")
+    name_source = first_existing_column(columns, ("menu_name", "product_name", "item_name", "nama", "nama_menu", "title"))
+    category_source = first_existing_column(columns, ("menu_category", "product_category", "kategori", "category_name"))
+    price_source = first_existing_column(columns, ("menu_price", "product_price", "harga", "harga_menu"))
+    image_source = first_existing_column(columns, ("image_url", "photo", "photo_url", "gambar", "gambar_menu"))
+
+    if name_source:
+        execute_commit(f"UPDATE menus SET name = {name_source} WHERE (name IS NULL OR TRIM(name) = '') AND {name_source} IS NOT NULL")
+    execute_commit("UPDATE menus SET name = CONCAT('Menu ', id) WHERE (name IS NULL OR TRIM(name) = '')" if get_db().is_mysql else "UPDATE menus SET name = 'Menu ' || id WHERE (name IS NULL OR TRIM(name) = '')")
+
+    if category_source:
+        execute_commit(f"UPDATE menus SET category = {category_source} WHERE (category IS NULL OR TRIM(category) = '') AND {category_source} IS NOT NULL")
+    execute_commit("UPDATE menus SET category = 'Uncategorized' WHERE category IS NULL OR TRIM(category) = ''")
+
+    if price_source:
+        execute_commit(f"UPDATE menus SET price = {price_source} WHERE (price IS NULL OR price = 0) AND {price_source} IS NOT NULL")
+    execute_commit("UPDATE menus SET price = 0 WHERE price IS NULL")
+
+    if image_source:
+        execute_commit(f"UPDATE menus SET image = {image_source} WHERE (image IS NULL OR TRIM(image) = '') AND {image_source} IS NOT NULL")
+
+    rows = fetch_all_dict(get_db().execute("SELECT id, name, category, code FROM menus WHERE code IS NULL OR TRIM(code) = ''"))
+    for row in rows:
+        execute_commit(
+            "UPDATE menus SET code = ? WHERE id = ?",
+            (generate_menu_code(row.get("category"), row.get("name")), row["id"]),
+        )
 
 
 def init_menu_table():

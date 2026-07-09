@@ -1,0 +1,6 @@
+Flask
+PyMySQL
+python-dotenv
+cloudinary
+qrcode[pil]
+resend

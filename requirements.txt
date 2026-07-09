@@ -1,6 +1,7 @@
-Flask
-PyMySQL
-python-dotenv
-cloudinary
-qrcode[pil]
-resend
+Flask>=3.0,<4
+PyMySQL>=1.1,<2
+python-dotenv>=1.0,<2
+cloudinary>=1.40,<2
+qrcode[pil]>=7.4,<9
+resend>=2.0,<3
+cryptography>=42,<46

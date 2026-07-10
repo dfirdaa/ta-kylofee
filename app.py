@@ -1572,7 +1572,7 @@ def get_user_by_email(email):
 
 def get_default_owner_id():
     row = get_db().execute(
-        "SELECT id FROM users WHERE LOWER(role) = ? ORDER BY id ASC LIMIT 1",
+        "SELECT id FROM users WHERE LOWER(role) = ? ORDER BY id DESC LIMIT 1",
         ("owner",),
     ).fetchone()
     if row is None:

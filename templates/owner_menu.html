@@ -1,210 +1,112 @@
-{# Halaman ini menampilkan daftar menu, status stok, dan tindakan pengelolaan khusus owner. #}
 <!DOCTYPE html>
-{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <html lang="id">
 <head>
-    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Management Menu - Kyloffee</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/owner_shell.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/owner_menu.css') }}">
-{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </head>
-{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <body>
-    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <div class="owner-page">
-        {# Sidebar bersama menjaga navigasi owner konsisten di setiap fitur manajemen. #}
         {% include 'partials/owner_sidebar.html' %}
 
-        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <main class="owner-main">
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <header class="owner-topbar">
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="owner-identity">Owner : <strong>{{ owner_name }}</strong></div>
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </header>
 
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <section class="owner-content">
-                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                 {% with messages = get_flashed_messages(with_categories=true) %}
-                    {# Kondisi Jinja ini menentukan apakah bagian tampilan berikut perlu ditampilkan. #}
                     {% if messages %}
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <div class="flash-stack">
-                            {# Perulangan Jinja ini menampilkan setiap data yang dikirim oleh Flask. #}
                             {% for category, message in messages %}
-                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <div class="flash flash--{{ category }}">{{ message }}</div>
-                            {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                             {% endfor %}
-                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </div>
-                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                     {% endif %}
-                {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                 {% endwith %}
 
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="page-heading page-heading--row">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <p class="breadcrumb">Manajemen Menu &gt; Daftar Menu</p>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <h1>Daftar Menu</h1>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <p class="page-subtitle">Daftar produk minuman dan makanan yang tersedia untuk dipesan pelanggan.</p>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
 
-                    {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
                     <a href="{{ url_for('owner_menu_add') }}" class="primary-button">
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <span>+</span>
-                        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                         Add New Menu
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </a>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
 
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <section class="menu-table-card" aria-label="Daftar menu Kyloffee">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="table-responsive">
-                        {# Tabel ini menyusun data dari Flask dalam baris dan kolom yang mudah dibaca. #}
                         <table class="menu-table">
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <thead>
-                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <tr>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Nama Menu</th>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Kategori</th>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Kode Menu</th>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Harga Satuan</th>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Status</th>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Aksi</th>
-                                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                 </tr>
-                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                             </thead>
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <tbody>
-                                {# Kondisi ini membedakan tabel berisi menu dengan keadaan data kosong. #}
                                 {% if menus %}
-                                    {# Setiap record menu dari Flask ditampilkan sebagai satu baris tabel. #}
                                     {% for menu in menus %}
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <tr>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>
-                                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                 <div class="product-cell">
-                                                    {# Kondisi Jinja ini menentukan apakah bagian tampilan berikut perlu ditampilkan. #}
                                                     {% if menu.image %}
-                                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                         <img src="{{ menu_image_url(menu.image) }}" alt="{{ menu.name }}" class="product-thumb">
-                                                    {# Cabang Jinja ini menangani keadaan alternatif dari kondisi sebelumnya. #}
                                                     {% else %}
-                                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                         <span class="product-thumb product-thumb--empty">
-                                                            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
                                                             <img src="{{ url_for('static', filename='assets/logo-coffee.png') }}" alt="">
-                                                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                                         </span>
-                                                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                                                     {% endif %}
-                                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                     <div>
-                                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                         <strong>{{ menu.name }}</strong>
-                                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                         <span>Stok: {{ menu.stock }}</span>
-                                                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                                     </div>
-                                                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                                 </div>
-                                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                             </td>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>{{ menu.category }}</td>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td class="mono">{{ menu.code }}</td>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td class="mono">Rp{{ "{:,.0f}".format(menu.price|int).replace(",", ".") }}</td>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>
-                                                {# Kondisi Jinja ini menentukan apakah bagian tampilan berikut perlu ditampilkan. #}
                                                 {% if menu.is_active %}
-                                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                     <span class="status-badge status-badge--active">Aktif</span>
-                                                {# Cabang Jinja ini menangani keadaan alternatif dari kondisi sebelumnya. #}
                                                 {% else %}
-                                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                     <span class="status-badge status-badge--inactive">Nonaktif</span>
-                                                {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                                                 {% endif %}
-                                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                             </td>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td class="action-cell">
-                                                {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
                                                 <a href="{{ url_for('owner_menu_edit', menu_id=menu.id) }}" class="icon-button" title="Edit menu">&#9998;</a>
-                                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                             </td>
-                                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                         </tr>
-                                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                                     {% endfor %}
-                                {# Cabang Jinja ini menangani keadaan alternatif dari kondisi sebelumnya. #}
                                 {% else %}
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <tr>
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <td colspan="6" class="empty-state">
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <div class="empty-state__icon">
-                                                {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
                                                 <img src="{{ url_for('static', filename='assets/logo-coffee.png') }}" alt="">
-                                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                             </div>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <strong>Belum ada menu.</strong>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <p>Silakan tambahkan menu baru lewat tombol Add New Menu.</p>
-                                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                         </td>
-                                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                     </tr>
-                                {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                                 {% endif %}
-                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                             </tbody>
-                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </table>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
 
-                    {# Menyimpan nilai sementara di Jinja agar dapat digunakan pada bagian tampilan berikutnya. #}
                     {% set start_item = ((page - 1) * per_page) + 1 if total > 0 else 0 %}
-                    {# Menyimpan nilai sementara di Jinja agar dapat digunakan pada bagian tampilan berikutnya. #}
                     {% set end_item = page * per_page if page * per_page < total else total %}
 
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <footer class="table-footer">
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <p>Menampilkan {{ start_item }} sampai {{ end_item }} dari {{ total }} menu</p>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <div class="pagination">
                             <a class="page-button {% if page <= 1 %}disabled{% endif %}" href="{{ url_for('owner_menu', page=page-1) if page > 1 else '#' }}">&lsaquo;</a>
                             <a class="page-button {% if page >= total_pages %}disabled{% endif %}" href="{{ url_for('owner_menu', page=page+1) if page < total_pages else '#' }}">&rsaquo;</a>

@@ -1,820 +1,442 @@
-/* Aturan form menjaga susunan input menu dan kasir konsisten tanpa mengubah isi data. */
 .product-form {
-    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 100%;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .form-card {
-    /* Menetapkan properti overflow agar elemen mengikuti rancangan tampilan yang ditentukan. */
     overflow: hidden;
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: var(--kyloffee-white);
-    /* Menetapkan properti border agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border: 1px solid var(--kyloffee-line);
-    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 16px;
-    /* Menetapkan properti box-shadow agar elemen mengikuti rancangan tampilan yang ditentukan. */
     box-shadow: 0 14px 32px rgba(42, 19, 13, 0.04);
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .form-card__header {
-    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 76px;
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
-    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
-    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 0 32px;
-    /* Menetapkan properti border-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-bottom: 1px solid #e5dad3;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .form-card__header h2 {
-    /* Menetapkan properti margin agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin: 0;
-    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 21px;
-    /* Menetapkan properti letter-spacing agar elemen mengikuti rancangan tampilan yang ditentukan. */
     letter-spacing: 0;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .form-card__body {
-    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 34px 32px 32px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .form-grid {
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: grid;
-    /* Menetapkan properti grid-template-columns agar elemen mengikuti rancangan tampilan yang ditentukan. */
     grid-template-columns: 285px minmax(0, 1fr);
-    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 32px;
-    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: start;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .upload-column {
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: grid;
-    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 10px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .field-label,
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .field-group label {
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: block;
-    /* Menetapkan properti margin-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-bottom: 9px;
-    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #34231d;
-    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 14px;
-    /* Menetapkan properti font-weight agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-weight: 600;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .field-group label span {
-    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #b2362e;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .upload-box {
-    /* Menetapkan properti position agar elemen mengikuti rancangan tampilan yang ditentukan. */
     position: relative;
-    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 100%;
-    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 500px;
-    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 442px;
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
-    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
-    /* Menetapkan properti justify-content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     justify-content: center;
-    /* Menetapkan properti overflow agar elemen mengikuti rancangan tampilan yang ditentukan. */
     overflow: hidden;
-    /* Menetapkan properti border agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border: 2px dashed #d6beb2;
-    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 18px;
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #fffdfa;
-    /* Menetapkan properti cursor agar elemen mengikuti rancangan tampilan yang ditentukan. */
     cursor: pointer;
-    /* Menetapkan properti transition agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transition: border-color 160ms ease, background 160ms ease;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .upload-box:hover,
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .upload-box.is-dragging {
-    /* Menetapkan properti border-color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-color: var(--kyloffee-brown);
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #fbf4ef;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .upload-box input[type="file"] {
-    /* Menetapkan properti position agar elemen mengikuti rancangan tampilan yang ditentukan. */
     position: absolute;
-    /* Menetapkan properti inset agar elemen mengikuti rancangan tampilan yang ditentukan. */
     inset: 0;
-    /* Menetapkan properti opacity agar elemen mengikuti rancangan tampilan yang ditentukan. */
     opacity: 0;
-    /* Menetapkan properti cursor agar elemen mengikuti rancangan tampilan yang ditentukan. */
     cursor: pointer;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .upload-placeholder {
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
-    /* Menetapkan properti flex-direction agar elemen mengikuti rancangan tampilan yang ditentukan. */
     flex-direction: column;
-    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
-    /* Menetapkan properti text-align agar elemen mengikuti rancangan tampilan yang ditentukan. */
     text-align: center;
-    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 7px;
-    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: var(--kyloffee-muted);
-    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 24px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .upload-preview[hidden],
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .upload-placeholder[hidden] {
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: none !important;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .upload-icon {
-    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 64px;
-    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 64px;
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
-    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
-    /* Menetapkan properti justify-content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     justify-content: center;
-    /* Menetapkan properti margin-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-bottom: 10px;
-    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 13px;
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #f4eee9;
-    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: var(--kyloffee-brown);
-    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 30px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .upload-placeholder strong,
-/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .upload-placeholder small,
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .upload-placeholder em {
-    /* Menetapkan properti font-style agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-style: normal;
-    /* Menetapkan properti font-weight agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-weight: 500;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .upload-placeholder em {
-    /* Menetapkan properti margin-top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-top: 6px;
-    /* Menetapkan properti font-family agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-family: "Courier New", monospace;
-    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 12px;
-    /* Menetapkan properti letter-spacing agar elemen mengikuti rancangan tampilan yang ditentukan. */
     letter-spacing: 1.6px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .upload-preview {
-    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 100%;
-    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 100%;
-    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 100%;
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: block;
-    /* Menetapkan properti object-fit agar elemen mengikuti rancangan tampilan yang ditentukan. */
     object-fit: cover;
-    /* Menetapkan properti object-position agar elemen mengikuti rancangan tampilan yang ditentukan. */
     object-position: center;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .upload-box.has-image {
-    /* Menetapkan properti border-style agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-style: dashed;
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #f7efe9;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .upload-note {
-    /* Menetapkan properti margin agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin: 0;
-    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: var(--kyloffee-muted);
-    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 12px;
-    /* Menetapkan properti text-align agar elemen mengikuti rancangan tampilan yang ditentukan. */
     text-align: center;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .fields-column {
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: grid;
-    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 20px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .field-row {
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: grid;
-    /* Menetapkan properti grid-template-columns agar elemen mengikuti rancangan tampilan yang ditentukan. */
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 16px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .field-group input,
-/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .field-group select,
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .field-group textarea {
-    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 100%;
-    /* Menetapkan properti border agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border: 1px solid #cfbeb5;
-    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 6px;
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #fffdfa;
-    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: var(--kyloffee-text);
-    /* Menetapkan properti font agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font: inherit;
-    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 16px;
-    /* Menetapkan properti outline agar elemen mengikuti rancangan tampilan yang ditentukan. */
     outline: none;
-    /* Menetapkan properti transition agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transition: border-color 160ms ease, box-shadow 160ms ease;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .field-group input,
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .field-group select {
-    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 48px;
-    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 0 16px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .field-group textarea {
-    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 120px;
-    /* Menetapkan properti resize agar elemen mengikuti rancangan tampilan yang ditentukan. */
     resize: vertical;
-    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 14px 16px;
-    /* Menetapkan properti line-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     line-height: 1.5;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .field-group input:focus,
-/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .field-group select:focus,
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .field-group textarea:focus {
-    /* Menetapkan properti border-color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-color: var(--kyloffee-brown);
-    /* Menetapkan properti box-shadow agar elemen mengikuti rancangan tampilan yang ditentukan. */
     box-shadow: 0 0 0 3px rgba(42, 19, 13, 0.08);
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .field-group input::placeholder,
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .field-group textarea::placeholder {
-    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #9a8d86;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .field-group .readonly-input {
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #f3ede8;
-    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #6d5d55;
-    /* Menetapkan properti cursor agar elemen mengikuti rancangan tampilan yang ditentukan. */
     cursor: not-allowed;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .field-help {
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: block;
-    /* Menetapkan properti margin-top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-top: 7px;
-    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #81736c;
-    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 12px;
-    /* Menetapkan properti line-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     line-height: 1.35;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .empty-category-note {
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: grid;
-    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 6px;
-    /* Menetapkan properti border agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border: 1px solid #d9c9bf;
-    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 8px;
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #fff8f2;
-    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 14px 16px;
-    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #4b3a33;
-    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 14px;
-    /* Menetapkan properti line-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     line-height: 1.4;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .empty-category-note strong {
-    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: var(--kyloffee-brown);
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .empty-category-note a {
-    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: max-content;
-    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: var(--kyloffee-brown);
-    /* Menetapkan properti font-weight agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-weight: 800;
-    /* Menetapkan properti text-decoration agar elemen mengikuti rancangan tampilan yang ditentukan. */
     text-decoration: none;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .empty-category-note a:hover {
-    /* Menetapkan properti text-decoration agar elemen mengikuti rancangan tampilan yang ditentukan. */
     text-decoration: underline;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .status-field {
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
-    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
-    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 12px;
-    /* Menetapkan properti padding-top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding-top: 4px;
-    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #3b2b25;
-    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 14px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .toggle-switch {
-    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 48px;
-    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 26px;
-    /* Menetapkan properti position agar elemen mengikuti rancangan tampilan yang ditentukan. */
     position: relative;
-    /* Menetapkan properti border agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border: 0;
-    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 999px;
-    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 0;
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #b8aaa2;
-    /* Menetapkan properti cursor agar elemen mengikuti rancangan tampilan yang ditentukan. */
     cursor: pointer;
-    /* Menetapkan properti transition agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transition: background 160ms ease;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .toggle-switch span {
-    /* Menetapkan properti position agar elemen mengikuti rancangan tampilan yang ditentukan. */
     position: absolute;
-    /* Menetapkan properti top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     top: 3px;
-    /* Menetapkan properti left agar elemen mengikuti rancangan tampilan yang ditentukan. */
     left: 3px;
-    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 20px;
-    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 20px;
-    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 50%;
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #fff;
-    /* Menetapkan properti transition agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transition: transform 160ms ease;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .toggle-switch.is-on {
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: var(--kyloffee-brown);
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .toggle-switch.is-on span {
-    /* Menetapkan properti transform agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transform: translateX(22px);
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .form-card__footer {
-    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 96px;
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
-    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
-    /* Menetapkan properti justify-content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     justify-content: flex-end;
-    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 16px;
-    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 22px 32px;
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #faf8f5;
-    /* Menetapkan properti border-top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-top: 1px solid #e5dad3;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .submit-button {
-    /* Menetapkan properti min-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-width: 210px;
-    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 16px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .secondary-button {
-    /* Menetapkan properti min-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-width: 96px;
-    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 16px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-content--staff-form {
-    /* Menetapkan properti max-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     max-width: 980px;
-    /* Menetapkan properti margin agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin: 0 auto;
-    /* Menetapkan properti padding-top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding-top: 22px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-content--staff-form .page-heading {
-    /* Menetapkan properti margin-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-bottom: 22px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-content--staff-form .page-heading h1 {
-    /* Menetapkan properti margin agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin: 0 0 10px;
-    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 27px;
-    /* Menetapkan properti letter-spacing agar elemen mengikuti rancangan tampilan yang ditentukan. */
     letter-spacing: 0;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .staff-form-card {
-    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 8px;
-    /* Menetapkan properti box-shadow agar elemen mengikuti rancangan tampilan yang ditentukan. */
     box-shadow: none;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .staff-form-card--edit {
-    /* Menetapkan properti border-color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-color: #4b403b;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .staff-form-body {
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: grid;
-    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 26px;
-    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 50px 48px 64px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .staff-form-body--edit {
-    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 24px;
-    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 34px 32px 48px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .staff-form-card .field-group label {
-    /* Menetapkan properti margin-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-bottom: 10px;
-    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #514640;
-    /* Menetapkan properti font-family agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-family: "Courier New", monospace;
-    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 12px;
-    /* Menetapkan properti font-weight agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-weight: 800;
-    /* Menetapkan properti letter-spacing agar elemen mengikuti rancangan tampilan yang ditentukan. */
     letter-spacing: 1.8px;
-    /* Menetapkan properti text-transform agar elemen mengikuti rancangan tampilan yang ditentukan. */
     text-transform: uppercase;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .staff-form-card .field-group input,
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .staff-form-card .field-group select {
-    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 42px;
-    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 0;
-    /* Menetapkan properti border-color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-color: #c9beb8;
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #fffdfa;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .staff-form-card--edit .field-group input,
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .staff-form-card--edit .field-group select {
-    /* Menetapkan properti border agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border: 0;
-    /* Menetapkan properti border-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-bottom: 1px solid #8b7b72;
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #fbfaf8;
-    /* Menetapkan properti padding-left agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding-left: 0;
-    /* Menetapkan properti padding-right agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding-right: 0;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .staff-field-row {
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: grid;
-    /* Menetapkan properti grid-template-columns agar elemen mengikuti rancangan tampilan yang ditentukan. */
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 24px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .staff-form-card hr {
-    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 100%;
-    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 1px;
-    /* Menetapkan properti margin agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin: 14px 0;
-    /* Menetapkan properti border agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border: 0;
-    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #e4d9d2;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .staff-form-actions {
-    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
-    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
-    /* Menetapkan properti justify-content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     justify-content: flex-end;
-    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 14px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .staff-form-actions .submit-button {
-    /* Menetapkan properti min-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-width: 165px;
-    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 48px;
-    /* Menetapkan properti font-family agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-family: "Courier New", monospace;
-    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 14px;
-    /* Menetapkan properti letter-spacing agar elemen mengikuti rancangan tampilan yang ditentukan. */
     letter-spacing: 1px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .staff-status-toggle {
-    /* Menetapkan properti margin-top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-top: 6px;
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 @media (max-width: 1040px) {
-    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .form-grid {
-        /* Menetapkan properti grid-template-columns agar elemen mengikuti rancangan tampilan yang ditentukan. */
         grid-template-columns: 1fr;
-    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
-    /* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
     .upload-box,
-    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .upload-preview {
-        /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
         height: 320px;
-        /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
         min-height: 280px;
-    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
-/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 @media (max-width: 760px) {
-    /* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
     .form-card__header,
-    /* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
     .form-card__body,
-    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .form-card__footer {
-        /* Menetapkan properti padding-left agar elemen mengikuti rancangan tampilan yang ditentukan. */
         padding-left: 20px;
-        /* Menetapkan properti padding-right agar elemen mengikuti rancangan tampilan yang ditentukan. */
         padding-right: 20px;
-    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
-    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .field-row {
-        /* Menetapkan properti grid-template-columns agar elemen mengikuti rancangan tampilan yang ditentukan. */
         grid-template-columns: 1fr;
-    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
-    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .staff-field-row {
-        /* Menetapkan properti grid-template-columns agar elemen mengikuti rancangan tampilan yang ditentukan. */
         grid-template-columns: 1fr;
-    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
-    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .form-card__footer {
-        /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
         align-items: stretch;
-        /* Menetapkan properti flex-direction agar elemen mengikuti rancangan tampilan yang ditentukan. */
         flex-direction: column-reverse;
-    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
-    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .staff-form-body {
-        /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
         padding: 28px 22px 34px;
-    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
-    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .staff-form-actions {
-        /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
         align-items: stretch;
-        /* Menetapkan properti flex-direction agar elemen mengikuti rancangan tampilan yang ditentukan. */
         flex-direction: column-reverse;
-    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
-    /* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
     .secondary-button,
-    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .submit-button {
-        /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
         width: 100%;
-    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
-/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }

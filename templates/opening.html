@@ -1,35 +1,66 @@
 {# Halaman awal memberi jalur masuk atau pendaftaran sesuai jenis pengguna. #}
 {% extends 'base.html' %}
+{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 {% block title %}Kyloffee - Pilih Role{% endblock %}
+{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 {% block body %}
+{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <main class="auth-page opening-page">
+    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <section class="opening-layout">
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <div class="opening-copy">
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <h1>Selamat Datang.</h1>
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <p>Pilih peran Anda untuk mulai menggunakan sistem POS Kylcoffee.</p>
+        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </div>
 
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <div class="role-grid">
+            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             <a href="{{ url_for('register_owner') }}" class="role-card">
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <span class="role-copy">
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <strong>Owner</strong>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <small>Kelola menu dan kategori, pantau laporan keuangan, serta kelola kasir Anda.</small>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </span>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <span class="role-arrow" aria-hidden="true">&rarr;</span>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </a>
+            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             <a href="{{ url_for('register_cashier') }}" class="role-card">
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <span class="role-copy">
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <strong>Kasir</strong>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <small>Daftarkan akun kasir. Kasir hanya dapat mengakses sistem POS.</small>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </span>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <span class="role-arrow" aria-hidden="true">&rarr;</span>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </a>
+        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </div>
 
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <div class="opening-login-row">
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <span>Sudah punya akun?</span>
+            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             <a href="{{ url_for('login') }}">Masuk</a>
+        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </div>
+    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
     </section>
+{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </main>
+{# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
 {% endblock %}

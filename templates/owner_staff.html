@@ -1,119 +1,223 @@
 {# Halaman ini menampilkan akun kasir milik owner beserta status dan tautan pengelolaannya. #}
 <!DOCTYPE html>
+{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <html lang="id">
+{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <head>
+    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <meta charset="UTF-8">
+    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <title>Cashier Management - Kyloffee</title>
+    {# Memuat stylesheet yang mengatur tampilan halaman tanpa mengubah datanya. #}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/owner_shell.css') }}">
+    {# Memuat stylesheet yang mengatur tampilan halaman tanpa mengubah datanya. #}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/owner_menu.css') }}">
+{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </head>
+{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <body>
+    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <div class="owner-page">
+        {# Menyisipkan template parsial supaya komponen yang sama dapat digunakan kembali. #}
         {% include 'partials/owner_sidebar.html' %}
 
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <main class="owner-main">
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <header class="owner-topbar">
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="owner-identity">Owner : <strong>{{ owner_name }}</strong></div>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </header>
 
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <section class="owner-content owner-content--staff">
+                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                 {% with messages = get_flashed_messages(with_categories=true) %}
+                    {# Kondisi Jinja ini menentukan apakah bagian tampilan berikut perlu ditampilkan. #}
                     {% if messages %}
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <div class="flash-stack">
+                            {# Perulangan Jinja ini menampilkan setiap data yang dikirim oleh Flask. #}
                             {% for category, message in messages %}
+                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <div class="flash flash--{{ category }}">{{ message }}</div>
+                            {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                             {% endfor %}
+                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </div>
+                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                     {% endif %}
+                {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                 {% endwith %}
 
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="page-heading page-heading--row staff-heading">
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <h1>Manajemen Kasir</h1>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <p class="page-subtitle">Kelola akun kasir dan akses POS mereka.</p>
+                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
 
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="staff-actions-row">
+                        {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
                         <a href="{{ url_for('owner_users_add') }}" class="secondary-button staff-add-button">
+                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <span>+</span>
+                            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                             Tambah Kasir
+                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </a>
+                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
 
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <section class="menu-table-card staff-table-card" aria-label="Daftar kasir Kyloffee">
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="table-responsive">
+                        {# Tabel ini menyusun data dari Flask dalam baris dan kolom yang mudah dibaca. #}
                         <table class="menu-table staff-table">
+                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <thead>
+                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <tr>
+                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Nama Kasir</th>
+                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Role</th>
+                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Email/Telepon</th>
+                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Tanggal Bergabung</th>
+                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Status</th>
+                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Aksi</th>
+                                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                 </tr>
+                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                             </thead>
+                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <tbody>
                                 {# Kondisi ini menampilkan data kasir atau pesan kosong bila owner belum memiliki staf. #}
                                 {% if staff_members %}
                                     {# Setiap kasir yang dikirim Flask dibuat menjadi satu baris tabel. #}
                                     {% for staff in staff_members %}
+                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <tr>
+                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>
+                                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                 <div class="staff-name-cell">
+                                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                     <span class="staff-avatar">{{ staff.initial }}</span>
+                                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                     <strong>{{ staff.full_name }}</strong>
+                                                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                                 </div>
+                                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                             </td>
+                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td><span class="staff-role-pill">{{ staff.position }}</span></td>
+                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>
+                                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                 <div class="staff-contact">
+                                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                     <span>{{ staff.email }}</span>
+                                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                     <small>{{ staff.phone }}</small>
+                                                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                                 </div>
+                                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                             </td>
+                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>{{ staff.joined_date }}</td>
+                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>
+                                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                 <span class="staff-status staff-status--{{ staff.status_tone }}">
+                                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                     <i></i>{{ staff.status }}
+                                                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                                 </span>
+                                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                             </td>
+                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td class="action-cell">
+                                                {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
                                                 <a href="{{ url_for('owner_users_edit', staff_id=staff.id) }}" class="icon-button" title="Edit kasir">&#9998;</a>
+                                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                             </td>
+                                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                         </tr>
+                                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                                     {% endfor %}
+                                {# Cabang Jinja ini menangani keadaan alternatif dari kondisi sebelumnya. #}
                                 {% else %}
+                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <tr>
+                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <td colspan="6" class="empty-state">
+                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <div class="empty-state__icon">
+                                                {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
                                                 <img src="{{ url_for('static', filename='assets/logo-coffee.png') }}" alt="">
+                                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                             </div>
+                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <strong>Belum ada kasir.</strong>
+                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <p>Tambahkan kasir baru agar akun POS terhubung ke Owner.</p>
+                                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                         </td>
+                                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                     </tr>
+                                {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                                 {% endif %}
+                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                             </tbody>
+                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </table>
+                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
 
                     {# Perhitungan ini menunjukkan rentang data yang sedang terlihat pada pagination. #}
                     {% set start_item = ((page - 1) * per_page) + 1 if total > 0 else 0 %}
+                    {# Menyimpan nilai sementara di Jinja agar dapat digunakan pada bagian tampilan berikutnya. #}
                     {% set end_item = page * per_page if page * per_page < total else total %}
 
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <footer class="table-footer">
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <p>Menampilkan {{ start_item }}-{{ end_item }} dari {{ total }} kasir</p>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <div class="pagination">
+                            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
                             <a class="page-button {% if page <= 1 %}disabled{% endif %}" href="{{ url_for('owner_staff', page=page-1) if page > 1 else '#' }}">&lsaquo;</a>
+                            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
                             <a class="page-button {% if page >= total_pages %}disabled{% endif %}" href="{{ url_for('owner_staff', page=page+1) if page < total_pages else '#' }}">&rsaquo;</a>
+                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </div>
+                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </footer>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </section>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </section>
+        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </main>
+    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
     </div>
+{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </body>
+{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </html>

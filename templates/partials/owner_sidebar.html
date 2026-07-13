@@ -1,101 +1,190 @@
 {# Sidebar bersama menyediakan navigasi fitur owner dan menandai halaman yang sedang aktif. #}
 <button
+    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
     type="button"
+    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
     class="owner-mobile-toggle"
+    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
     data-owner-sidebar-toggle
+    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
     aria-controls="ownerSidebar"
+    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
     aria-expanded="false"
+    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
     aria-label="Buka sidebar Owner"
+{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 >
+    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <span></span>
+{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </button>
 
+{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <div class="owner-sidebar-overlay" data-owner-sidebar-overlay hidden></div>
 
+{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <aside class="owner-sidebar" id="ownerSidebar" data-owner-sidebar>
+    {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
     <button
+        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
         type="button"
+        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
         class="brand"
+        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
         data-owner-sidebar-toggle
+        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
         aria-controls="ownerSidebar"
+        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
         aria-expanded="true"
+        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
         aria-label="Perkecil sidebar Owner"
+    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
     >
+        {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
         <img src="{{ url_for('static', filename='assets/logo-coffee.png') }}" alt="" class="brand-logo-mark">
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <span class="brand-name owner-sidebar__text">Kyloffee</span>
+    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
     </button>
 
     {# Nilai active_page dari Flask menentukan class aktif pada tautan menu, kategori, laporan, atau staf. #}
     <nav class="owner-nav" aria-label="Owner navigation">
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <a
+            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             href="{{ url_for('owner_menu') }}"
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             class="owner-nav__link {% if active_page == 'menu' %}active{% endif %}"
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             data-owner-nav-link
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             data-tooltip="Menu Management"
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             title="Menu Management"
+        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
         >
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <span class="owner-nav__icon" aria-hidden="true">
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <svg viewBox="0 0 24 24" focusable="false">
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <path d="M4 5h16M4 12h16M4 19h16" />
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </svg>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </span>
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <span class="owner-nav__text owner-sidebar__text">Menu Management</span>
+        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </a>
 
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <a
+            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             href="{{ url_for('owner_categories') }}"
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             class="owner-nav__link {% if active_page == 'categories' %}active{% endif %}"
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             data-owner-nav-link
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             data-tooltip="Category Management"
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             title="Category Management"
+        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
         >
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <span class="owner-nav__icon" aria-hidden="true">
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <svg viewBox="0 0 24 24" focusable="false">
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <path d="M5 6h5v5H5zM14 6h5v5h-5zM5 15h5v3H5zM14 15h5v3h-5z" />
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </svg>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </span>
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <span class="owner-nav__text owner-sidebar__text">Category Management</span>
+        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </a>
 
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <a
+            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             href="{{ url_for('owner_reports') }}"
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             class="owner-nav__link {% if active_page == 'reports' %}active{% endif %}"
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             data-owner-nav-link
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             data-tooltip="Financial Reports"
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             title="Financial Reports"
+        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
         >
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <span class="owner-nav__icon" aria-hidden="true">
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <svg viewBox="0 0 24 24" focusable="false">
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <path d="M5 19V9M12 19V5M19 19v-7" />
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </svg>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </span>
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <span class="owner-nav__text owner-sidebar__text">Financial Reports</span>
+        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </a>
 
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <a
+            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             href="{{ url_for('owner_staff') }}"
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             class="owner-nav__link {% if active_page == 'staff' %}active{% endif %}"
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             data-owner-nav-link
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             data-tooltip="Cashier Management"
+            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             title="Cashier Management"
+        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
         >
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <span class="owner-nav__icon" aria-hidden="true">
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <svg viewBox="0 0 24 24" focusable="false">
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <path d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM16.5 10a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3.5 19c.7-3.1 2.2-5 4.5-5s3.8 1.9 4.5 5M13.5 18c.5-2.3 1.6-3.7 3.2-3.7 1.8 0 3 1.5 3.8 3.7" />
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </svg>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </span>
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <span class="owner-nav__text owner-sidebar__text">Cashier Management</span>
+        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </a>
+    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
     </nav>
 
+    {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
     <a href="{{ url_for('logout') }}" class="owner-logout" data-owner-logout data-tooltip="Log Out" title="Log Out">
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <span class="owner-logout__icon" aria-hidden="true">
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <svg viewBox="0 0 24 24" focusable="false">
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9" />
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </svg>
+        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </span>
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <span class="owner-sidebar__text">Log Out</span>
+    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
     </a>
+{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </aside>
 
+{# Memuat JavaScript yang menangani interaksi pada halaman ini. #}
 <script src="{{ url_for('static', filename='js/owner_shell.js') }}?v=sidebar-1" defer></script>

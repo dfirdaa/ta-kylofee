@@ -1,17 +1,32 @@
 {# Template sederhana ini menjadi penampung halaman dashboard yang belum memiliki tampilan khusus. #}
 {% extends 'base.html' %}
+{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 {% block title %}{{ page_title|default('Dashboard') }} - Kyloffee{% endblock %}
+{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 {% block body %}
+{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <main class="auth-page">
+    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <section class="auth-card dashboard-card">
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <div class="brand-center brand-center--small">
+            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             <img src="{{ url_for('static', filename='assets/logo-coffee.png') }}" alt="Kyloffee" class="brand-logo">
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <h1>{{ page_title|default('Dashboard') }}</h1>
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <p>Halo, <strong>{{ full_name }}</strong></p>
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <p>Role: <strong>{{ role }}</strong></p>
+        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </div>
+        {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
         <a href="{{ url_for('owner_menu') if role == 'Owner' else url_for('pos') }}" class="auth-button auth-button--link">Lanjut</a>
+        {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
         <a href="{{ url_for('logout') }}" class="secondary-link">Logout</a>
+    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
     </section>
+{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </main>
+{# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
 {% endblock %}

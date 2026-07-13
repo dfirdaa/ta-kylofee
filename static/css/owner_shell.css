@@ -1,672 +1,1253 @@
 /* Variabel dan aturan file ini membentuk kerangka sidebar, topbar, dan area konten halaman owner. */
 :root {
+    /* Menetapkan properti --kyloffee-brown agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --kyloffee-brown: #2a130d;
+    /* Menetapkan properti --kyloffee-brown-2 agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --kyloffee-brown-2: #3a2118;
+    /* Menetapkan properti --kyloffee-cream agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --kyloffee-cream: #fbf3ec;
+    /* Menetapkan properti --kyloffee-soft agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --kyloffee-soft: #faf8f5;
+    /* Menetapkan properti --kyloffee-line agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --kyloffee-line: #ded1c8;
+    /* Menetapkan properti --kyloffee-muted agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --kyloffee-muted: #6f625c;
+    /* Menetapkan properti --kyloffee-text agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --kyloffee-text: #24120c;
+    /* Menetapkan properti --kyloffee-white agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --kyloffee-white: #ffffff;
+    /* Menetapkan properti --kyloffee-danger agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --kyloffee-danger: #b83a2f;
+    /* Menetapkan properti --kyloffee-success agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --kyloffee-success: #2f7d4f;
+    /* Menetapkan properti --sidebar-expanded-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --sidebar-expanded-width: 272px;
+    /* Menetapkan properti --sidebar-collapsed-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --sidebar-collapsed-width: 88px;
+    /* Menetapkan properti --sidebar-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --sidebar-width: var(--sidebar-expanded-width);
+    /* Menetapkan properti --topbar-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --topbar-height: 82px;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 * {
+    /* Menetapkan properti box-sizing agar elemen mengikuti rancangan tampilan yang ditentukan. */
     box-sizing: border-box;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 html,
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 body {
+    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 100%;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 body {
+    /* Menetapkan properti margin agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin: 0;
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #fbfaf8;
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: var(--kyloffee-text);
+    /* Menetapkan properti font-family agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-family: Arial, Helvetica, sans-serif;
+    /* Menetapkan properti overflow-x agar elemen mengikuti rancangan tampilan yang ditentukan. */
     overflow-x: hidden;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 a {
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: inherit;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-page {
+    /* Menetapkan properti --current-sidebar-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --current-sidebar-width: var(--sidebar-expanded-width);
+    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 100vh;
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
+    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: stretch;
+    /* Menetapkan properti overflow-x agar elemen mengikuti rancangan tampilan yang ditentukan. */
     overflow-x: hidden;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-page.owner-sidebar-collapsed {
+    /* Menetapkan properti --current-sidebar-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     --current-sidebar-width: var(--sidebar-collapsed-width);
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-sidebar {
+    /* Menetapkan properti position agar elemen mengikuti rancangan tampilan yang ditentukan. */
     position: sticky;
+    /* Menetapkan properti top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     top: 0;
+    /* Menetapkan properti z-index agar elemen mengikuti rancangan tampilan yang ditentukan. */
     z-index: 20;
+    /* Menetapkan properti flex agar elemen mengikuti rancangan tampilan yang ditentukan. */
     flex: 0 0 var(--current-sidebar-width);
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: var(--current-sidebar-width);
+    /* Menetapkan properti min-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-width: var(--current-sidebar-width);
+    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 100vh;
+    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 100vh;
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: var(--kyloffee-cream);
+    /* Menetapkan properti border-right agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-right: 1px solid var(--kyloffee-line);
+    /* Menetapkan properti border-top-right-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-top-right-radius: 16px;
+    /* Menetapkan properti border-bottom-right-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-bottom-right-radius: 16px;
+    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 18px 16px 24px;
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
+    /* Menetapkan properti flex-direction agar elemen mengikuti rancangan tampilan yang ditentukan. */
     flex-direction: column;
+    /* Menetapkan properti overflow-x agar elemen mengikuti rancangan tampilan yang ditentukan. */
     overflow-x: hidden;
+    /* Menetapkan properti overflow-y agar elemen mengikuti rancangan tampilan yang ditentukan. */
     overflow-y: auto;
+    /* Menetapkan properti box-shadow agar elemen mengikuti rancangan tampilan yang ditentukan. */
     box-shadow: 8px 0 26px rgba(42, 19, 13, 0.05);
+    /* Menetapkan properti transition agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transition: width 0.25s ease, min-width 0.25s ease, flex-basis 0.25s ease, transform 0.25s ease;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .brand {
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 100%;
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
+    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
+    /* Menetapkan properti justify-content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     justify-content: flex-start;
+    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 12px;
+    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 64px;
+    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 6px 10px 18px;
+    /* Menetapkan properti border agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border: 0;
+    /* Menetapkan properti border-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-bottom: 1px solid rgba(222, 209, 200, 0.78);
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: transparent;
+    /* Menetapkan properti text-decoration agar elemen mengikuti rancangan tampilan yang ditentukan. */
     text-decoration: none;
+    /* Menetapkan properti text-align agar elemen mengikuti rancangan tampilan yang ditentukan. */
     text-align: left;
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: var(--kyloffee-text);
+    /* Menetapkan properti cursor agar elemen mengikuti rancangan tampilan yang ditentukan. */
     cursor: pointer;
+    /* Menetapkan properti font agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font: inherit;
+    /* Menetapkan properti margin-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-bottom: 18px;
+    /* Menetapkan properti transition agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transition: justify-content 0.25s ease, padding 0.25s ease, gap 0.25s ease, border-color 180ms ease;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .brand:hover {
+    /* Menetapkan properti border-bottom-color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-bottom-color: #c9bcb4;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .brand-name {
+    /* Menetapkan properti min-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-width: 0;
+    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 27px;
+    /* Menetapkan properti font-weight agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-weight: 900;
+    /* Menetapkan properti letter-spacing agar elemen mengikuti rancangan tampilan yang ditentukan. */
     letter-spacing: 0;
+    /* Menetapkan properti white-space agar elemen mengikuti rancangan tampilan yang ditentukan. */
     white-space: nowrap;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .brand-logo-mark {
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 44px;
+    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 44px;
+    /* Menetapkan properti flex agar elemen mengikuti rancangan tampilan yang ditentukan. */
     flex: 0 0 auto;
+    /* Menetapkan properti object-fit agar elemen mengikuti rancangan tampilan yang ditentukan. */
     object-fit: contain;
+    /* Menetapkan properti filter agar elemen mengikuti rancangan tampilan yang ditentukan. */
     filter: brightness(0) saturate(100%) sepia(28%) saturate(1147%) hue-rotate(333deg) brightness(51%) contrast(102%);
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-mobile-toggle {
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 46px;
+    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 46px;
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: inline-flex;
+    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
+    /* Menetapkan properti justify-content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     justify-content: center;
+    /* Menetapkan properti border agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border: 1px solid var(--kyloffee-line);
+    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 14px;
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #fffdfb;
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: var(--kyloffee-brown);
+    /* Menetapkan properti cursor agar elemen mengikuti rancangan tampilan yang ditentukan. */
     cursor: pointer;
+    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 0;
+    /* Menetapkan properti transition agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-mobile-toggle:hover {
+    /* Menetapkan properti border-color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-color: var(--kyloffee-brown);
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #efe5dc;
+    /* Menetapkan properti transform agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transform: translateY(-1px);
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-mobile-toggle span {
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 22px;
+    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 14px;
+    /* Menetapkan properti position agar elemen mengikuti rancangan tampilan yang ditentukan. */
     position: relative;
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: block;
+    /* Menetapkan properti border-top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-top: 2px solid currentColor;
+    /* Menetapkan properti border-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-bottom: 2px solid currentColor;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-mobile-toggle span::before {
+    /* Menetapkan properti content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     content: "";
+    /* Menetapkan properti position agar elemen mengikuti rancangan tampilan yang ditentukan. */
     position: absolute;
+    /* Menetapkan properti top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     top: 4px;
+    /* Menetapkan properti left agar elemen mengikuti rancangan tampilan yang ditentukan. */
     left: 0;
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 22px;
+    /* Menetapkan properti border-top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-top: 2px solid currentColor;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-mobile-toggle {
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: none;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-sidebar-overlay {
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: none;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-sidebar-overlay[hidden] {
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: none !important;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-nav {
+    /* Menetapkan properti flex agar elemen mengikuti rancangan tampilan yang ditentukan. */
     flex: 1 1 auto;
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
+    /* Menetapkan properti flex-direction agar elemen mengikuti rancangan tampilan yang ditentukan. */
     flex-direction: column;
+    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 12px;
+    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 0;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .owner-nav__link,
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-logout {
+    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 48px;
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
+    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
+    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 12px;
+    /* Menetapkan properti text-decoration agar elemen mengikuti rancangan tampilan yang ditentukan. */
     text-decoration: none;
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #443631;
+    /* Menetapkan properti border agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border: 1px solid transparent;
+    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 14px;
+    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 0 12px;
+    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 15px;
+    /* Menetapkan properti font-weight agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-weight: 800;
+    /* Menetapkan properti transition agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transition: background 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .owner-nav__link:hover,
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-logout:hover {
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #fffdfb;
+    /* Menetapkan properti border-color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-color: #d8c8bd;
+    /* Menetapkan properti transform agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transform: translateY(-1px);
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-nav__link.active {
+    /* Menetapkan properti position agar elemen mengikuti rancangan tampilan yang ditentukan. */
     position: relative;
+    /* Menetapkan properti border-color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-color: var(--kyloffee-brown);
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: var(--kyloffee-brown);
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #fff;
+    /* Menetapkan properti font-weight agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-weight: 900;
+    /* Menetapkan properti box-shadow agar elemen mengikuti rancangan tampilan yang ditentukan. */
     box-shadow: 0 14px 28px rgba(42, 19, 13, 0.16);
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-nav__link.active::before {
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: none;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-nav__icon {
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 34px;
+    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 34px;
+    /* Menetapkan properti flex agar elemen mengikuti rancangan tampilan yang ditentukan. */
     flex: 0 0 auto;
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: grid;
+    /* Menetapkan properti place-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     place-items: center;
+    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 10px;
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: rgba(42, 19, 13, 0.08);
+    /* Menetapkan properti line-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     line-height: 1;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-nav__link.active .owner-nav__icon {
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: rgba(255, 255, 255, 0.12);
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .owner-nav__icon svg,
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-logout__icon svg {
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 20px;
+    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 20px;
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: block;
+    /* Menetapkan properti fill agar elemen mengikuti rancangan tampilan yang ditentukan. */
     fill: none;
+    /* Menetapkan properti stroke agar elemen mengikuti rancangan tampilan yang ditentukan. */
     stroke: currentColor;
+    /* Menetapkan properti stroke-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     stroke-width: 1.8;
+    /* Menetapkan properti stroke-linecap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     stroke-linecap: round;
+    /* Menetapkan properti stroke-linejoin agar elemen mengikuti rancangan tampilan yang ditentukan. */
     stroke-linejoin: round;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .owner-nav__text,
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .owner-sidebar__text,
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-logout span:last-child {
+    /* Menetapkan properti flex agar elemen mengikuti rancangan tampilan yang ditentukan. */
     flex: 1 1 auto;
+    /* Menetapkan properti min-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-width: 0;
+    /* Menetapkan properti max-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     max-width: none;
+    /* Menetapkan properti overflow agar elemen mengikuti rancangan tampilan yang ditentukan. */
     overflow: visible;
+    /* Menetapkan properti white-space agar elemen mengikuti rancangan tampilan yang ditentukan. */
     white-space: nowrap;
+    /* Menetapkan properti text-overflow agar elemen mengikuti rancangan tampilan yang ditentukan. */
     text-overflow: clip;
+    /* Menetapkan properti transition agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transition: opacity 0.18s ease, max-width 0.25s ease, transform 0.25s ease;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-logout {
+    /* Menetapkan properti margin-top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-top: auto;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-logout__icon {
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 34px;
+    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 34px;
+    /* Menetapkan properti flex agar elemen mengikuti rancangan tampilan yang ditentukan. */
     flex: 0 0 auto;
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: grid;
+    /* Menetapkan properti place-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     place-items: center;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-page.owner-sidebar-collapsed .owner-sidebar {
+    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
+    /* Menetapkan properti overflow agar elemen mengikuti rancangan tampilan yang ditentukan. */
     overflow: visible;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-page.owner-sidebar-collapsed .brand {
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 100%;
+    /* Menetapkan properti justify-content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     justify-content: center;
+    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 0;
+    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: auto;
+    /* Menetapkan properti padding-left agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding-left: 0;
+    /* Menetapkan properti padding-right agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding-right: 0;
+    /* Menetapkan properti padding-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding-bottom: 20px;
+    /* Menetapkan properti margin-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-bottom: 18px;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-page.owner-sidebar-collapsed .owner-sidebar__text {
+    /* Menetapkan properti flex agar elemen mengikuti rancangan tampilan yang ditentukan. */
     flex: 0 1 0;
+    /* Menetapkan properti max-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     max-width: 0;
+    /* Menetapkan properti overflow agar elemen mengikuti rancangan tampilan yang ditentukan. */
     overflow: hidden;
+    /* Menetapkan properti opacity agar elemen mengikuti rancangan tampilan yang ditentukan. */
     opacity: 0;
+    /* Menetapkan properti transform agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transform: translateX(-4px);
+    /* Menetapkan properti pointer-events agar elemen mengikuti rancangan tampilan yang ditentukan. */
     pointer-events: none;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-page.owner-sidebar-collapsed .owner-nav {
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 100%;
+    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
+    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 14px;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .owner-page.owner-sidebar-collapsed .owner-nav__link,
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-page.owner-sidebar-collapsed .owner-logout {
+    /* Menetapkan properti position agar elemen mengikuti rancangan tampilan yang ditentukan. */
     position: relative;
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 56px;
+    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 56px;
+    /* Menetapkan properti justify-content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     justify-content: center;
+    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 0;
+    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 0;
+    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 16px;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-page.owner-sidebar-collapsed .owner-nav__link.active {
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: var(--kyloffee-brown);
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #fff;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-page.owner-sidebar-collapsed .owner-nav__link.active::before {
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: none;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-page.owner-sidebar-collapsed .owner-nav__icon {
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 44px;
+    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 44px;
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: transparent;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-page.owner-sidebar-collapsed .brand-logo-mark {
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: 54px;
+    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 54px;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-page.owner-sidebar-collapsed .owner-logout {
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #f1e7df;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .owner-page.owner-sidebar-collapsed .owner-nav__link[data-tooltip]::after,
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-page.owner-sidebar-collapsed .owner-logout[data-tooltip]::after {
+    /* Menetapkan properti content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     content: attr(data-tooltip);
+    /* Menetapkan properti position agar elemen mengikuti rancangan tampilan yang ditentukan. */
     position: absolute;
+    /* Menetapkan properti left agar elemen mengikuti rancangan tampilan yang ditentukan. */
     left: calc(100% + 12px);
+    /* Menetapkan properti top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     top: 50%;
+    /* Menetapkan properti z-index agar elemen mengikuti rancangan tampilan yang ditentukan. */
     z-index: 80;
+    /* Menetapkan properti min-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-width: max-content;
+    /* Menetapkan properti max-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     max-width: 220px;
+    /* Menetapkan properti transform agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transform: translateY(-50%) translateX(-4px);
+    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 6px;
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: var(--kyloffee-brown);
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #fff;
+    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 7px 10px;
+    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 12px;
+    /* Menetapkan properti font-weight agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-weight: 800;
+    /* Menetapkan properti line-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     line-height: 1.2;
+    /* Menetapkan properti white-space agar elemen mengikuti rancangan tampilan yang ditentukan. */
     white-space: nowrap;
+    /* Menetapkan properti opacity agar elemen mengikuti rancangan tampilan yang ditentukan. */
     opacity: 0;
+    /* Menetapkan properti pointer-events agar elemen mengikuti rancangan tampilan yang ditentukan. */
     pointer-events: none;
+    /* Menetapkan properti box-shadow agar elemen mengikuti rancangan tampilan yang ditentukan. */
     box-shadow: 0 10px 24px rgba(42, 19, 13, 0.18);
+    /* Menetapkan properti transition agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transition: opacity 160ms ease, transform 160ms ease;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .owner-page.owner-sidebar-collapsed .owner-nav__link[data-tooltip]:hover::after,
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .owner-page.owner-sidebar-collapsed .owner-nav__link[data-tooltip]:focus-visible::after,
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .owner-page.owner-sidebar-collapsed .owner-logout[data-tooltip]:hover::after,
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-page.owner-sidebar-collapsed .owner-logout[data-tooltip]:focus-visible::after {
+    /* Menetapkan properti opacity agar elemen mengikuti rancangan tampilan yang ditentukan. */
     opacity: 1;
+    /* Menetapkan properti transform agar elemen mengikuti rancangan tampilan yang ditentukan. */
     transform: translateY(-50%) translateX(0);
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-main {
+    /* Menetapkan properti flex agar elemen mengikuti rancangan tampilan yang ditentukan. */
     flex: 1 1 auto;
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: auto;
+    /* Menetapkan properti min-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-width: 0;
+    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 100vh;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-topbar {
+    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: var(--topbar-height);
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
+    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
+    /* Menetapkan properti justify-content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     justify-content: flex-end;
+    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 0 52px;
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: rgba(255, 252, 249, 0.94);
+    /* Menetapkan properti border-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-bottom: 1px solid var(--kyloffee-line);
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-topbar--spread {
+    /* Menetapkan properti justify-content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     justify-content: space-between;
+    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 20px;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .topbar-actions {
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
+    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
+    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 14px;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .topbar-button {
+    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 38px;
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: inline-flex;
+    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
+    /* Menetapkan properti justify-content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     justify-content: center;
+    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 9px;
+    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 6px;
+    /* Menetapkan properti border agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border: 1px solid #ded1c8;
+    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 0 18px;
+    /* Menetapkan properti font agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font: inherit;
+    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 13px;
+    /* Menetapkan properti font-weight agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-weight: 800;
+    /* Menetapkan properti text-decoration agar elemen mengikuti rancangan tampilan yang ditentukan. */
     text-decoration: none;
+    /* Menetapkan properti cursor agar elemen mengikuti rancangan tampilan yang ditentukan. */
     cursor: pointer;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .topbar-button--dark {
+    /* Menetapkan properti border-color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-color: var(--kyloffee-brown);
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: var(--kyloffee-brown);
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #fff;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .topbar-button--light {
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #fff;
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #3b2b25;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .topbar-button:disabled {
+    /* Menetapkan properti cursor agar elemen mengikuti rancangan tampilan yang ditentukan. */
     cursor: not-allowed;
+    /* Menetapkan properti opacity agar elemen mengikuti rancangan tampilan yang ditentukan. */
     opacity: 0.78;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-identity {
+    /* Menetapkan properti font-family agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-family: "Courier New", monospace;
+    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 16px;
+    /* Menetapkan properti letter-spacing agar elemen mengikuti rancangan tampilan yang ditentukan. */
     letter-spacing: 0.8px;
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #5b4b45;
+    /* Menetapkan properti white-space agar elemen mengikuti rancangan tampilan yang ditentukan. */
     white-space: nowrap;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-identity strong {
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #3b2b25;
+    /* Menetapkan properti font-weight agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-weight: 700;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-content {
+    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 24px clamp(28px, 5vw, 72px) 64px;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .owner-content--form {
+    /* Menetapkan properti max-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     max-width: 1180px;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .breadcrumb {
+    /* Menetapkan properti margin agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin: 0 0 9px;
+    /* Menetapkan properti font-family agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-family: "Courier New", monospace;
+    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 12px;
+    /* Menetapkan properti font-weight agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-weight: 700;
+    /* Menetapkan properti letter-spacing agar elemen mengikuti rancangan tampilan yang ditentukan. */
     letter-spacing: 1.6px;
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #665a54;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .page-heading {
+    /* Menetapkan properti margin-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-bottom: 28px;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .back-link {
+    /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     width: max-content;
+    /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     min-height: 34px;
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: inline-flex;
+    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
+    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 7px;
+    /* Menetapkan properti margin-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-bottom: 14px;
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: var(--kyloffee-brown);
+    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 14px;
+    /* Menetapkan properti font-weight agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-weight: 800;
+    /* Menetapkan properti text-decoration agar elemen mengikuti rancangan tampilan yang ditentukan. */
     text-decoration: none;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .back-link:hover {
+    /* Menetapkan properti text-decoration agar elemen mengikuti rancangan tampilan yang ditentukan. */
     text-decoration: underline;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .page-heading--row {
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: flex;
+    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: flex-start;
+    /* Menetapkan properti justify-content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     justify-content: space-between;
+    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 28px;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .page-heading h1 {
+    /* Menetapkan properti margin agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin: 0 0 11px;
+    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: clamp(28px, 3vw, 38px);
+    /* Menetapkan properti line-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     line-height: 1.05;
+    /* Menetapkan properti letter-spacing agar elemen mengikuti rancangan tampilan yang ditentukan. */
     letter-spacing: 0;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .page-subtitle {
+    /* Menetapkan properti margin agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin: 0;
+    /* Menetapkan properti max-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
     max-width: 720px;
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: var(--kyloffee-muted);
+    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 16px;
+    /* Menetapkan properti line-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     line-height: 1.55;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .primary-button,
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .submit-button,
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .secondary-button {
+    /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     height: 48px;
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: inline-flex;
+    /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
     align-items: center;
+    /* Menetapkan properti justify-content agar elemen mengikuti rancangan tampilan yang ditentukan. */
     justify-content: center;
+    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 10px;
+    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 6px;
+    /* Menetapkan properti border agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border: 1px solid transparent;
+    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 0 24px;
+    /* Menetapkan properti font-weight agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-weight: 800;
+    /* Menetapkan properti text-decoration agar elemen mengikuti rancangan tampilan yang ditentukan. */
     text-decoration: none;
+    /* Menetapkan properti cursor agar elemen mengikuti rancangan tampilan yang ditentukan. */
     cursor: pointer;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .primary-button,
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .submit-button {
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: var(--kyloffee-brown);
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: #fff;
+    /* Menetapkan properti box-shadow agar elemen mengikuti rancangan tampilan yang ditentukan. */
     box-shadow: 0 9px 18px rgba(42, 19, 13, 0.08);
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .primary-button {
+    /* Menetapkan properti margin-top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-top: 28px;
+    /* Menetapkan properti font-family agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-family: "Courier New", monospace;
+    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 13px;
+    /* Menetapkan properti letter-spacing agar elemen mengikuti rancangan tampilan yang ditentukan. */
     letter-spacing: 0.7px;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .primary-button span {
+    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 22px;
+    /* Menetapkan properti line-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     line-height: 1;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .primary-button:hover,
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .submit-button:hover {
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: var(--kyloffee-brown-2);
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .secondary-button {
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #fffdfa;
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: var(--kyloffee-brown);
+    /* Menetapkan properti border-color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-color: #b9aaa1;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .secondary-button:hover {
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #f3ebe5;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .flash-stack {
+    /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
     display: grid;
+    /* Menetapkan properti gap agar elemen mengikuti rancangan tampilan yang ditentukan. */
     gap: 10px;
+    /* Menetapkan properti margin-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-bottom: 18px;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .flash,
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .alert {
+    /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border-radius: 10px;
+    /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
     padding: 13px 16px;
+    /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
     font-size: 14px;
+    /* Menetapkan properti line-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
     line-height: 1.45;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .flash--success {
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #eaf7ef;
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: var(--kyloffee-success);
+    /* Menetapkan properti border agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border: 1px solid #b9e0c6;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
 .flash--error,
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .alert--error {
+    /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
     background: #fff0ed;
+    /* Menetapkan properti color agar elemen mengikuti rancangan tampilan yang ditentukan. */
     color: var(--kyloffee-danger);
+    /* Menetapkan properti border agar elemen mengikuti rancangan tampilan yang ditentukan. */
     border: 1px solid #f0beb6;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .alert p {
+    /* Menetapkan properti margin agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin: 0;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 .alert p + p {
+    /* Menetapkan properti margin-top agar elemen mengikuti rancangan tampilan yang ditentukan. */
     margin-top: 4px;
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 @media (max-width: 980px) {
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     :root {
+        /* Menetapkan properti --sidebar-expanded-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
         --sidebar-expanded-width: 244px;
+        /* Menetapkan properti --sidebar-collapsed-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
         --sidebar-collapsed-width: 76px;
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .owner-sidebar {
+        /* Menetapkan properti padding-left agar elemen mengikuti rancangan tampilan yang ditentukan. */
         padding-left: 12px;
+        /* Menetapkan properti padding-right agar elemen mengikuti rancangan tampilan yang ditentukan. */
         padding-right: 12px;
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .brand-name {
+        /* Menetapkan properti font-size agar elemen mengikuti rancangan tampilan yang ditentukan. */
         font-size: 26px;
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .owner-topbar {
+        /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
         padding: 0 26px;
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .owner-topbar--spread {
+        /* Menetapkan properti align-items agar elemen mengikuti rancangan tampilan yang ditentukan. */
         align-items: flex-start;
+        /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
         height: auto;
+        /* Menetapkan properti padding-top agar elemen mengikuti rancangan tampilan yang ditentukan. */
         padding-top: 18px;
+        /* Menetapkan properti padding-bottom agar elemen mengikuti rancangan tampilan yang ditentukan. */
         padding-bottom: 18px;
+        /* Menetapkan properti flex-direction agar elemen mengikuti rancangan tampilan yang ditentukan. */
         flex-direction: column-reverse;
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .topbar-actions {
+        /* Menetapkan properti flex-wrap agar elemen mengikuti rancangan tampilan yang ditentukan. */
         flex-wrap: wrap;
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .page-heading--row {
+        /* Menetapkan properti flex-direction agar elemen mengikuti rancangan tampilan yang ditentukan. */
         flex-direction: column;
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .primary-button {
+        /* Menetapkan properti margin-top agar elemen mengikuti rancangan tampilan yang ditentukan. */
         margin-top: 0;
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }
 
+/* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
 @media (max-width: 760px) {
+    /* Melanjutkan selector atau nilai CSS yang membentuk aturan tampilan ini. */
     .owner-page,
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .owner-page.owner-sidebar-collapsed {
+        /* Menetapkan properti --current-sidebar-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
         --current-sidebar-width: 0px;
+        /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
         display: block;
+        /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
         min-height: 100vh;
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .owner-sidebar {
+        /* Menetapkan properti position agar elemen mengikuti rancangan tampilan yang ditentukan. */
         position: fixed;
+        /* Menetapkan properti inset agar elemen mengikuti rancangan tampilan yang ditentukan. */
         inset: 0 auto 0 0;
+        /* Menetapkan properti z-index agar elemen mengikuti rancangan tampilan yang ditentukan. */
         z-index: 50;
+        /* Menetapkan properti width agar elemen mengikuti rancangan tampilan yang ditentukan. */
         width: min(280px, 84vw);
+        /* Menetapkan properti min-width agar elemen mengikuti rancangan tampilan yang ditentukan. */
         min-width: 0;
+        /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
         height: 100vh;
+        /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
         min-height: 100vh;
+        /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
         padding: 16px 14px 24px;
+        /* Menetapkan properti border-radius agar elemen mengikuti rancangan tampilan yang ditentukan. */
         border-radius: 0 16px 16px 0;
+        /* Menetapkan properti transform agar elemen mengikuti rancangan tampilan yang ditentukan. */
         transform: translateX(-105%);
+        /* Menetapkan properti box-shadow agar elemen mengikuti rancangan tampilan yang ditentukan. */
         box-shadow: 18px 0 40px rgba(42, 19, 13, 0.18);
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .owner-page.owner-sidebar-open .owner-sidebar {
+        /* Menetapkan properti transform agar elemen mengikuti rancangan tampilan yang ditentukan. */
         transform: translateX(0);
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .owner-sidebar-overlay {
+        /* Menetapkan properti position agar elemen mengikuti rancangan tampilan yang ditentukan. */
         position: fixed;
+        /* Menetapkan properti inset agar elemen mengikuti rancangan tampilan yang ditentukan. */
         inset: 0;
+        /* Menetapkan properti z-index agar elemen mengikuti rancangan tampilan yang ditentukan. */
         z-index: 45;
+        /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
         display: block;
+        /* Menetapkan properti background agar elemen mengikuti rancangan tampilan yang ditentukan. */
         background: rgba(36, 18, 12, 0.36);
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .owner-mobile-toggle {
+        /* Menetapkan properti position agar elemen mengikuti rancangan tampilan yang ditentukan. */
         position: fixed;
+        /* Menetapkan properti top agar elemen mengikuti rancangan tampilan yang ditentukan. */
         top: 14px;
+        /* Menetapkan properti left agar elemen mengikuti rancangan tampilan yang ditentukan. */
         left: 14px;
+        /* Menetapkan properti z-index agar elemen mengikuti rancangan tampilan yang ditentukan. */
         z-index: 35;
+        /* Menetapkan properti display agar elemen mengikuti rancangan tampilan yang ditentukan. */
         display: inline-flex;
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .owner-topbar {
+        /* Menetapkan properti min-height agar elemen mengikuti rancangan tampilan yang ditentukan. */
         min-height: 64px;
+        /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
         height: auto;
+        /* Menetapkan properti justify-content agar elemen mengikuti rancangan tampilan yang ditentukan. */
         justify-content: flex-end;
+        /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
         padding: 12px 20px 12px 70px;
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .owner-topbar--spread {
+        /* Menetapkan properti height agar elemen mengikuti rancangan tampilan yang ditentukan. */
         height: auto;
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
 
+    /* Memulai kelompok aturan tampilan untuk selector atau kondisi ini. */
     .owner-content {
+        /* Menetapkan properti padding agar elemen mengikuti rancangan tampilan yang ditentukan. */
         padding: 22px 18px 48px;
+    /* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
     }
+/* Menutup kelompok aturan tampilan untuk selector atau kondisi sebelumnya. */
 }

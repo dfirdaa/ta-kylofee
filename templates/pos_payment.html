@@ -1,153 +1,278 @@
 {# Halaman pembayaran membaca ringkasan keranjang dan mengumpulkan metode serta nominal pembayaran. #}
 {% extends 'base.html' %}
+{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 {% block title %}Payment - Kyloffee{% endblock %}
+{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 {% block body %}
 {# URL API disimpan sebagai atribut data agar JavaScript tidak perlu menulis route secara manual. #}
 <main
+    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
     class="payment-page"
+    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
     data-payment-page
+    {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
     data-pos-url="{{ url_for('pos') }}"
+    {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
     data-checkout-url="{{ url_for('pos_checkout') }}"
+    {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
     data-qris-url="{{ url_for('pos_qris_payload') }}"
+{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 >
+    {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
     <a href="{{ url_for('pos') }}" class="payment-page-back" data-payment-back aria-label="Kembali ke POS">
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <span aria-hidden="true">&larr;</span>
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <strong>Kembali</strong>
+    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
     </a>
 
+    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <section class="payment-page__shell">
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <aside class="payment-order-summary">
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <header>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <p class="payment-eyebrow">Current Order</p>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <h1>Order Summary</h1>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <span>Shift : {{ shift }} Kasir: {{ staff_name }}</span>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </header>
 
             {# JavaScript mengisi area ini dari keranjang yang disimpan saat pengguna berada di POS. #}
             <div class="payment-cart-list" data-payment-cart-items></div>
 
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <div class="payment-cart-empty" data-payment-cart-empty>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <strong>Keranjang masih kosong.</strong>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <p>Kembali ke POS untuk menambahkan menu.</p>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </div>
 
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <footer class="payment-order-totals">
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span>Qty</span>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <strong data-payment-count>0 Items</strong>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span>Subtotal</span>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <strong data-summary-subtotal>Rp0</strong>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span>Diskon</span>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <strong data-summary-discount>Rp0</strong>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="payment-order-total">
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span>Total Amount</span>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <strong data-summary-total>Rp0</strong>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </footer>
+        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </aside>
 
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <section class="payment-page__panel">
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <header class="payment-page__header">
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span class="payment-eyebrow">Payment</span>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <h2>Complete Order</h2>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </header>
 
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <div class="pos-payment-form pos-payment-form--page">
                 {# Nama pelanggan dan diskon menjadi bagian payload yang divalidasi kembali oleh server. #}
                 <label>
+                    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                     Nama Pelanggan
+                    {# Input ini menerima nilai pengguna atau membawa nilai form yang akan dikirim. #}
                     <input type="text" data-customer-name placeholder="Walk-in Customer">
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </label>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <label>
+                    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                     Diskon
+                    {# Input ini menerima nilai pengguna atau membawa nilai form yang akan dikirim. #}
                     <input type="number" data-discount-amount min="0" value="0">
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </label>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </div>
 
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <section class="payment-method-section">
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <h3>Payment Method</h3>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="payment-method-grid">
+                    {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
                     <button type="button" class="payment-method-card is-active" data-payment-method="Cash">
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <span class="payment-method-icon">Rp</span>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <strong>Cash</strong>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <small>Bayar tunai dan hitung kembalian otomatis.</small>
+                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </button>
+                    {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
                     <button type="button" class="payment-method-card" data-payment-method="QRIS">
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <span class="payment-method-icon">QR</span>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <strong>QRIS</strong>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <small>Generate QR otomatis untuk simulasi pembayaran.</small>
+                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </button>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </section>
 
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <section class="payment-mode payment-mode--cash is-active" data-payment-mode="Cash">
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="cash-summary">
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <span>Received Amount</span>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <strong data-cash-received>Rp0</strong>
+                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <span>Change</span>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <strong data-cash-change>Rp0</strong>
+                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <span>Total Amount</span>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <strong data-cash-total>Rp0</strong>
+                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
 
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="quick-cash-row">
+                    {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
                     <button type="button" data-quick-cash="20000">Rp20.000</button>
+                    {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
                     <button type="button" data-quick-cash="50000">Rp50.000</button>
+                    {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
                     <button type="button" data-quick-cash="100000">Rp100.000</button>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
 
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="cash-keypad" aria-label="Keypad nominal pembayaran tunai">
                     {# Perulangan membuat tombol keypad tunai dengan susunan nilai yang tetap. #}
                     {% for key in ['1','2','3','4','5','6','7','8','9','00','0','back'] %}
+                        {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
                         <button type="button" data-cash-key="{{ key }}">
+                            {# Kondisi Jinja ini menentukan apakah bagian tampilan berikut perlu ditampilkan. #}
                             {% if key == 'back' %}&larr;{% else %}{{ key }}{% endif %}
+                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </button>
+                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                     {% endfor %}
+                    {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
                     <button type="button" class="keypad-wide" data-cash-key="clear">Clear</button>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
 
                 {# Tombol tunai diaktifkan setelah nominal diterima cukup untuk membayar total. #}
                 <button type="button" class="pos-checkout-button payment-complete-button" data-complete-cash disabled>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span>Complete Payment</span>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </button>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </section>
 
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <section class="payment-mode payment-mode--qris" data-payment-mode="QRIS">
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="qris-card qris-card--page">
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="qris-frame">
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <div class="qris-placeholder" data-qris-placeholder>QRIS</div>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <img src="" alt="QR Code pembayaran QRIS" data-qris-image hidden>
+                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
+                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="qris-details">
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <span>Total pembayaran</span>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <strong data-qris-total>Rp0</strong>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <p>Scan QR Code menggunakan aplikasi pembayaran. QR dibuat otomatis dari invoice, total, dan waktu transaksi.</p>
+                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <small data-qris-order>Invoice akan dibuat setelah keranjang siap.</small>
+                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
 
                 {# Tombol QRIS memeriksa status simulasi sebelum checkout diselesaikan. #}
                 <button type="button" class="pos-checkout-button qris-status-button" data-check-qris disabled>
+                    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                     Check Payment Status
+                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </button>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="qris-status" data-qris-status>Menunggu QR dibuat.</div>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </section>
 
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <p class="pos-message" data-payment-message hidden></p>
+        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </section>
+    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
     </section>
+{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </main>
+{# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
 {% endblock %}

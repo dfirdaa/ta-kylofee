@@ -1,45 +1,86 @@
 {# Halaman ini mengonfirmasi transaksi berhasil dan menyediakan akses menuju struk. #}
 {% extends 'base.html' %}
+{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 {% block title %}Payment Success - Kyloffee{% endblock %}
+{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 {% block body %}
+{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <main class="payment-result-page">
+    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <section class="payment-success-card">
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <div class="success-icon" aria-hidden="true">✓</div>
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <p class="payment-eyebrow">Payment Success</p>
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <h1>Pembayaran Berhasil</h1>
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <p class="success-copy">Transaksi sudah tercatat dan stok menu otomatis diperbarui.</p>
 
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <div class="success-detail-grid">
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <div>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <span>Invoice Number</span>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <strong>{{ transaction.order_code }}</strong>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </div>
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <div>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <span>Metode Bayar</span>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <strong>{{ payment.method }}</strong>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </div>
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <div>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <span>Total Bayar</span>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <strong>{{ total_display }}</strong>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </div>
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <div>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <span>Nominal Diterima</span>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <strong>{{ received_display }}</strong>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </div>
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <div>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <span>Kembalian</span>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <strong>{{ change_display }}</strong>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </div>
+            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <div>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <span>Kasir</span>
+                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <strong>{{ transaction.staff_name or 'Kasir' }}</strong>
+            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </div>
+        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </div>
 
+        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <div class="payment-success-actions">
+            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             <a href="{{ url_for('pos_receipt', order_code=transaction.order_code) }}" class="pos-checkout-button">Print Receipt</a>
+            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             <a href="{{ url_for('pos') }}" class="secondary-payment-button">New Transaction</a>
+        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </div>
+    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
     </section>
+{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </main>
+{# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
 {% endblock %}

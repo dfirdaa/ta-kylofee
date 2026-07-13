@@ -1,3 +1,4 @@
+// Modul sidebar owner menyimpan keadaan desktop dan mengatur perilaku panel pada layar kecil.
 (function () {
     const page = document.querySelector(".owner-page");
     const sidebar = document.querySelector("[data-owner-sidebar]");
@@ -24,6 +25,7 @@
         });
     }
 
+    // Menerapkan class tampilan, overlay, aksesibilitas, dan penyimpanan state secara bersamaan.
     function applyState(options) {
         const shouldPersist = !options || options.persist !== false;
         page.classList.toggle("owner-sidebar-collapsed", collapsed && !mobileQuery.matches);

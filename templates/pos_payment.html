@@ -1,6 +1,8 @@
+{# Halaman pembayaran membaca ringkasan keranjang dan mengumpulkan metode serta nominal pembayaran. #}
 {% extends 'base.html' %}
 {% block title %}Payment - Kyloffee{% endblock %}
 {% block body %}
+{# URL API disimpan sebagai atribut data agar JavaScript tidak perlu menulis route secara manual. #}
 <main
     class="payment-page"
     data-payment-page
@@ -21,6 +23,7 @@
                 <span>Shift : {{ shift }} Kasir: {{ staff_name }}</span>
             </header>
 
+            {# JavaScript mengisi area ini dari keranjang yang disimpan saat pengguna berada di POS. #}
             <div class="payment-cart-list" data-payment-cart-items></div>
 
             <div class="payment-cart-empty" data-payment-cart-empty>
@@ -57,6 +60,7 @@
             </header>
 
             <div class="pos-payment-form pos-payment-form--page">
+                {# Nama pelanggan dan diskon menjadi bagian payload yang divalidasi kembali oleh server. #}
                 <label>
                     Nama Pelanggan
                     <input type="text" data-customer-name placeholder="Walk-in Customer">
@@ -106,6 +110,7 @@
                 </div>
 
                 <div class="cash-keypad" aria-label="Keypad nominal pembayaran tunai">
+                    {# Perulangan membuat tombol keypad tunai dengan susunan nilai yang tetap. #}
                     {% for key in ['1','2','3','4','5','6','7','8','9','00','0','back'] %}
                         <button type="button" data-cash-key="{{ key }}">
                             {% if key == 'back' %}&larr;{% else %}{{ key }}{% endif %}
@@ -114,6 +119,7 @@
                     <button type="button" class="keypad-wide" data-cash-key="clear">Clear</button>
                 </div>
 
+                {# Tombol tunai diaktifkan setelah nominal diterima cukup untuk membayar total. #}
                 <button type="button" class="pos-checkout-button payment-complete-button" data-complete-cash disabled>
                     <span>Complete Payment</span>
                 </button>
@@ -133,6 +139,7 @@
                     </div>
                 </div>
 
+                {# Tombol QRIS memeriksa status simulasi sebelum checkout diselesaikan. #}
                 <button type="button" class="pos-checkout-button qris-status-button" data-check-qris disabled>
                     Check Payment Status
                 </button>

@@ -1,3 +1,4 @@
+// Modul mandiri ini mengendalikan modal tambah/edit dan validasi awal nama kategori.
 (function () {
     const modal = document.querySelector("[data-category-modal]");
     const form = document.querySelector("[data-category-form]");
@@ -45,6 +46,7 @@
         error.textContent = message;
     }
 
+    // Mode menentukan action form serta data awal yang ditampilkan pada modal.
     function openModal(mode, data) {
         currentId = data && data.id ? String(data.id) : "";
         form.dataset.currentId = currentId;
@@ -86,6 +88,7 @@
         }
     });
 
+    // Validasi browser mencegah nama kosong atau duplikat sebelum form dikirim ke Flask.
     form.addEventListener("submit", function (event) {
         const cleanName = normalizeName(nameInput && nameInput.value);
         const duplicate = categoryNames().some(function (category) {

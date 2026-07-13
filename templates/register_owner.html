@@ -1,3 +1,4 @@
+{# Halaman ini memakai kerangka base dan mengirim form pendaftaran akun dengan role owner. #}
 {% extends 'base.html' %}
 {% block title %}Registrasi Owner Kyloffee{% endblock %}
 {% block body %}
@@ -12,6 +13,7 @@
         </div>
 
         <section class="auth-card auth-card--register">
+            {# Pesan flash dari Flask memberi tahu hasil validasi atau proses registrasi. #}
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     <div class="message-stack">
@@ -22,6 +24,7 @@
                 {% endif %}
             {% endwith %}
 
+            {# Form POST mengirim nama, email, dan password ke route registrasi owner. #}
             <form action="{{ url_for('register_owner') }}" method="POST" class="auth-form auth-form--register">
                 <div class="form-field">
                     <label for="full_name">Full name</label>
@@ -53,6 +56,7 @@
                     </div>
                 </div>
 
+                {# Tombol submit memulai validasi dan penyimpanan akun di sisi Flask. #}
                 <button type="submit" class="auth-button">Daftar <span aria-hidden="true">&rarr;</span></button>
             </form>
 

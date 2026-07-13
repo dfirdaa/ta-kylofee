@@ -1,3 +1,4 @@
+{# Halaman ini mengumpulkan data pendaftaran kasir yang nantinya dihubungkan dengan owner. #}
 {% extends 'base.html' %}
 {% block title %}Registrasi Kasir Kyloffee{% endblock %}
 {% block body %}
@@ -12,6 +13,7 @@
         </div>
 
         <section class="auth-card auth-card--register">
+            {# Pesan flash menampilkan kesalahan validasi atau konfirmasi dari route registrasi. #}
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     <div class="message-stack">
@@ -22,6 +24,7 @@
                 {% endif %}
             {% endwith %}
 
+            {# Form POST mengirim identitas dan password kasir ke route register_cashier. #}
             <form action="{{ url_for('register_cashier') }}" method="POST" class="auth-form auth-form--register">
                 <div class="form-field">
                     <label for="full_name">Nama Kasir</label>
@@ -53,6 +56,7 @@
                     </div>
                 </div>
 
+                {# Tombol ini mengirim form setelah validasi wajib pada browser terpenuhi. #}
                 <button type="submit" class="auth-button">Daftar <span aria-hidden="true">&rarr;</span></button>
             </form>
 

@@ -1,3 +1,4 @@
+// Menunggu seluruh HTML siap sebelum memasang interaksi password, POS, keranjang, dan pembayaran.
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll("[data-toggle-password]").forEach(function (button) {
         button.addEventListener("click", function () {
@@ -12,9 +13,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    // Kunci penyimpanan menjaga isi keranjang dan keadaan sidebar selama pengguna berpindah halaman.
     const stateKey = "kyloffee_pos_cart_v2";
     const sidebarStateKey = "kyloffee_pos_sidebar_open";
 
+    // Membaca state dengan try/catch agar data sessionStorage yang rusak tidak menghentikan halaman.
     function readState() {
         try {
             return JSON.parse(sessionStorage.getItem(stateKey) || "{}") || {};
@@ -31,6 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
         sessionStorage.removeItem(stateKey);
     }
 
+    // Menormalkan item keranjang supaya ID, harga, stok, dan jumlah selalu berupa angka yang aman dihitung.
     function normalizeItems(items) {
         if (!Array.isArray(items)) return [];
         return items
@@ -78,6 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return String(value || "").trim().replace(/\s+/g, " ").toLowerCase();
     }
 
+    // Menghitung jumlah item, subtotal, diskon, dan total yang dipakai POS serta halaman pembayaran.
     function calculateTotals(items, discount) {
         const subtotal = items.reduce(function (sum, item) {
             return sum + item.price * item.quantity;
@@ -116,6 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return true;
     }
 
+    // Mengaktifkan pencarian menu, filter kategori, sidebar, dan operasi keranjang pada halaman POS.
     function initPosPage(root) {
         const cart = new Map();
         const storedState = readState();
@@ -217,6 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
+        // Produk hanya ditampilkan bila cocok dengan kategori aktif dan kata pencarian pengguna.
         function filterProducts() {
             const keyword = normalizeFilterValue(menuSearchInput && menuSearchInput.value ? menuSearchInput.value : "");
             let visibleCount = 0;
@@ -242,6 +249,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
+        // Merender ulang keranjang dan total setiap kali jumlah item berubah.
         function renderCart() {
             const items = currentItems();
             const totals = calculateTotals(items, 0);
@@ -279,6 +287,7 @@ document.addEventListener("DOMContentLoaded", function () {
             filterProducts();
         }
 
+        // Menambah produk sambil membatasi kuantitas agar tidak melebihi stok yang tersedia.
         function addProduct(card) {
             const id = Number(card.dataset.menuId);
             const stock = Number(card.dataset.stock || 0);
@@ -357,6 +366,7 @@ document.addEventListener("DOMContentLoaded", function () {
         renderCart();
     }
 
+    // Mengaktifkan ringkasan pesanan, pembayaran tunai, QRIS, dan pengiriman checkout ke server.
     function initPaymentPage(root) {
         const checkoutUrl = root.dataset.checkoutUrl;
         const qrisUrl = root.dataset.qrisUrl;
@@ -442,6 +452,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
+        // Meminta QR baru hanya ketika metode QRIS dipilih dan total pembayaran berubah.
         function ensureQrisCode(total) {
             if (selectedMethod !== "QRIS") return;
             if (items.length === 0 || total <= 0) {
@@ -464,6 +475,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (qrisStatus) qrisStatus.textContent = "Generating QR Code...";
             if (checkQrisButton) checkQrisButton.disabled = true;
 
+            // Request POST meminta server membuat kode pesanan dan URL gambar QRIS.
             fetch(qrisUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -515,6 +527,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
         }
 
+        // Memperbarui tampilan nominal, kembalian, tombol aktif, dan ringkasan pembayaran.
         function renderPayment() {
             const totals = getTotals();
             const received = getCashAmount();
@@ -566,6 +579,7 @@ document.addEventListener("DOMContentLoaded", function () {
             ensureQrisCode(totals.total);
         }
 
+        // Menyusun payload minimal yang akan divalidasi ulang dan disimpan oleh endpoint checkout Flask.
         function buildCheckoutPayload(method, options) {
             const totals = getTotals();
             return {
@@ -581,6 +595,7 @@ document.addEventListener("DOMContentLoaded", function () {
             };
         }
 
+        // Mengirim transaksi sekali saja dan berpindah ke halaman sukses setelah server menyimpannya.
         function submitPayment(method, options) {
             if (items.length === 0 || isSubmitting) return;
 

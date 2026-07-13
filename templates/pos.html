@@ -1,3 +1,4 @@
+{# Halaman POS membantu kasir memilih menu, mengatur keranjang, dan menuju proses pembayaran. #}
 {% extends 'base.html' %}
 {% block title %}POS Kasir - Kyloffee{% endblock %}
 {% block body %}
@@ -46,6 +47,7 @@
             </button>
             <h1>Kyloffee POS</h1>
             <label class="pos-search-mock">
+                {# Input ini difilter JavaScript di browser tanpa mengubah data menu pada database. #}
                 <input type="search" data-menu-search placeholder="Cari menu, kategori, deskripsi" aria-label="Cari menu">
                 <span aria-hidden="true">&#8981;</span>
             </label>
@@ -57,6 +59,7 @@
                 <nav class="pos-category-strip" aria-label="Kategori menu">
                     <div class="pos-category-scroll">
                         <button type="button" class="category-filter is-active" data-category-filter="all">All Items</button>
+                        {# Tombol filter dibuat dari kategori menu aktif yang dikirim oleh route POS. #}
                         {% for category in menu_categories %}
                             <button
                                 type="button"
@@ -70,7 +73,9 @@
                 </nav>
 
                 <div class="product-grid-pos product-grid-pos--mock">
+                    {# Grid produk hanya dibentuk bila Flask mengirim menu aktif yang dapat dijual. #}
                     {% if products %}
+                        {# Setiap produk membawa harga, stok, kategori, dan gambar untuk interaksi keranjang. #}
                         {% for product in products %}
                             {% set product_stock = product.stock|int %}
                             <article
@@ -84,6 +89,7 @@
                                 data-description="{{ product.description or '' }}"
                             >
                                 <div class="mock-product-media">
+                                    {# Gambar tersimpan dipakai bila tersedia; jika tidak, template memakai logo cadangan. #}
                                     {% if product.image %}
                                         <img src="{{ menu_image_url(product.image) }}" alt="{{ product.name }}">
                                     {% else %}
@@ -156,6 +162,7 @@
                         <span>Total</span>
                         <strong data-summary-total>Rp0</strong>
                     </div>
+                    {# Tombol pembayaran baru diaktifkan JavaScript setelah keranjang memiliki item. #}
                     <button type="button" class="pos-payment-open" data-open-payment disabled>Payment</button>
                     <p class="pos-message" data-pos-message hidden></p>
                 </footer>

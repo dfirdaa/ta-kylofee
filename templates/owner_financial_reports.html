@@ -1,3 +1,4 @@
+{# Dashboard laporan merangkum omzet, transaksi, tren waktu, dan detail pendapatan milik owner. #}
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -20,6 +21,7 @@
                     >
                         &#9635; Cetak PDF
                     </a>
+                    {# Filter GET mengirim rentang tanggal agar laporan dapat dibuka ulang melalui URL yang sama. #}
                     <form class="period-form" action="{{ url_for('owner_reports') }}" method="get">
                         <label for="date_from">Periode</label>
                         <input id="date_from" type="date" name="date_from" value="{{ report.date_from }}">
@@ -40,6 +42,7 @@
                 </div>
 
                 <section class="report-metric-grid" aria-label="Ringkasan laporan keuangan">
+                    {# Setiap metrik hasil perhitungan Flask ditampilkan sebagai satu kartu ringkasan. #}
                     {% for item in report.dashboard_metrics %}
                         <article class="report-metric-card">
                             <span>{{ item.label }}</span>
@@ -56,6 +59,7 @@
                     </div>
 
                     <div class="sales-chart" aria-label="Grafik penjualan per jam">
+                        {# Perulangan membentuk batang grafik penjualan untuk setiap jam. #}
                         {% for item in report.hourly_sales %}
                             <div class="sales-chart__slot">
                                 <div
@@ -94,6 +98,7 @@
                             </thead>
                             <tbody>
                                 {% if report.recent_transactions %}
+                                    {# Transaksi terbaru ditampilkan untuk membantu owner memantau aktivitas penjualan. #}
                                     {% for trx in report.recent_transactions %}
                                         <tr>
                                             <td class="mono">{{ trx.id }}</td>
@@ -130,6 +135,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {# Ringkasan bulanan memudahkan perbandingan omzet antarbulan. #}
                                     {% for row in report.monthly_summary %}
                                         <tr class="{% if row.is_current %}is-current-row{% endif %}">
                                             <td>{{ row.month }}</td>
@@ -157,6 +163,7 @@
                                 </thead>
                                 <tbody>
                                     {% if report.daily_income_rows %}
+                                        {# Detail pendapatan harian berasal dari transaksi dalam periode yang dipilih. #}
                                         {% for row in report.daily_income_rows %}
                                             <tr>
                                                 <td>{{ row.date }}</td>

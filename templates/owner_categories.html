@@ -1,3 +1,4 @@
+{# Halaman kategori menggabungkan pencarian, tabel, serta modal tambah dan edit kategori. #}
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -40,6 +41,7 @@
                     </button>
                 </div>
 
+                {# Form GET menyimpan kata pencarian pada URL tanpa mengubah data kategori. #}
                 <form action="{{ url_for('owner_categories') }}" method="GET" class="category-toolbar">
                     <label class="category-search" for="categorySearch">
                         <span aria-hidden="true">&#8981;</span>
@@ -65,6 +67,7 @@
                             </thead>
                             <tbody>
                                 {% if categories %}
+                                    {# Setiap kategori dari Flask ditampilkan bersama jumlah menu yang menggunakannya. #}
                                     {% for category in categories %}
                                         <tr>
                                             <td>
@@ -111,6 +114,7 @@
             </section>
         </main>
 
+        {# Nilai berikut menentukan apakah modal dipakai untuk membuat atau mengedit kategori. #}
         {% set modal_mode = category_form.get('mode', 'create') %}
         {% set is_modal_open = category_form.get('mode') %}
         {% set is_edit_mode = modal_mode == 'edit' %}
@@ -122,6 +126,7 @@
                     <button type="button" class="category-modal__close" data-close-category-modal aria-label="Tutup modal">&times;</button>
                 </header>
 
+                {# Action form berubah sesuai mode sehingga satu modal dapat menangani tambah dan edit. #}
                 <form
                     method="POST"
                     class="category-form"

@@ -1,3 +1,4 @@
+{# Halaman ini menampilkan daftar menu, status stok, dan tindakan pengelolaan khusus owner. #}
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -9,6 +10,7 @@
 </head>
 <body>
     <div class="owner-page">
+        {# Sidebar bersama menjaga navigasi owner konsisten di setiap fitur manajemen. #}
         {% include 'partials/owner_sidebar.html' %}
 
         <main class="owner-main">
@@ -54,7 +56,9 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {# Kondisi ini membedakan tabel berisi menu dengan keadaan data kosong. #}
                                 {% if menus %}
+                                    {# Setiap record menu dari Flask ditampilkan sebagai satu baris tabel. #}
                                     {% for menu in menus %}
                                         <tr>
                                             <td>

@@ -1,15 +1,19 @@
+# Modul standar berikut menangani konfigurasi, validasi teks, keamanan koneksi, database lokal, dan pembuatan kode unik.
 import os
 import re
 import ssl
 import sqlite3
 import uuid
+# BytesIO menampung gambar QR di memori, sedangkan wraps menjaga identitas fungsi saat memakai decorator akses.
 from io import BytesIO
 from functools import wraps
 from pathlib import Path
 from datetime import date, datetime, timedelta
 
+# Memuat konfigurasi rahasia dari .env dan menyediakan layanan email aplikasi.
 from dotenv import load_dotenv
 import resend
+# Komponen Flask berikut menangani route, template, request, session, respons JSON, pesan flash, dan redirect.
 from flask import (
     Flask,
     flash,
@@ -22,20 +26,24 @@ from flask import (
     session,
     url_for,
 )
+# Werkzeug dipakai untuk mengamankan password dan nama file upload.
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
+# Cloudinary bersifat opsional agar penyimpanan gambar lokal tetap dapat dipakai ketika paket tidak tersedia.
 try:
     import cloudinary
     import cloudinary.uploader
 except ImportError:  # pragma: no cover - only used when dependency is missing.
     cloudinary = None
 
+# Library QR bersifat opsional agar bagian lain aplikasi tetap dapat dimulai sebelum dependensi dipasang.
 try:
     import qrcode
 except ImportError:  # pragma: no cover - app still runs before dependency install.
     qrcode = None
 
+# Menentukan folder dasar project agar lokasi .env, database, template, dan aset tidak bergantung pada terminal aktif.
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR / ".env")
 DATABASE = Path(os.getenv("SQLITE_DATABASE_PATH", "/tmp/database.db" if os.getenv("VERCEL") else BASE_DIR / "database.db"))
@@ -44,12 +52,15 @@ DATABASE = Path(os.getenv("SQLITE_DATABASE_PATH", "/tmp/database.db" if os.geten
 # ======================
 # Resend Email Configuration
 # ======================
+# Nilai email diambil dari environment supaya kredensial tidak ditulis langsung di source code.
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "").strip()
 RESEND_FROM_EMAIL = os.getenv("RESEND_FROM_EMAIL", "noreply@example.com").strip()
 
+# API key hanya dipasang bila tersedia agar mode lokal tanpa layanan email tidak gagal.
 if RESEND_API_KEY:
     resend.api_key = RESEND_API_KEY
 
+# Konfigurasi ini menentukan apakah aplikasi memakai MySQL/TiDB atau SQLite lokal sebagai cadangan.
 DB_HOST = os.getenv("DB_HOST", "").strip()
 DB_PORT = int(os.getenv("DB_PORT", "4000")) if os.getenv("DB_PORT") else 4000
 DB_USER = os.getenv("DB_USER", "").strip()
@@ -66,6 +77,7 @@ DB_FORCE_SQLITE = os.getenv("DB_FORCE_SQLITE", "0").strip().lower() in {"1", "tr
 DB_FALLBACK_SQLITE = os.getenv("DB_FALLBACK_SQLITE", "1").strip().lower() not in {"0", "false", "no", "off"}
 
 DEBUG_DB_CONFIG = os.getenv("DEBUG_DB_CONFIG", "0").strip().lower() in {"1", "true", "yes", "on"}
+# Informasi koneksi hanya dicetak ketika mode debug database sengaja diaktifkan.
 if DEBUG_DB_CONFIG:
     print("DB_HOST:", DB_HOST or "<empty - using SQLite>")
     print("DB_PORT:", DB_PORT)
@@ -75,6 +87,7 @@ if DEBUG_DB_CONFIG:
     print("DB_FORCE_SQLITE:", DB_FORCE_SQLITE)
     print("DB_FALLBACK_SQLITE:", DB_FALLBACK_SQLITE)
 
+# Driver MySQL dibuat opsional karena aplikasi juga mendukung SQLite.
 try:
     import pymysql
 except ImportError:
@@ -86,6 +99,7 @@ REMOTE_DB_FAILED = False
 SCHEMA_READY = False
 
 
+# Menyusun opsi SSL yang aman untuk koneksi MySQL/TiDB, termasuk saat file CA tidak ditemukan.
 def get_mysql_ssl_options():
     """Return PyMySQL SSL options that work for TiDB Cloud/MySQL.
 
@@ -108,11 +122,13 @@ def get_mysql_ssl_options():
     return {"ssl": {}}
 
 
+# Pembungkus ini menyamakan cara pemanggilan SQLite dan MySQL sehingga query aplikasi dapat memakai antarmuka yang sama.
 class DatabaseConnection:
     def __init__(self, conn, is_mysql=False):
         self.conn = conn
         self.is_mysql = is_mysql
 
+    # MySQL memakai placeholder %s, sehingga tanda ? dari query bersama perlu disesuaikan sebelum dieksekusi.
     def adapt_sql(self, sql):
         if self.is_mysql:
             return sql.replace("?", "%s")
@@ -121,6 +137,7 @@ class DatabaseConnection:
     def cursor(self):
         return self.conn.cursor()
 
+    # Menjalankan satu query beserta parameter secara aman pada jenis database yang sedang aktif.
     def execute(self, sql, params=()):
         sql = self.adapt_sql(sql)
         if self.is_mysql:
@@ -129,6 +146,7 @@ class DatabaseConnection:
             return cursor
         return self.conn.execute(sql, params)
 
+    # Menjalankan beberapa pernyataan SQL sekaligus, dengan fallback manual untuk driver tanpa executescript.
     def executescript(self, script):
         if hasattr(self.conn, "executescript"):
             return self.conn.executescript(script)
@@ -137,9 +155,11 @@ class DatabaseConnection:
             if statement:
                 self.execute(statement)
 
+    # Commit memastikan perubahan transaksi benar-benar disimpan di database.
     def commit(self):
         return self.conn.commit()
 
+    # Rollback membatalkan transaksi ketika proses penyimpanan mengalami kegagalan.
     def rollback(self):
         return self.conn.rollback()
 
@@ -149,6 +169,7 @@ class DatabaseConnection:
     def __getattr__(self, name):
         return getattr(self.conn, name)
 
+# Konstanta berikut menjadi aturan bersama untuk akun kasir, menu, kategori, dan kompatibilitas data lama.
 STAFF_DEFAULT_PASSWORD = os.getenv("STAFF_DEFAULT_PASSWORD", "kyloffee123")
 MIN_MENU_PRICE = 500
 CATEGORY_NAME_MAX_LENGTH = 100
@@ -158,11 +179,13 @@ CASHIER_ROLE = "staff"
 CASHIER_ROLE_ALIASES = ("staff", "kasir", "cashier")
 LEGACY_CASHIER_OWNER_WINDOW_MINUTES = int(os.getenv("LEGACY_CASHIER_OWNER_WINDOW_MINUTES", "120"))
 
+# Membuat aplikasi Flask dengan lokasi template dan file statis yang eksplisit.
 app = Flask(
     __name__,
     template_folder=str(BASE_DIR / "templates"),
     static_folder=str(BASE_DIR / "static"),
 )
+# Konfigurasi session melindungi cookie login, sedangkan batas upload mencegah file terlalu besar.
 app.config["SECRET_KEY"] = os.environ.get(
     "SECRET_KEY",
     "dev-secret-key-change-this-before-production",
@@ -180,6 +203,7 @@ CLOUDINARY_API_KEY = os.environ.get("CLOUDINARY_API_KEY", "").strip()
 CLOUDINARY_API_SECRET = os.environ.get("CLOUDINARY_API_SECRET", "").strip()
 CLOUDINARY_FOLDER = os.environ.get("CLOUDINARY_FOLDER", "kyloffee/menu").strip().strip("/")
 
+# Cloudinary hanya dikonfigurasi jika library dan seluruh kredensial wajib tersedia.
 if cloudinary and CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
     cloudinary.config(
         cloud_name=CLOUDINARY_CLOUD_NAME,
@@ -193,6 +217,7 @@ if cloudinary and CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_AP
 # Resend Email Helper
 # ======================
 def send_email(to_email, subject, html_content):
+    # Tanpa API key, fungsi berhenti secara aman karena email bukan syarat agar transaksi utama berjalan.
     if not RESEND_API_KEY:
         app.logger.warning("RESEND_API_KEY belum tersedia. Email tidak dikirim.")
         return False
@@ -263,6 +288,7 @@ def get_db():
     return g.db
 
 
+# Menjalankan query perubahan data, melakukan commit saat berhasil, dan rollback saat terjadi kesalahan.
 def execute_commit(query, params=()):
     db = get_db()
     try:
@@ -276,6 +302,7 @@ def execute_commit(query, params=()):
         raise
 
 
+# Menjalankan kumpulan query skema sebagai satu transaksi agar perubahan tabel konsisten.
 def execute_script_commit(script):
     db = get_db()
     try:
@@ -288,6 +315,7 @@ def execute_script_commit(script):
         raise
 
 
+# Mengambil satu nilai dari hasil query agregat tanpa bergantung pada bentuk row driver database.
 def fetch_scalar(cursor):
     row = cursor.fetchone()
     if row is None:
@@ -297,6 +325,7 @@ def fetch_scalar(cursor):
     return row[0]
 
 
+# Mengubah seluruh hasil query menjadi dictionary agar mudah dipakai oleh template dan respons JSON.
 def fetch_all_dict(cursor):
     rows = cursor.fetchall()
     if not rows:
@@ -315,6 +344,7 @@ def row_to_dict(row):
     return dict(row)
 
 
+# Menyamakan variasi nama role lama menjadi role aplikasi yang berlaku saat ini.
 def normalize_role_value(role):
     role_key = str(role or "").strip().lower()
     if role_key in CASHIER_ROLE_ALIASES:
@@ -327,6 +357,7 @@ def cashier_role_filter(column="role"):
     return f"LOWER({column}) IN ({placeholders})"
 
 
+# Mengubah berbagai format waktu database menjadi datetime untuk perbandingan dan tampilan yang konsisten.
 def parse_db_datetime(value):
     if isinstance(value, datetime):
         return value
@@ -353,15 +384,18 @@ def parse_db_datetime(value):
     return None
 
 
+# Merapikan spasi nama kategori agar validasi duplikat tidak terkecoh oleh perbedaan spasi.
 def normalize_category_name(value):
     return " ".join(str(value or "").strip().split())
 
 
+# Decorator ini membuat helper kategori dapat dipanggil langsung dari seluruh template Jinja.
 @app.template_global()
 def category_key(category):
     return normalize_category_name(category).lower()
 
 
+# Membaca struktur tabel untuk mendukung migrasi pada SQLite maupun MySQL.
 def get_table_columns(table_name):
     db = get_db()
     cursor = db.cursor()
@@ -425,6 +459,7 @@ def is_duplicate_index_error(exc):
     )
 
 
+# Menambah kolom hanya bila belum tersedia supaya proses inisialisasi aman dijalankan berulang kali.
 def add_column_if_missing(table_name, column_name, mysql_definition, sqlite_definition):
     if column_name in get_table_columns(table_name):
         return
@@ -440,6 +475,7 @@ def add_column_if_missing(table_name, column_name, mysql_definition, sqlite_defi
         raise
 
 
+# Membuat index hanya sekali agar query lebih cepat tanpa menimbulkan error duplikasi skema.
 def create_index_if_missing(table_name, index_name, create_sql):
     if index_exists(table_name, index_name):
         return
@@ -458,6 +494,7 @@ def app_setting_key_column():
     return "`key`" if get_db().is_mysql else "key"
 
 
+# Mengambil nilai konfigurasi internal yang disimpan di database.
 def get_app_setting(setting_key):
     key_column = app_setting_key_column()
     return get_db().execute(
@@ -466,6 +503,7 @@ def get_app_setting(setting_key):
     ).fetchone()
 
 
+# Menyimpan konfigurasi internal dan memakai commit agar nilainya tersedia pada request berikutnya.
 def set_app_setting(setting_key, value):
     db = get_db()
     key_column = app_setting_key_column()
@@ -494,6 +532,7 @@ def role_display_name(role):
     return role.title() or "Pengguna"
 
 
+# Menormalkan data akun kasir lama agar role dan statusnya sesuai aturan autentikasi saat ini.
 def normalize_cashier_rows():
     execute_commit(
         f"""
@@ -533,6 +572,7 @@ def normalize_cashier_rows():
     )
 
 
+# Menghubungkan akun kasir lama ke owner yang tepat agar pembatasan data per owner tetap berlaku.
 def attach_legacy_cashiers_to_owner():
     db = get_db()
     normalize_cashier_rows()
@@ -617,6 +657,7 @@ def get_default_owner_id_for_cashier():
     return None
 
 
+# Memastikan tabel kategori memiliki seluruh kolom yang dibutuhkan versi aplikasi saat ini.
 def ensure_category_columns():
     db = get_db()
     columns = get_table_columns("categories")
@@ -649,6 +690,7 @@ def ensure_category_columns():
         execute_commit("CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_name_key ON categories (name_key)")
 
 
+# Membuat tabel kategori dan migrasinya sebelum fitur kategori digunakan.
 def init_category_table():
     db = get_db()
 
@@ -682,6 +724,7 @@ def init_category_table():
     ensure_category_columns()
 
 
+# Mencari satu kategori berdasarkan ID untuk validasi form dan operasi edit/hapus.
 def get_category_by_id(category_id):
     try:
         category_id = int(category_id)
@@ -699,6 +742,7 @@ def get_category_by_name(name):
     return get_db().execute("SELECT * FROM categories WHERE name_key = ?", (key,)).fetchone()
 
 
+# Menggunakan kategori yang sudah ada atau membuatnya bila diperlukan saat migrasi menu lama.
 def get_or_create_category(name, description=None):
     clean_name = normalize_category_name(name)
     key = category_key(clean_name)
@@ -724,6 +768,7 @@ def get_or_create_category(name, description=None):
     return get_category_by_id(category_id)
 
 
+# Memindahkan referensi kategori berbentuk teks pada menu lama ke relasi category_id.
 def migrate_menu_categories():
     if not table_exists("menus"):
         return
@@ -762,6 +807,7 @@ def migrate_menu_categories():
             )
 
 
+# Memvalidasi nama kategori dan mencegah duplikat, sambil mengecualikan record yang sedang diedit.
 def validate_category_payload(data, exclude_id=None):
     name = normalize_category_name(data.get("name", ""))
     description = str(data.get("description", "") or "").strip() or None
@@ -812,6 +858,7 @@ def format_category_date(value):
     return value[:10]
 
 
+# Mengambil daftar kategori beserta jumlah menu untuk tabel manajemen dan fitur pencarian.
 def fetch_category_management_rows(search=""):
     db = get_db()
     where_clause = ""
@@ -849,6 +896,7 @@ def fetch_category_management_rows(search=""):
     return rows
 
 
+# Flask memanggil fungsi ini setelah request selesai agar koneksi database selalu ditutup.
 @app.teardown_appcontext
 def close_db(exception=None):
     db = g.pop("db", None)
@@ -856,6 +904,7 @@ def close_db(exception=None):
         db.close()
 
 
+# Memastikan tabel pengguna memiliki kolom role, relasi owner, dan profil kasir yang diperlukan.
 def ensure_user_columns():
     db = get_db()
     cursor = db.cursor()
@@ -891,6 +940,7 @@ def ensure_user_columns():
         execute_commit("CREATE INDEX IF NOT EXISTS idx_users_owner_id ON users (owner_id)")
 
 
+# Menyiapkan tabel undangan kasir agar kode pendaftaran dapat dilacak masa berlakunya.
 def ensure_cashier_invitation_table():
     db = get_db()
     if db.is_mysql:
@@ -975,6 +1025,7 @@ def attach_legacy_transaction_owner_ids():
         db.rollback()
 
 
+# Membuat kode undangan unik milik owner dengan batas waktu penggunaan tertentu.
 def create_cashier_invitation(owner_id, expires_days=7):
     db = get_db()
     invitation = None
@@ -1010,6 +1061,7 @@ def create_cashier_invitation(owner_id, expires_days=7):
     return invitation
 
 
+# Mengambil undangan berdasarkan kode yang sudah dinormalisasi untuk proses registrasi kasir.
 def get_cashier_invitation(invite_code):
     invite_code = normalize_invite_code(invite_code)
     if not invite_code:
@@ -1066,6 +1118,7 @@ def format_cashier_invitation(invitation):
     return invitation
 
 
+# Menambahkan kolom transaksi POS yang belum ada tanpa menghapus data transaksi lama.
 def ensure_pos_transactions_columns():
     if not table_exists("pos_transactions"):
         return
@@ -1103,6 +1156,7 @@ def ensure_pos_transactions_columns():
         add_column_if_missing("pos_transactions", "created_at", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", "TEXT")
 
 
+# Membuat skema pengguna dan menjalankan migrasi kompatibilitas sebelum autentikasi digunakan.
 def init_db():
     db = get_db()
 
@@ -1163,6 +1217,7 @@ def init_db():
     ensure_cashier_invitation_table()
 
 
+# Memastikan tabel menu memiliki kolom harga, stok, gambar, status, dan relasi kategori.
 def ensure_menu_columns():
     db = get_db()
     cursor = db.cursor()
@@ -1213,6 +1268,7 @@ def first_existing_column(columns, candidates):
     return None
 
 
+# Menyalin nilai dari nama kolom menu versi lama ke kolom yang digunakan aplikasi saat ini.
 def migrate_legacy_menu_columns():
     if not table_exists("menus"):
         return
@@ -1262,6 +1318,7 @@ def legacy_menu_field_values(menu_data):
     return values
 
 
+# Menyimpan satu menu baru dengan susunan kolom yang sesuai skema database aktif.
 def insert_menu_record(menu_data):
     values = {
         "name": menu_data["name"],
@@ -1284,6 +1341,7 @@ def insert_menu_record(menu_data):
     )
 
 
+# Memperbarui menu yang dipilih tanpa mengubah identitas record tersebut.
 def update_menu_record(menu_id, menu_data):
     values = {
         "name": menu_data["name"],
@@ -1303,6 +1361,7 @@ def update_menu_record(menu_id, menu_data):
     )
 
 
+# Menyiapkan tabel menu, kategori, dan migrasi terkait sebelum halaman manajemen atau POS dibuka.
 def init_menu_table():
     db = get_db()
     init_category_table()
@@ -1374,6 +1433,7 @@ def init_menu_table():
     migrate_menu_categories()
 
 
+# Membuat tabel transaksi dan detail item yang diperlukan oleh proses checkout POS.
 def init_pos_tables():
     db = get_db()
 
@@ -1454,6 +1514,7 @@ def init_pos_tables():
     ensure_pos_transactions_columns()
 
 
+# Mengambil nama owner dari session untuk ditampilkan pada halaman dashboard.
 def get_owner_name():
     return (
         session.get("full_name")
@@ -1463,6 +1524,7 @@ def get_owner_name():
     )
 
 
+# Menyimpan identitas, role, dan owner terkait ke session setelah autentikasi berhasil.
 def set_authenticated_session(user_data):
     role = normalize_role_value(user_data.get("role"))
     owner_id = user_data.get("id") if role == "owner" else user_data.get("owner_id")
@@ -1478,11 +1540,13 @@ def set_authenticated_session(user_data):
     session.modified = True
 
 
+# Memuat ulang pengguna dari database agar session tidak mempercayai data akun yang sudah berubah.
 def get_session_user():
     user_id = session.get("user_id")
     if not user_id:
         return None
 
+    # Query ini mengambil data autentikasi terbaru untuk pengguna yang tersimpan di session.
     user = get_db().execute(
         """
         SELECT id, full_name, email, role, owner_id, is_active
@@ -1494,6 +1558,7 @@ def get_session_user():
     return row_to_dict(user) if user else None
 
 
+# Memastikan akun session masih aktif dan masih memiliki role serta relasi owner yang sah.
 def refresh_authenticated_session():
     user_data = get_session_user()
     if not user_data:
@@ -1513,6 +1578,7 @@ def refresh_authenticated_session():
     return user_data
 
 
+# Decorator ini membatasi route umum agar hanya dapat dibuka oleh pengguna yang sudah login.
 def login_required(view_func):
     @wraps(view_func)
     def wrapped_view(**kwargs):
@@ -1524,6 +1590,7 @@ def login_required(view_func):
     return wrapped_view
 
 
+# Mengarahkan owner dan kasir ke halaman kerja masing-masing setelah login.
 def redirect_for_role():
     role = normalize_role_value(session.get("role"))
     if role == "owner":
@@ -1534,6 +1601,7 @@ def redirect_for_role():
     return redirect(url_for("login"))
 
 
+# Decorator ini melindungi POS agar hanya akun kasir aktif yang dapat mengaksesnya.
 def staff_required(view_func):
     @wraps(view_func)
     def wrapped_view(**kwargs):
@@ -1549,6 +1617,7 @@ def staff_required(view_func):
     return wrapped_view
 
 
+# Decorator ini memastikan hanya owner yang dapat membuka fitur manajemen dan laporan.
 def owner_required(view_func):
     @wraps(view_func)
     def wrapped_view(**kwargs):
@@ -1580,6 +1649,7 @@ def get_default_owner_id():
     return row["id"] if isinstance(row, dict) else row[0]
 
 
+# Memeriksa isian autentikasi sebelum query database dijalankan agar pesan kesalahan lebih jelas.
 def validate_auth_fields(full_name=None, email=None, password=None):
     errors = []
     if full_name is not None and not full_name.strip():
@@ -1653,6 +1723,7 @@ def parse_report_date(value):
         return None
 
 
+# Menentukan rentang laporan dari parameter URL dan memakai periode bawaan bila input tidak valid.
 def resolve_report_period(args):
     today = datetime.now().date()
     default_start = today.replace(day=1)
@@ -1670,6 +1741,7 @@ def shift_month(source_date, month_delta):
     return date(year, month, 1)
 
 
+# Menghitung omzet, jumlah transaksi, dan rata-rata transaksi pada periode serta owner yang dipilih.
 def get_period_totals(start_date, end_date, owner_id=None):
     db = get_db()
     owner_join = ""
@@ -1704,6 +1776,7 @@ def get_period_totals(start_date, end_date, owner_id=None):
     }
 
 
+# Membandingkan nilai periode berjalan dan sebelumnya untuk menghasilkan keterangan tren yang mudah dibaca.
 def build_trend_text(current_value, previous_value, empty_text="Belum ada transaksi"):
     current_value = int(current_value or 0)
     previous_value = int(previous_value or 0)
@@ -1722,6 +1795,7 @@ def trend_tone(current_value, previous_value):
     return "positive" if current_value > previous_value else "negative"
 
 
+# Mengelompokkan transaksi per hari sebagai sumber tabel pendapatan harian.
 def fetch_daily_details(start_date, end_date, owner_id=None):
     db = get_db()
     owner_join = ""
@@ -1766,6 +1840,7 @@ def fetch_daily_details(start_date, end_date, owner_id=None):
     return details
 
 
+# Mengambil transaksi terbaru dalam periode laporan untuk ringkasan aktivitas penjualan.
 def fetch_recent_transactions(start_date, end_date, limit=5, owner_id=None):
     db = get_db()
     owner_filter = ""
@@ -1820,6 +1895,7 @@ def fetch_recent_transactions(start_date, end_date, limit=5, owner_id=None):
     return transactions
 
 
+# Mengelompokkan omzet berdasarkan jam agar waktu penjualan tertinggi dapat terlihat pada grafik.
 def fetch_hourly_sales(start_date, end_date, owner_id=None):
     db = get_db()
     owner_join = ""
@@ -1870,6 +1946,7 @@ def fetch_hourly_sales(start_date, end_date, owner_id=None):
     return chart
 
 
+# Menyusun perbandingan omzet beberapa bulan sampai bulan akhir laporan.
 def build_monthly_summary(end_date, owner_id=None):
     current_month = end_date.replace(day=1)
     rows = []
@@ -1888,6 +1965,7 @@ def build_monthly_summary(end_date, owner_id=None):
     return rows
 
 
+# Menggabungkan seluruh query dan perhitungan menjadi satu data laporan yang siap dikirim ke template.
 def build_financial_report(args=None):
     init_pos_tables()
     args = args or request.args
@@ -1969,6 +2047,7 @@ def build_financial_report(args=None):
     }
 
 
+# Memvalidasi harga menu agar memenuhi batas minimum dan kelipatan nominal yang diterima aplikasi.
 def parse_menu_price(price_value):
     price = int(price_value)
     if price < MIN_MENU_PRICE or price % MIN_MENU_PRICE != 0:
@@ -1984,6 +2063,7 @@ def build_menu_code_prefix(category, name=""):
     return (prefix or "MNU").ljust(3, "X")
 
 
+# Membuat kode menu unik berdasarkan kategori dan nama supaya setiap produk mudah dikenali.
 def generate_menu_code(category, name=""):
     db = get_db()
     prefix = build_menu_code_prefix(category, name)
@@ -2076,6 +2156,7 @@ def format_staff_member(row):
     }
 
 
+# Mengambil dan menormalkan field request form kasir sebelum divalidasi atau disimpan.
 def get_staff_form_data():
     is_active = request.form.get("is_active", "1") == "1"
     status = normalize_staff_status(request.form.get("staff_status", "Aktif"), is_active)
@@ -2092,6 +2173,7 @@ def get_staff_form_data():
     }
 
 
+# Memastikan profil kasir memiliki data wajib dan nilai status yang diperbolehkan.
 def validate_staff_form(form_data, require_email=True):
     errors = []
     if not form_data["full_name"]:
@@ -2115,6 +2197,7 @@ def validate_staff_form(form_data, require_email=True):
     return errors, joined_date
 
 
+# Menentukan label shift kasir dari waktu saat ini untuk dicatat pada transaksi.
 def get_current_shift():
     current_hour = datetime.now().hour
     if 5 <= current_hour < 12:
@@ -2124,6 +2207,7 @@ def get_current_shift():
     return "Malam"
 
 
+# Mengubah nominal dari request POS menjadi angka dan menolak nilai negatif atau tidak valid.
 def parse_pos_amount(value, field_label):
     if value in (None, ""):
         return 0
@@ -2136,6 +2220,7 @@ def parse_pos_amount(value, field_label):
     return amount
 
 
+# Memeriksa bentuk item keranjang agar ID dan jumlah beli aman digunakan dalam transaksi.
 def normalize_pos_items(raw_items):
     if not isinstance(raw_items, list) or not raw_items:
         raise ValueError("Keranjang masih kosong.")
@@ -2158,6 +2243,7 @@ def normalize_pos_items(raw_items):
     return items
 
 
+# Membuat kode pesanan unik berbasis waktu dan UUID untuk menghindari benturan antar-checkout.
 def generate_order_code(now=None):
     now = now or datetime.now()
     return f"POS-{now:%Y%m%d%H%M%S}-{uuid.uuid4().hex[:4].upper()}"
@@ -2179,6 +2265,7 @@ def build_qris_payload(order_code, total_amount, timestamp):
     return f"ORDER={order_code}\nTOTAL={int(total_amount or 0)}\nTIME={timestamp}"
 
 
+# Menyimpan detail pembayaran sementara di session agar halaman sukses dan struk dapat menampilkannya.
 def remember_payment_details(order_code, payment_method, total_amount, received_amount=None, change_amount=None):
     received = int(received_amount if received_amount is not None else total_amount or 0)
     change = int(change_amount if change_amount is not None else max(received - int(total_amount or 0), 0))
@@ -2209,6 +2296,7 @@ def get_payment_details(order_code, transaction):
     }
 
 
+# Mengambil header dan item transaksi berdasarkan kode pesanan untuk halaman pembayaran dan struk.
 def fetch_transaction_detail(order_code):
     init_pos_tables()
     db = get_db()
@@ -2265,6 +2353,7 @@ def fetch_transaction_detail(order_code):
     return transaction
 
 
+# Memvalidasi checkout, mengunci stok, menyimpan transaksi beserta item, lalu melakukan commit sebagai satu proses.
 def create_pos_transaction(data):
     init_menu_table()
     init_pos_tables()
@@ -2422,6 +2511,7 @@ def create_pos_transaction(data):
     }
 
 
+# Memvalidasi dan menyimpan gambar menu ke Cloudinary atau folder lokal sesuai konfigurasi.
 def save_menu_image(uploaded_file):
     if not uploaded_file or not uploaded_file.filename:
         return "", None
@@ -2466,6 +2556,7 @@ def save_menu_image(uploaded_file):
     return f"uploads/menu/{unique_name}", None
 
 
+# Helper ini tersedia di Jinja untuk memilih URL gambar remote atau aset lokal secara aman.
 @app.template_global()
 def menu_image_url(image_path):
     if not image_path:
@@ -2477,6 +2568,7 @@ def menu_image_url(image_path):
     return url_for("static", filename=image_path.lstrip("/"))
 
 
+# Route pembuka menampilkan pilihan masuk, kecuali pengguna sudah memiliki session yang valid.
 @app.route("/")
 def opening():
     if session.get("user_id") and refresh_authenticated_session():
@@ -2486,6 +2578,7 @@ def opening():
     return render_template("opening.html")
 
 
+# Route login menerima tampilan form melalui GET dan memproses kredensial melalui POST.
 @app.route("/login", methods=["GET", "POST"])
 def login():
     init_db()
@@ -2498,12 +2591,14 @@ def login():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
 
+        # Validasi awal mencegah query autentikasi dijalankan dengan isian kosong atau format email salah.
         errors = validate_auth_fields(email=email, password=password)
         if errors:
             for error in errors:
                 flash(error, "error")
             return render_template("login.html", email=email)
 
+        # Password hash dibandingkan setelah akun ditemukan agar password asli tidak pernah disimpan.
         user = get_user_by_email(email)
         if user is None or not check_password_hash(user["password_hash"], password):
             flash("Email atau password salah. Cek lagi email yang terdaftar dan password saat registrasi.", "error")
@@ -2511,6 +2606,7 @@ def login():
 
         user_data = row_to_dict(user)
         user_role = normalize_role_value(user_data.get("role"))
+        # Kasir nonaktif ditolak meskipun password benar karena owner telah membatasi aksesnya.
         if user_role == CASHIER_ROLE and int(user_data.get("is_active", 1) or 0) != 1:
             flash("Akun kasir ini sedang nonaktif. Silakan hubungi Owner.", "error")
             return render_template("login.html", email=email)
@@ -2528,6 +2624,7 @@ def login():
     return render_template("login.html", email=query_email or registered_email)
 
 
+# Memproses form registrasi owner atau kasir berdasarkan parameter role yang diberikan route.
 def register_user(role):
     init_db()
     role = normalize_role_value(role)
@@ -2537,10 +2634,12 @@ def register_user(role):
     password_confirm = request.form.get("password_confirm", "")
     staff_phone = request.form.get("staff_phone", "").strip()
 
+    # Seluruh field diperiksa sebelum pembuatan password hash dan penyimpanan akun.
     errors = validate_auth_fields(full_name=full_name, email=email, password=password)
     if password != password_confirm:
         errors.append("Password dan konfirmasi password harus sama.")
 
+    # Akun kasir harus terkait dengan owner agar data POS dan laporan memiliki pemilik yang jelas.
     if role == CASHIER_ROLE:
         owner_id = get_default_owner_id()
         if not owner_id:
@@ -2561,7 +2660,9 @@ def register_user(role):
 
     password_hash = generate_password_hash(password)
     db = get_db()
+    # Penyimpanan dibungkus transaksi agar akun tidak tersimpan sebagian jika database gagal.
     try:
+        # Query kasir menyimpan profil operasional tambahan, sedangkan owner hanya memerlukan data akun utama.
         if role == CASHIER_ROLE:
             cursor = db.execute(
                 """
@@ -2594,9 +2695,9 @@ def register_user(role):
                 (full_name, email, password_hash, role),
             )
             owner_id = cursor.lastrowid
-        db.commit()
+        db.commit()  # Menetapkan pendaftaran setelah seluruh query akun berhasil.
     except Exception:
-        db.rollback()
+        db.rollback()  # Membatalkan perubahan parsial agar database tetap konsisten.
         flash("Email sudah terdaftar atau database sedang bermasalah. Silakan gunakan email lain atau coba lagi.", "error")
         template_name = "register_owner.html" if role == "owner" else "register_staff.html"
         return render_template(
@@ -2608,6 +2709,7 @@ def register_user(role):
 
     role_label = role_display_name(role)
 
+    # Email konfirmasi memberi tahu pengguna bahwa akun dan role berhasil didaftarkan.
     send_email(
         email,
         "Registrasi Kyloffee Berhasil",
@@ -2623,9 +2725,10 @@ def register_user(role):
 
     flash(f"Registrasi {role_label} berhasil, silakan login.", "success")
     session["registered_email"] = email
-    return redirect(url_for("login", email=email))
+    return redirect(url_for("login", email=email))  # Mengarahkan pengguna ke login dengan email yang baru terdaftar.
 
 
+# Route ini menampilkan dan memproses form pendaftaran khusus owner.
 @app.route("/register/owner", methods=["GET", "POST"])
 def register_owner():
     init_db()
@@ -2638,6 +2741,7 @@ def register_owner():
     return render_template("register_owner.html")
 
 
+# Route ini menampilkan dan memproses form kasir dengan role staff internal.
 @app.route("/register/kasir", methods=["GET", "POST"])
 def register_cashier():
     init_db()
@@ -2655,6 +2759,7 @@ def register_staff():
     return register_cashier()
 
 
+# Dashboard umum memakai decorator login lalu meneruskan pengguna sesuai role-nya.
 @app.route("/dashboard")
 @login_required
 def dashboard():
@@ -2667,6 +2772,7 @@ def owner_dashboard():
     return redirect(url_for("owner_menu"))
 
 
+# Route owner ini menampilkan menu secara bertahap dengan pagination agar tabel tetap ringan.
 @app.route("/owner/menu")
 @owner_required
 def owner_menu():
@@ -2680,6 +2786,7 @@ def owner_menu():
     db = get_db()
     offset = (page - 1) * per_page
     total = fetch_scalar(db.execute("SELECT COUNT(*) FROM menus"))
+    # Query menggabungkan menu dan kategori agar nama kategori terbaru tampil di tabel owner.
     menus = db.execute(
         """
         SELECT
@@ -2713,6 +2820,7 @@ def owner_menu():
     )
 
 
+# Route ini dibatasi untuk owner dan menangani tampilan serta penyimpanan menu baru.
 @app.route("/owner/menu/add", methods=["GET", "POST"])
 @owner_required
 def owner_menu_add():
@@ -2806,6 +2914,7 @@ def owner_menu_add():
     )
 
 
+# Route edit menerima ID menu dari URL dan hanya menyimpan perubahan setelah validasi form berhasil.
 @app.route("/owner/menu/<int:menu_id>/edit", methods=["GET", "POST"])
 @owner_required
 def owner_menu_edit(menu_id):
@@ -2914,6 +3023,7 @@ def owner_menu_edit(menu_id):
     )
 
 
+# Penghapusan menu dibatasi ke POST dan owner untuk mencegah perubahan data dari tautan biasa.
 @app.route("/owner/menu/<int:menu_id>/delete", methods=["POST"])
 @owner_required
 def owner_menu_delete(menu_id):
@@ -2930,6 +3040,7 @@ def owner_menu_delete(menu_id):
     return redirect(url_for("owner_menu"))
 
 
+# Menyiapkan data kategori, pencarian, dan kondisi modal sebelum merender halaman manajemen kategori.
 def render_owner_categories(category_form=None):
     init_menu_table()
     search = request.args.get("q", "").strip()
@@ -2943,6 +3054,7 @@ def render_owner_categories(category_form=None):
     )
 
 
+# Route kategori menampilkan daftar melalui GET dan membuat kategori baru melalui POST.
 @app.route("/owner/categories", methods=["GET", "POST"])
 @owner_required
 def owner_categories():
@@ -2984,6 +3096,7 @@ def owner_categories():
     return render_owner_categories()
 
 
+# Route ini memperbarui kategori tertentu setelah memastikan ID dan nama kategori valid.
 @app.route("/owner/categories/<int:category_id>/edit", methods=["POST"])
 @owner_required
 def owner_category_edit(category_id):
@@ -3031,6 +3144,7 @@ def owner_category_edit(category_id):
     return redirect(url_for("owner_categories"))
 
 
+# Kategori hanya dapat dihapus bila aturan relasi menu mengizinkannya agar data menu tidak kehilangan kategori.
 @app.route("/owner/categories/<int:category_id>/delete", methods=["POST"])
 @owner_required
 def owner_category_delete(category_id):
@@ -3056,6 +3170,7 @@ def owner_category_delete(category_id):
     return redirect(url_for("owner_categories"))
 
 
+# Endpoint JSON ini menyediakan daftar kategori untuk antarmuka owner tanpa merender HTML baru.
 @app.route("/api/owner/categories", methods=["GET"])
 @owner_required
 def get_owner_categories():
@@ -3064,6 +3179,7 @@ def get_owner_categories():
     return jsonify({"success": True, "categories": fetch_category_management_rows(search)})
 
 
+# Endpoint POST memvalidasi payload JSON sebelum membuat kategori melalui antarmuka dinamis.
 @app.route("/api/owner/categories", methods=["POST"])
 @owner_required
 def add_owner_category():
@@ -3154,6 +3270,7 @@ def delete_owner_category(category_id):
     return jsonify({"success": True, "message": "Kategori berhasil dihapus."})
 
 
+# Endpoint ini mengirim daftar menu dalam JSON untuk kebutuhan antarmuka manajemen owner.
 @app.route("/api/owner/menus", methods=["GET"])
 @owner_required
 def get_owner_menus():
@@ -3224,6 +3341,7 @@ def get_owner_menus():
     )
 
 
+# Endpoint ini menambahkan menu dari payload JSON setelah pemeriksaan field dan kategori.
 @app.route("/api/owner/menus", methods=["POST"])
 @owner_required
 def add_owner_menu():
@@ -3304,6 +3422,7 @@ def owner_products():
     )
 
 
+# Route laporan hanya untuk owner dan menyusun metrik berdasarkan filter tanggal dari query string.
 @app.route("/owner/reports")
 @owner_required
 def owner_reports():
@@ -3315,6 +3434,7 @@ def owner_reports():
     )
 
 
+# Route cetak memakai data laporan yang sama agar angka pada layar dan dokumen cetak konsisten.
 @app.route("/owner/reports/print")
 @owner_required
 def owner_reports_print():
@@ -3326,6 +3446,7 @@ def owner_reports_print():
     )
 
 
+# Route manajemen pengguna mengambil kasir milik owner aktif dengan pagination.
 @app.route("/owner/users")
 @owner_required
 def owner_users():
@@ -3385,6 +3506,7 @@ def owner_staff():
     return owner_users()
 
 
+# Route tambah kasir memvalidasi profil, membuat password awal, dan mengaitkan akun ke owner aktif.
 @app.route("/owner/users/add", methods=["GET", "POST"])
 @owner_required
 def owner_users_add():
@@ -3449,6 +3571,7 @@ def owner_users_add():
     )
 
 
+# Route edit memastikan kasir yang diubah benar-benar berada di bawah owner yang sedang login.
 @app.route("/owner/users/<int:staff_id>/edit", methods=["GET", "POST"])
 @owner_required
 def owner_users_edit(staff_id):
@@ -3540,6 +3663,7 @@ def owner_fallback(unused_path):
     return redirect(url_for("owner_menu"))
 
 
+# Halaman POS hanya dapat dibuka kasir dan memuat menu aktif beserta stok serta filter kategorinya.
 @app.route("/pos")
 @staff_required
 def pos():
@@ -3582,6 +3706,7 @@ def pos():
     )
 
 
+# Halaman pembayaran membaca keranjang yang disimpan browser dan menyediakan pilihan tunai atau QRIS.
 @app.route("/pos/payment")
 @staff_required
 def pos_payment():
@@ -3593,10 +3718,12 @@ def pos_payment():
     )
 
 
+# Endpoint checkout menerima JSON pembayaran, membuat transaksi, lalu mengembalikan URL halaman sukses.
 @app.route("/api/pos/checkout", methods=["POST"])
 @staff_required
 def pos_checkout():
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True) or {}  # Membaca payload dengan aman agar JSON kosong tidak menyebabkan error.
+    # Kesalahan validasi dikirim sebagai respons 400, sedangkan gangguan tak terduga dicatat sebagai error server.
     try:
         transaction = create_pos_transaction(data)
         payment_method = "QRIS" if str(data.get("payment_method") or "").strip().lower() == "qris" else "Cash"
@@ -3639,6 +3766,7 @@ def pos_checkout():
     )
 
 
+# Endpoint QRIS membuat payload pembayaran dari total keranjang tanpa langsung menyimpan transaksi.
 @app.route("/api/pos/qris", methods=["POST"])
 @staff_required
 def pos_qris_payload():
@@ -3671,6 +3799,7 @@ def pos_qris_payload():
     )
 
 
+# Route ini mengubah payload QRIS pada URL menjadi gambar PNG yang dapat dipindai pelanggan.
 @app.route("/pos/qris-code/<order_code>.png")
 @staff_required
 def pos_qris_code(order_code):
@@ -3692,6 +3821,7 @@ def pos_qris_code(order_code):
     return send_file(buffer, mimetype="image/png", download_name=f"{order_code}.png")
 
 
+# Halaman sukses hanya menampilkan transaksi yang ditemukan berdasarkan kode pesanan.
 @app.route("/pos/payment/success/<order_code>")
 @staff_required
 def payment_success(order_code):
@@ -3712,6 +3842,7 @@ def payment_success(order_code):
     )
 
 
+# Route struk menyiapkan detail transaksi untuk tampilan dan proses cetak bukti pembayaran.
 @app.route("/pos/receipt/<order_code>")
 @staff_required
 def pos_receipt(order_code):
@@ -3731,12 +3862,14 @@ def pos_receipt(order_code):
     )
 
 
+# Logout menghapus seluruh session agar identitas pengguna tidak tersisa di browser.
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("login"))
 
 
+# Menjalankan seluruh inisialisasi skema yang dibutuhkan oleh autentikasi, menu, kategori, dan POS.
 def initialize_database():
     with app.app_context():
         init_db()
@@ -3744,6 +3877,7 @@ def initialize_database():
         init_pos_tables()
 
 
+# Flag global mencegah migrasi skema yang sama dijalankan berulang pada setiap request.
 def ensure_schema_ready():
     global SCHEMA_READY
     if SCHEMA_READY:
@@ -3753,6 +3887,7 @@ def ensure_schema_ready():
     SCHEMA_READY = True
 
 
+# Flask memeriksa kesiapan skema sebelum route diproses agar tabel yang diperlukan selalu tersedia.
 @app.before_request
 def prepare_database_for_request():
     if request.endpoint == "static" or request.path in {"/favicon.ico", "/favicon.png"}:
@@ -3766,6 +3901,7 @@ def favicon():
     return "", 204
 
 
+# Server development hanya dijalankan ketika file ini dieksekusi langsung, bukan saat diimpor.
 if __name__ == "__main__":
     ensure_schema_ready()
     app.run(debug=True)

@@ -1,3 +1,4 @@
+{# Halaman ini mengisi form dengan data menu lama agar owner dapat memperbarui record yang dipilih. #}
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -24,6 +25,7 @@
                     <p class="page-subtitle">Perbarui detail item menu di bawah ini.</p>
                 </div>
 
+                {# Kesalahan validasi ditampilkan sebelum perubahan dikirim kembali ke database. #}
                 {% if errors %}
                     <div class="alert alert--error">
                         {% for error in errors %}
@@ -41,6 +43,7 @@
                 {% set current_active = form_data.get('is_active') if form_data else menu.is_active %}
                 {% set current_image = menu.image if menu.image else '' %}
 
+                {# ID menu pada URL memastikan route memperbarui record yang benar. #}
                 <form action="{{ url_for('owner_menu_edit', menu_id=menu.id) }}" method="POST" enctype="multipart/form-data" class="product-form">
                     <div class="form-card">
                         <div class="form-card__header">

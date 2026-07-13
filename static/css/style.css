@@ -1,3 +1,4 @@
+/* Variabel warna bersama menjaga tampilan autentikasi, POS, pembayaran, dan struk tetap konsisten. */
 :root {
     --brown: #1d1008;
     --brown-2: #2a180d;
@@ -21,6 +22,7 @@ body {
 }
 a { color: inherit; }
 
+/* Bagian autentikasi mengatur susunan halaman pembuka, login, dan registrasi. */
 .auth-page {
     min-height: 100vh;
     display: flex;
@@ -1373,6 +1375,7 @@ input[type="password"]::-ms-clear { display: none; }
     .pos-cart { position: static; }
 }
 
+/* Bagian POS mengatur sidebar, grid produk, keranjang, serta responsivitas layar kasir. */
 /* POS mockup layout */
 .pos-page--mockup {
     --pos-sidebar-expanded: 264px;

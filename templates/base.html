@@ -1,3 +1,4 @@
+{# Template dasar menyediakan head, stylesheet, area konten, dan JavaScript bersama untuk semua halaman. #}
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -8,6 +9,7 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    {# Isi unik setiap halaman ditempatkan pada blok body ini. #}
     {% block body %}{% endblock %}
     <script src="{{ url_for('static', filename='js/script.js') }}?v=pos-filter-2"></script>
     {% block extra_js %}{% endblock %}

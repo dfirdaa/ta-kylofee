@@ -1,3 +1,4 @@
+{# Form ini digunakan owner untuk membuat akun kasir yang langsung terkait dengan usahanya. #}
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -23,6 +24,7 @@
                     <p class="page-subtitle">Kelola akun kasir dan akses POS mereka.</p>
                 </div>
 
+                {# Kesalahan validasi dari Flask ditampilkan sebelum data kasir disimpan. #}
                 {% if errors %}
                     <div class="alert alert--error">
                         {% for error in errors %}
@@ -31,6 +33,7 @@
                     </div>
                 {% endif %}
 
+                {# Form POST mengirim profil kasir ke route owner yang dilindungi pemeriksaan role. #}
                 <form action="{{ url_for('owner_users_add') }}" method="POST" class="staff-form">
                     <div class="form-card staff-form-card staff-form-card--add">
                         <div class="staff-form-body">
@@ -67,6 +70,7 @@
 
                             <div class="staff-form-actions">
                                 <a href="{{ url_for('owner_staff') }}" class="secondary-button">Batal</a>
+                                {# Tombol ini memulai validasi dan pembuatan akun kasir. #}
                                 <button type="submit" class="submit-button">Simpan Data</button>
                             </div>
                         </div>

@@ -1,3 +1,4 @@
+{# Template struk menampilkan identitas transaksi, item, total, dan rincian pembayaran untuk dicetak. #}
 {% extends 'base.html' %}
 {% block title %}Receipt - Kyloffee{% endblock %}
 {% block body %}
@@ -42,6 +43,7 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {# Setiap detail item transaksi ditampilkan bersama jumlah, harga, dan subtotalnya. #}
                     {% for item in transaction['items'] %}
                         <tr>
                             <td>
@@ -86,6 +88,7 @@
 
         <div class="receipt-actions no-print">
             <a href="{{ url_for('payment_success', order_code=transaction.order_code) }}" class="secondary-payment-button">Back</a>
+            {# Tombol cetak memakai fungsi browser dan tidak mengubah data transaksi. #}
             <button type="button" onclick="window.print()" class="pos-checkout-button">Print Receipt</button>
             <a href="{{ url_for('pos') }}" class="secondary-payment-button">New Transaction</a>
         </div>

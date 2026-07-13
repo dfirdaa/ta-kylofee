@@ -1,3 +1,4 @@
+// Modul ini menangani pratinjau gambar, drag-and-drop, dan nilai status aktif pada form menu.
 (function () {
     const input = document.getElementById("imageInput");
     const box = document.querySelector("[data-upload-box]");
@@ -6,6 +7,7 @@
     const statusToggle = document.getElementById("statusToggle");
     const statusValue = document.getElementById("isActiveValue");
 
+    // File diperiksa jenis dan ukurannya sebelum dibaca sebagai pratinjau di browser.
     function showPreview(file) {
         if (!file || !preview || !placeholder) return;
 
@@ -66,6 +68,7 @@
         });
     }
 
+    // Toggle visual selalu disinkronkan dengan input tersembunyi yang dikirim melalui form.
     if (statusToggle && statusValue) {
         statusToggle.addEventListener("click", function () {
             const nextState = !statusToggle.classList.contains("is-on");

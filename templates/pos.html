@@ -1,324 +1,166 @@
-{# Halaman POS membantu kasir memilih menu, mengatur keranjang, dan menuju proses pembayaran. #}
 {% extends 'base.html' %}
-{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 {% block title %}POS Kasir - Kyloffee{% endblock %}
-{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 {% block body %}
-{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <main
-    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
     class="pos-page pos-page--mockup"
-    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
     data-pos-cart
-    {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
     data-payment-url="{{ url_for('pos_payment') }}"
-{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 >
-    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <aside class="pos-sidebar-mock" id="posSidebar" data-pos-sidebar>
-        {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
         <button
-            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             type="button"
-            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             class="pos-sidebar-brand"
-            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             data-pos-sidebar-toggle
-            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             aria-controls="posSidebar"
-            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             aria-expanded="true"
-            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             aria-label="Tutup sidebar POS"
-        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
         >
-            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             <img class="pos-sidebar-brand-logo" src="{{ url_for('static', filename='assets/logo-coffee.png') }}" alt="">
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <span class="pos-sidebar-brand-text">Kyloffee</span>
-        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </button>
 
-        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <nav class="pos-sidebar-nav" aria-label="POS navigation">
-            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             <a href="{{ url_for('pos') }}" class="pos-sidebar-nav-link active">
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <span class="pos-sidebar-nav-icon" aria-hidden="true">&#9635;</span>
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <strong class="pos-sidebar-nav-text">Order Input</strong>
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </a>
-        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </nav>
 
-        {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
         <a href="{{ url_for('logout') }}" class="pos-sidebar-logout">
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <span class="pos-sidebar-logout-icon" aria-hidden="true">&larr;</span>
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <span class="pos-sidebar-logout-text">Log Out</span>
-        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </a>
-    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
     </aside>
 
-    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <section class="pos-workspace-mock">
-        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <header class="pos-topbar-mock">
-            {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
             <button
-                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                 type="button"
-                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                 class="pos-topbar-logo-toggle"
-                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                 data-pos-sidebar-toggle
-                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                 aria-controls="posSidebar"
-                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                 aria-expanded="true"
-                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                 aria-label="Buka sidebar POS"
-            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
             >
-                {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
                 <img src="{{ url_for('static', filename='assets/logo-coffee.png') }}" alt="">
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </button>
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <h1>Kyloffee POS</h1>
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <label class="pos-search-mock">
-                {# Input ini difilter JavaScript di browser tanpa mengubah data menu pada database. #}
                 <input type="search" data-menu-search placeholder="Cari menu, kategori, deskripsi" aria-label="Cari menu">
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <span aria-hidden="true">&#8981;</span>
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </label>
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <p>Shift : {{ shift }} Kasir: {{ staff_name }}</p>
-        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </header>
 
-        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <section class="pos-board-mock">
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <section class="pos-menu-mock">
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <nav class="pos-category-strip" aria-label="Kategori menu">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="pos-category-scroll">
-                        {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
                         <button type="button" class="category-filter is-active" data-category-filter="all">All Items</button>
-                        {# Tombol filter dibuat dari kategori menu aktif yang dikirim oleh route POS. #}
                         {% for category in menu_categories %}
-                            {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
                             <button
-                                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                 type="button"
-                                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                 class="category-filter"
-                                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                 data-category-filter="{{ category }}"
-                            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                             >
-                                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                 {{ category }}
-                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                             </button>
-                        {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                         {% endfor %}
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </nav>
 
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="product-grid-pos product-grid-pos--mock">
-                    {# Grid produk hanya dibentuk bila Flask mengirim menu aktif yang dapat dijual. #}
                     {% if products %}
-                        {# Setiap produk membawa harga, stok, kategori, dan gambar untuk interaksi keranjang. #}
                         {% for product in products %}
-                            {# Menyimpan nilai sementara di Jinja agar dapat digunakan pada bagian tampilan berikutnya. #}
                             {% set product_stock = product.stock|int %}
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <article
-                                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                 class="pos-product-card pos-product-card--mock {% if product_stock <= 0 %}is-out{% endif %}"
-                                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                 data-product-card
-                                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                 data-menu-id="{{ product.id }}"
-                                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                 data-name="{{ product.name }}"
-                                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                 data-price="{{ product.price|int }}"
-                                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                 data-stock="{{ product_stock }}"
-                                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                 data-category="{{ product.category }}"
-                                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                 data-description="{{ product.description or '' }}"
-                            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                             >
-                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <div class="mock-product-media">
-                                    {# Gambar tersimpan dipakai bila tersedia; jika tidak, template memakai logo cadangan. #}
                                     {% if product.image %}
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <img src="{{ menu_image_url(product.image) }}" alt="{{ product.name }}">
-                                    {# Cabang Jinja ini menangani keadaan alternatif dari kondisi sebelumnya. #}
                                     {% else %}
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <div class="mock-product-empty">K</div>
-                                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                                     {% endif %}
-                                    {# Kondisi Jinja ini menentukan apakah bagian tampilan berikut perlu ditampilkan. #}
                                     {% if product_stock <= 0 %}
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <span class="stock-empty-label">Stok Habis</span>
-                                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                                     {% endif %}
-                                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                 </div>
-                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <div class="mock-product-body">
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <div class="mock-product-info">
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <span class="mock-product-category">{{ product.category }}</span>
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <h3>{{ product.name }}</h3>
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <p>{{ product.description or product.category }}</p>
-                                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                     </div>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <div class="mock-product-bottom">
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <div>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <strong class="mock-product-price">Rp{{ "{:,.0f}".format(product.price|int).replace(",", ".") }}</strong>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <small data-stock-label>Stok: {{ product_stock }}</small>
-                                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                         </div>
-                                        {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
                                         <button
-                                            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                             type="button"
-                                            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                             class="pos-add-button"
-                                            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                             data-add-product
-                                            {# Kondisi Jinja ini menentukan apakah bagian tampilan berikut perlu ditampilkan. #}
                                             {% if product_stock <= 0 %}disabled{% endif %}
-                                            {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                             aria-label="Tambah {{ product.name }}"
-                                        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                         >
-                                            {# Kondisi Jinja ini menentukan apakah bagian tampilan berikut perlu ditampilkan. #}
                                             {% if product_stock > 0 %}+{% else %}Habis{% endif %}
-                                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                         </button>
-                                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                     </div>
-                                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                 </div>
-                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                             </article>
-                        {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                         {% endfor %}
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <div class="empty-pos empty-pos--filter" data-menu-empty hidden>
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <strong>Menu tidak ditemukan.</strong>
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <p>Coba kata kunci lain atau pilih kategori All Items.</p>
-                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </div>
-                    {# Cabang Jinja ini menangani keadaan alternatif dari kondisi sebelumnya. #}
                     {% else %}
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <div class="empty-pos">
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <strong>Belum ada menu tersedia.</strong>
-                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </div>
-                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                     {% endif %}
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </section>
 
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <aside class="current-order-panel">
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <header class="current-order-header">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <h2>Current Order</h2>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span>Table 1</span>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </header>
 
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <section class="current-order-list">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="pos-cart-empty" data-cart-empty>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <strong>Keranjang masih kosong.</strong>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <p>Tekan tombol plus pada menu yang dipesan pelanggan.</p>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="pos-cart-items" data-cart-items></div>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </section>
 
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <footer class="current-order-footer">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="order-summary-line">
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <span>Qty</span>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <strong data-cart-count>0 Items</strong>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="order-summary-line">
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <span>Subtotal</span>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <strong data-summary-subtotal>Rp0</strong>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="order-summary-line order-summary-total">
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <span>Total</span>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <strong data-summary-total>Rp0</strong>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
-                    {# Tombol pembayaran baru diaktifkan JavaScript setelah keranjang memiliki item. #}
                     <button type="button" class="pos-payment-open" data-open-payment disabled>Payment</button>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <p class="pos-message" data-pos-message hidden></p>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </footer>
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </aside>
-        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </section>
-    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
     </section>
-{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </main>
-{# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
 {% endblock %}

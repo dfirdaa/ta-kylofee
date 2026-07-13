@@ -1,119 +1,63 @@
-{# Halaman ini memakai kerangka base dan mengirim form pendaftaran akun dengan role owner. #}
 {% extends 'base.html' %}
-{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 {% block title %}Registrasi Owner Kyloffee{% endblock %}
-{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 {% block body %}
-{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <main class="auth-page auth-form-page">
-    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <section class="auth-shell auth-shell--register">
-        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <div class="auth-brand">
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <div class="auth-brand-lockup">
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <h1>Kyloffee</h1>
-                {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
                 <img src="{{ url_for('static', filename='assets/logo-coffee.png') }}" alt="Kyloffee" class="auth-brand-logo">
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </div>
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <p>Please fill in your personal information to complete your<br>registration as an Owner.</p>
-        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </div>
 
-        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <section class="auth-card auth-card--register">
-            {# Pesan flash dari Flask memberi tahu hasil validasi atau proses registrasi. #}
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {# Kondisi Jinja ini menentukan apakah bagian tampilan berikut perlu ditampilkan. #}
                 {% if messages %}
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="message-stack">
-                        {# Perulangan Jinja ini menampilkan setiap data yang dikirim oleh Flask. #}
                         {% for category, message in messages %}
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <div class="message message--{{ category }}">{{ message }}</div>
-                        {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                         {% endfor %}
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
-                {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                 {% endif %}
-            {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
             {% endwith %}
 
-            {# Form POST mengirim nama, email, dan password ke route registrasi owner. #}
             <form action="{{ url_for('register_owner') }}" method="POST" class="auth-form auth-form--register">
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="form-field">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <label for="full_name">Full name</label>
-                    {# Input ini menerima nilai pengguna atau membawa nilai form yang akan dikirim. #}
                     <input type="text" id="full_name" name="full_name" value="{{ full_name|default('', true) }}" placeholder="ex: Michelle Kimberly Gunawan" autocomplete="name" required>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
 
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="form-field">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <label for="email">Email</label>
-                    {# Input ini menerima nilai pengguna atau membawa nilai form yang akan dikirim. #}
                     <input type="email" id="email" name="email" value="{{ email|default('', true) }}" placeholder="micelOwner@gmail.com" autocomplete="email" required>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
 
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="form-field">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <label for="password">Password</label>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="password-wrap">
-                        {# Input ini menerima nilai pengguna atau membawa nilai form yang akan dikirim. #}
                         <input type="password" id="password" name="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="new-password" required>
-                        {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
                         <button type="button" class="password-toggle" data-toggle-password="password" aria-label="Lihat password">
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <span class="eye-icon" aria-hidden="true"></span>
-                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </button>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
 
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="form-field">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <label for="password_confirm">Konfirmasi Password</label>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="password-wrap">
-                        {# Input ini menerima nilai pengguna atau membawa nilai form yang akan dikirim. #}
                         <input type="password" id="password_confirm" name="password_confirm" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="new-password" required>
-                        {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
                         <button type="button" class="password-toggle" data-toggle-password="password_confirm" aria-label="Lihat password">
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <span class="eye-icon" aria-hidden="true"></span>
-                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </button>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
 
-                {# Tombol submit memulai validasi dan penyimpanan akun di sisi Flask. #}
                 <button type="submit" class="auth-button">Daftar <span aria-hidden="true">&rarr;</span></button>
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </form>
 
-            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             <p class="auth-switch auth-switch--register">Sudah punya akun? <a href="{{ url_for('login') }}">Masuk</a></p>
-        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </section>
-    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
     </section>
-{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </main>
-{# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
 {% endblock %}

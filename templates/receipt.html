@@ -1,179 +1,94 @@
-{# Template struk menampilkan identitas transaksi, item, total, dan rincian pembayaran untuk dicetak. #}
 {% extends 'base.html' %}
-{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 {% block title %}Receipt - Kyloffee{% endblock %}
-{# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
 {% block body %}
-{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <main class="receipt-page receipt-page--thermal">
-    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <section class="receipt-shell receipt-shell--thermal">
-        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <article class="thermal-receipt" id="receipt-print-area">
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <header class="thermal-receipt__header">
-                {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
                 <img src="{{ url_for('static', filename='assets/logo-coffee.png') }}" alt="Kyloffee" class="thermal-receipt__logo">
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <h1>Kyloffee</h1>
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <p>Jl. Kyloffee Raya No. 1, Indonesia</p>
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </header>
 
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <div class="thermal-divider"></div>
 
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <section class="thermal-meta">
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span>Tanggal</span>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <strong>{{ transaction.date_display }}</strong>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span>Jam</span>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <strong>{{ transaction.time_display }}</strong>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span>Kasir</span>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <strong>{{ transaction.staff_name or 'Kasir' }}</strong>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span>Invoice</span>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <strong>{{ transaction.order_code }}</strong>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </section>
 
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <div class="thermal-divider"></div>
 
-            {# Tabel ini menyusun data dari Flask dalam baris dan kolom yang mudah dibaca. #}
             <table class="thermal-table">
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <thead>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <tr>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <th>Menu</th>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <th>Qty</th>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <th>Subtotal</th>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </tr>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </thead>
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <tbody>
-                    {# Setiap detail item transaksi ditampilkan bersama jumlah, harga, dan subtotalnya. #}
                     {% for item in transaction['items'] %}
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <tr>
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <td>
-                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <strong>{{ item.menu_name }}</strong>
-                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <span>{{ item.unit_price_display }}</span>
-                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                             </td>
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <td>{{ item.quantity }}</td>
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <td>{{ item.subtotal_display }}</td>
-                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </tr>
-                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                     {% endfor %}
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </tbody>
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </table>
 
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <div class="thermal-divider"></div>
 
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <section class="thermal-total-list">
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="thermal-grand-total">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span>Total</span>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <strong>{{ transaction.total_display }}</strong>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span>Metode</span>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <strong>{{ payment.method }}</strong>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span>Nominal Diterima</span>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <strong>{{ received_display }}</strong>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <span>Kembalian</span>
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <strong>{{ change_display }}</strong>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </section>
 
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <div class="thermal-divider"></div>
 
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <footer class="thermal-receipt__footer">
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <strong>Terima kasih</strong>
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <p>Silakan datang kembali ke Kyloffee.</p>
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </footer>
-        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </article>
 
-        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <div class="receipt-actions no-print">
-            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             <a href="{{ url_for('payment_success', order_code=transaction.order_code) }}" class="secondary-payment-button">Back</a>
-            {# Tombol cetak memakai fungsi browser dan tidak mengubah data transaksi. #}
             <button type="button" onclick="window.print()" class="pos-checkout-button">Print Receipt</button>
-            {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
             <a href="{{ url_for('pos') }}" class="secondary-payment-button">New Transaction</a>
-        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </div>
-    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
     </section>
-{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </main>
-{# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
 {% endblock %}

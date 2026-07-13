@@ -1,352 +1,181 @@
-{# Dashboard laporan merangkum omzet, transaksi, tren waktu, dan detail pendapatan milik owner. #}
 <!DOCTYPE html>
-{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <html lang="id">
-{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <head>
-    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <meta charset="UTF-8">
-    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <title>Financial Reports - Kyloffee</title>
-    {# Memuat stylesheet yang mengatur tampilan halaman tanpa mengubah datanya. #}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/owner_shell.css') }}">
-    {# Memuat stylesheet yang mengatur tampilan halaman tanpa mengubah datanya. #}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/owner_menu.css') }}">
-{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </head>
-{# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
 <body>
-    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
     <div class="owner-page">
-        {# Menyisipkan template parsial supaya komponen yang sama dapat digunakan kembali. #}
         {% include 'partials/owner_sidebar.html' %}
 
-        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
         <main class="owner-main">
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <header class="owner-topbar owner-topbar--spread">
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="topbar-actions report-topbar-actions">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <a
-                        {# url_for membentuk URL route atau aset secara konsisten dari nama endpoint Flask. #}
                         href="{{ url_for('owner_reports_print', date_from=report.date_from, date_to=report.date_to) }}"
-                        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                         class="topbar-button topbar-button--dark"
-                    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                     >
-                        {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                         &#9635; Cetak PDF
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </a>
-                    {# Filter GET mengirim rentang tanggal agar laporan dapat dibuka ulang melalui URL yang sama. #}
                     <form class="period-form" action="{{ url_for('owner_reports') }}" method="get">
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <label for="date_from">Periode</label>
-                        {# Input ini menerima nilai pengguna atau membawa nilai form yang akan dikirim. #}
                         <input id="date_from" type="date" name="date_from" value="{{ report.date_from }}">
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <span>s/d</span>
-                        {# Input ini menerima nilai pengguna atau membawa nilai form yang akan dikirim. #}
                         <input type="date" name="date_to" value="{{ report.date_to }}">
-                        {# Tombol ini menyediakan tindakan yang diproses oleh form atau JavaScript. #}
                         <button type="submit">Terapkan</button>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </form>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="owner-identity">Owner : <strong>{{ owner_name }}</strong></div>
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </header>
 
-            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
             <section class="owner-content report-dashboard">
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <div class="report-heading-row report-heading-row--dashboard">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <p class="breadcrumb">DASBOR ANALITIK</p>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <h1>Laporan Keuangan</h1>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </div>
 
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <section class="report-metric-grid" aria-label="Ringkasan laporan keuangan">
-                    {# Setiap metrik hasil perhitungan Flask ditampilkan sebagai satu kartu ringkasan. #}
                     {% for item in report.dashboard_metrics %}
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <article class="report-metric-card">
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <span>{{ item.label }}</span>
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <strong>{{ item.value }}</strong>
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <small class="metric-trend metric-trend--{{ item.tone }}">{{ item.trend }}</small>
-                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </article>
-                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                     {% endfor %}
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </section>
 
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <section class="report-panel sales-chart-panel">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="panel-heading">
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <h2>Tren Penjualan (Per Jam)</h2>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <span><i></i> Penjualan Periode Ini</span>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
 
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="sales-chart" aria-label="Grafik penjualan per jam">
-                        {# Perulangan membentuk batang grafik penjualan untuk setiap jam. #}
                         {% for item in report.hourly_sales %}
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <div class="sales-chart__slot">
-                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <div
-                                    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                     class="sales-chart__bar {% if item.is_peak %}sales-chart__bar--peak{% endif %}"
-                                    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                     style="--bar-height: {{ item.height }}%;"
-                                    {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                     title="{{ item.hour }} - {{ item.amount }}"
-                                {# Baris ini melengkapi atribut atau data pada elemen tampilan yang sedang dibentuk. #}
                                 ></div>
-                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <small class="{% if not item.label_visible %}is-muted-label{% endif %}">{{ item.hour }}</small>
-                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                             </div>
-                        {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                         {% endfor %}
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
 
-                    {# Kondisi Jinja ini menentukan apakah bagian tampilan berikut perlu ditampilkan. #}
                     {% if not report.has_data %}
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <p class="report-empty-note">Belum ada transaksi untuk periode ini. Data akan muncul otomatis setelah POS mencatat penjualan.</p>
-                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                     {% endif %}
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </section>
 
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <section class="report-panel report-table-panel">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="panel-heading">
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <h2>Transaksi Terbaru</h2>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <span>{{ report.period }}</span>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
 
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <div class="table-responsive">
-                        {# Tabel ini menyusun data dari Flask dalam baris dan kolom yang mudah dibaca. #}
                         <table class="report-data-table">
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <thead>
-                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <tr>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>ID Pesanan</th>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Waktu</th>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Item</th>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Pelanggan</th>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Kasir</th>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Total</th>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <th>Status</th>
-                                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                 </tr>
-                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                             </thead>
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <tbody>
-                                {# Kondisi Jinja ini menentukan apakah bagian tampilan berikut perlu ditampilkan. #}
                                 {% if report.recent_transactions %}
-                                    {# Transaksi terbaru ditampilkan untuk membantu owner memantau aktivitas penjualan. #}
                                     {% for trx in report.recent_transactions %}
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <tr>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td class="mono">{{ trx.id }}</td>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>{{ trx.time }}</td>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>{{ trx['items'] }} Item</td>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>{{ trx.customer }}</td>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>{{ trx.staff }}</td>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>{{ trx.total }}</td>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td><span class="status-pill">{{ trx.status }}</span></td>
-                                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                         </tr>
-                                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                                     {% endfor %}
-                                {# Cabang Jinja ini menangani keadaan alternatif dari kondisi sebelumnya. #}
                                 {% else %}
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <tr>
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <td colspan="7" class="sheet-empty">Belum ada transaksi.</td>
-                                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                     </tr>
-                                {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                                 {% endif %}
-                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                             </tbody>
-                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </table>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </div>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </section>
 
-                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                 <section class="report-bottom-grid">
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <article class="report-panel">
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <div class="panel-heading">
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <h2>Ringkasan Per Bulan</h2>
-                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </div>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <div class="table-responsive">
-                            {# Tabel ini menyusun data dari Flask dalam baris dan kolom yang mudah dibaca. #}
                             <table class="mini-report-table">
-                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <thead>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <tr>
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <th>Bulan</th>
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <th>Pendapatan</th>
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <th>Laba</th>
-                                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                     </tr>
-                                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                 </thead>
-                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <tbody>
-                                    {# Ringkasan bulanan memudahkan perbandingan omzet antarbulan. #}
                                     {% for row in report.monthly_summary %}
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <tr class="{% if row.is_current %}is-current-row{% endif %}">
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>{{ row.month }}</td>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>{{ row.income }}</td>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td>{{ row.profit }}</td>
-                                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                         </tr>
-                                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                                     {% endfor %}
-                                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                 </tbody>
-                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                             </table>
-                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </div>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </article>
 
-                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                     <article class="report-panel">
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <div class="panel-heading">
-                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                             <h2>Pendapatan Per Hari</h2>
-                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </div>
-                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                         <div class="table-responsive">
-                            {# Tabel ini menyusun data dari Flask dalam baris dan kolom yang mudah dibaca. #}
                             <table class="mini-report-table">
-                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <thead>
-                                    {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                     <tr>
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <th>Tanggal</th>
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <th>Trx</th>
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <th>Pendapatan</th>
-                                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                     </tr>
-                                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                 </thead>
-                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                 <tbody>
-                                    {# Kondisi Jinja ini menentukan apakah bagian tampilan berikut perlu ditampilkan. #}
                                     {% if report.daily_income_rows %}
-                                        {# Detail pendapatan harian berasal dari transaksi dalam periode yang dipilih. #}
                                         {% for row in report.daily_income_rows %}
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <tr>
-                                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                 <td>{{ row.date }}</td>
-                                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                 <td>{{ row.transactions }}</td>
-                                                {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                                 <td>{{ row.income }}</td>
-                                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                             </tr>
-                                        {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                                         {% endfor %}
-                                    {# Cabang Jinja ini menangani keadaan alternatif dari kondisi sebelumnya. #}
                                     {% else %}
-                                        {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                         <tr>
-                                            {# Membuka elemen HTML untuk membentuk struktur dan isi bagian halaman ini. #}
                                             <td colspan="3" class="sheet-empty">Belum ada pendapatan harian.</td>
-                                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                         </tr>
-                                    {# Menutup blok kontrol atau blok template Jinja yang sedang digunakan. #}
                                     {% endif %}
-                                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                                 </tbody>
-                            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                             </table>
-                        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                         </div>
-                    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                     </article>
-                {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
                 </section>
-            {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
             </section>
-        {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
         </main>
-    {# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
     </div>
-{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </body>
-{# Menutup elemen HTML yang dibuka pada bagian sebelumnya. #}
 </html>

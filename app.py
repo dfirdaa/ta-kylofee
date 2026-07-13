@@ -1,20 +1,14 @@
 # Modul standar berikut menangani konfigurasi, validasi teks, keamanan koneksi, database lokal, dan pembuatan kode unik.
 import os
-# Mengimpor komponen yang dibutuhkan oleh proses pada bagian ini.
 import re
-# Mengimpor komponen yang dibutuhkan oleh proses pada bagian ini.
 import ssl
-# Mengimpor komponen yang dibutuhkan oleh proses pada bagian ini.
 import sqlite3
-# Mengimpor komponen yang dibutuhkan oleh proses pada bagian ini.
 import uuid
 # BytesIO menampung gambar QR di memori, sedangkan wraps menjaga identitas fungsi saat memakai decorator akses.
 from io import BytesIO
 # Mengimpor komponen yang dibutuhkan oleh proses pada bagian ini.
 from functools import wraps
-# Mengimpor komponen yang dibutuhkan oleh proses pada bagian ini.
 from pathlib import Path
-# Mengimpor komponen yang dibutuhkan oleh proses pada bagian ini.
 from datetime import date, datetime, timedelta
 
 # Memuat konfigurasi rahasia dari .env dan menyediakan layanan email aplikasi.
@@ -25,25 +19,15 @@ import resend
 from flask import (
     # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
     Flask,
-    # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
     flash,
-    # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
     g,
-    # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
     jsonify,
-    # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
     redirect,
-    # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
     render_template,
-    # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
     request,
-    # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
     send_file,
-    # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
     session,
-    # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
     url_for,
-# Menutup susunan data atau pemanggilan yang dimulai pada baris sebelumnya.
 )
 # Werkzeug dipakai untuk mengamankan password dan nama file upload.
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -54,7 +38,6 @@ from werkzeug.utils import secure_filename
 try:
     # Mengimpor komponen yang dibutuhkan oleh proses pada bagian ini.
     import cloudinary
-    # Mengimpor komponen yang dibutuhkan oleh proses pada bagian ini.
     import cloudinary.uploader
 # Blok except menangani kesalahan supaya alur aplikasi tidak berhenti tanpa respons.
 except ImportError:  # pragma: no cover - only used when dependency is missing.
@@ -95,13 +78,9 @@ if RESEND_API_KEY:
 DB_HOST = os.getenv("DB_HOST", "").strip()
 # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 DB_PORT = int(os.getenv("DB_PORT", "4000")) if os.getenv("DB_PORT") else 4000
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 DB_USER = os.getenv("DB_USER", "").strip()
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 DB_PASSWORD = os.getenv("DB_PASSWORD", "")
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 DB_NAME = os.getenv("DB_NAME", "").strip()
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 DB_SSL_CA = os.getenv("DB_SSL_CA", "").strip()
 
 # Set DB_FORCE_SQLITE=1 in .env when you want the app to ignore remote DB
@@ -118,17 +97,11 @@ DEBUG_DB_CONFIG = os.getenv("DEBUG_DB_CONFIG", "0").strip().lower() in {"1", "tr
 if DEBUG_DB_CONFIG:
     # Menjalankan langkah ini sebagai bagian dari alur fungsi atau proses yang sedang berlangsung.
     print("DB_HOST:", DB_HOST or "<empty - using SQLite>")
-    # Menjalankan langkah ini sebagai bagian dari alur fungsi atau proses yang sedang berlangsung.
     print("DB_PORT:", DB_PORT)
-    # Menjalankan langkah ini sebagai bagian dari alur fungsi atau proses yang sedang berlangsung.
     print("DB_USER:", DB_USER or "<empty>")
-    # Menjalankan langkah ini sebagai bagian dari alur fungsi atau proses yang sedang berlangsung.
     print("DB_NAME:", DB_NAME or "<empty>")
-    # Menjalankan langkah ini sebagai bagian dari alur fungsi atau proses yang sedang berlangsung.
     print("DB_PASSWORD exists:", bool(DB_PASSWORD))
-    # Menjalankan langkah ini sebagai bagian dari alur fungsi atau proses yang sedang berlangsung.
     print("DB_FORCE_SQLITE:", DB_FORCE_SQLITE)
-    # Menjalankan langkah ini sebagai bagian dari alur fungsi atau proses yang sedang berlangsung.
     print("DB_FALLBACK_SQLITE:", DB_FALLBACK_SQLITE)
 
 # Driver MySQL dibuat opsional karena aplikasi juga mendukung SQLite.
@@ -142,11 +115,8 @@ except ImportError:
 
 # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 DB_REMOTE_CONFIGURED = bool(DB_HOST and DB_USER and DB_NAME and pymysql is not None)
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 DB_USE_MYSQL = DB_REMOTE_CONFIGURED and not DB_FORCE_SQLITE
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 REMOTE_DB_FAILED = False
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 SCHEMA_READY = False
 
 
@@ -191,7 +161,6 @@ class DatabaseConnection:
     def __init__(self, conn, is_mysql=False):
         # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
         self.conn = conn
-        # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
         self.is_mysql = is_mysql
 
     # MySQL memakai placeholder %s, sehingga tanda ? dari query bersama perlu disesuaikan sebelum dieksekusi.
@@ -250,29 +219,19 @@ class DatabaseConnection:
 
     # Mendefinisikan fungsi beserta parameter yang menjadi data masuk proses ini.
     def close(self):
-        # Mengembalikan hasil ini kepada pemanggil dan mengakhiri fungsi.
         return self.conn.close()
-
-    # Mendefinisikan fungsi beserta parameter yang menjadi data masuk proses ini.
     def __getattr__(self, name):
-        # Mengembalikan hasil ini kepada pemanggil dan mengakhiri fungsi.
         return getattr(self.conn, name)
 
 # Konstanta berikut menjadi aturan bersama untuk akun kasir, menu, kategori, dan kompatibilitas data lama.
 STAFF_DEFAULT_PASSWORD = os.getenv("STAFF_DEFAULT_PASSWORD", "kyloffee123")
 # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 MIN_MENU_PRICE = 500
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 CATEGORY_NAME_MAX_LENGTH = 100
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 STAFF_POSITIONS = ["Kasir"]
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 STAFF_STATUSES = ["Aktif", "Cuti", "Nonaktif"]
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 CASHIER_ROLE = "staff"
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 CASHIER_ROLE_ALIASES = ("staff", "kasir", "cashier")
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 LEGACY_CASHIER_OWNER_WINDOW_MINUTES = int(os.getenv("LEGACY_CASHIER_OWNER_WINDOW_MINUTES", "120"))
 
 # Membuat aplikasi Flask dengan lokasi template dan file statis yang eksplisit.
@@ -281,7 +240,6 @@ app = Flask(
     __name__,
     # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
     template_folder=str(BASE_DIR / "templates"),
-    # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
     static_folder=str(BASE_DIR / "static"),
 # Menutup susunan data atau pemanggilan yang dimulai pada baris sebelumnya.
 )
@@ -289,32 +247,22 @@ app = Flask(
 app.config["SECRET_KEY"] = os.environ.get(
     # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
     "SECRET_KEY",
-    # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
     "dev-secret-key-change-this-before-production",
 # Menutup susunan data atau pemanggilan yang dimulai pada baris sebelumnya.
 )
 # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 app.config["SESSION_COOKIE_HTTPONLY"] = True
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 app.config["SESSION_COOKIE_SECURE"] = bool(os.getenv("VERCEL"))
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 app.config["UPLOAD_FOLDER"] = BASE_DIR / "static" / "uploads" / "menu"
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 MYSQL_SSL_OPTIONS = get_mysql_ssl_options() if DB_USE_MYSQL else {}
 
 # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME", "").strip()
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 CLOUDINARY_API_KEY = os.environ.get("CLOUDINARY_API_KEY", "").strip()
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 CLOUDINARY_API_SECRET = os.environ.get("CLOUDINARY_API_SECRET", "").strip()
-# Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
 CLOUDINARY_FOLDER = os.environ.get("CLOUDINARY_FOLDER", "kyloffee/menu").strip().strip("/")
 
 # Cloudinary hanya dikonfigurasi jika library dan seluruh kredensial wajib tersedia.
@@ -323,15 +271,11 @@ if cloudinary and CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_AP
     cloudinary.config(
         # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
         cloud_name=CLOUDINARY_CLOUD_NAME,
-        # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
         api_key=CLOUDINARY_API_KEY,
-        # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
         api_secret=CLOUDINARY_API_SECRET,
-        # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
         secure=True,
     # Menutup susunan data atau pemanggilan yang dimulai pada baris sebelumnya.
     )
-
 
 # ======================
 # Resend Email Helper
@@ -352,11 +296,8 @@ def send_email(to_email, subject, html_content):
             {
                 # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
                 "from": RESEND_FROM_EMAIL,
-                # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
                 "to": [to_email],
-                # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
                 "subject": subject,
-                # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
                 "html": html_content,
             # Menutup susunan data atau pemanggilan yang dimulai pada baris sebelumnya.
             }
@@ -400,17 +341,11 @@ def get_db():
                 conn = pymysql.connect(
                     # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
                     host=DB_HOST,
-                    # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
                     port=int(DB_PORT),
-                    # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
                     user=DB_USER,
-                    # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
                     password=DB_PASSWORD,
-                    # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
                     database=DB_NAME,
-                    # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
                     cursorclass=pymysql.cursors.DictCursor,
-                    # Menyimpan nilai pada variabel agar dapat digunakan oleh langkah berikutnya.
                     autocommit=False,
                     # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
                     **MYSQL_SSL_OPTIONS,
@@ -3535,7 +3470,6 @@ def get_staff_form_data():
         "staff_status": status,
         # Menambahkan nilai ini ke susunan argumen atau data yang sedang dibentuk.
         "is_active": is_active,
-    # Menutup susunan data atau pemanggilan yang dimulai pada baris sebelumnya.
     }
 
 
@@ -6460,9 +6394,7 @@ def initialize_database():
     with app.app_context():
         # Menjalankan langkah ini sebagai bagian dari alur fungsi atau proses yang sedang berlangsung.
         init_db()
-        # Menjalankan langkah ini sebagai bagian dari alur fungsi atau proses yang sedang berlangsung.
         init_menu_table()
-        # Menjalankan langkah ini sebagai bagian dari alur fungsi atau proses yang sedang berlangsung.
         init_pos_tables()
 
 

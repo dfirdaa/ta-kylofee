@@ -188,7 +188,6 @@ if cloudinary and CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_AP
         secure=True,
     )
 
-
 # ======================
 # Resend Email Helper
 # ======================

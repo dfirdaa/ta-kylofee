@@ -7,7 +7,7 @@ from app.utils.formatters import format_currency, format_short_date, parse_date
 COMPLETED_STATUSES = "('selesai', 'paid', 'completed', 'complete')"
 
 
-def resolve_period(args):
+def resolve_report_period(args):
     today = date.today()
     start = parse_date(args.get("date_from")) or today.replace(day=1)
     end = parse_date(args.get("date_to")) or today
@@ -18,7 +18,7 @@ def format_period(start, end):
     return format_short_date(start) if start == end else f"{format_short_date(start)} - {format_short_date(end)}"
 
 
-def totals(start, end):
+def get_period_totals(start, end):
     row = fetch_one(
         f"""
         SELECT COALESCE(SUM(t.total_amount), 0) AS revenue, COUNT(*) AS transactions
@@ -46,7 +46,7 @@ def trend_tone(current, previous):
     return "positive" if current > previous else "negative"
 
 
-def daily_details(start, end):
+def fetch_daily_details(start, end):
     rows = fetch_all(
         f"""
         SELECT t.transaction_date, COUNT(*) AS transactions, COALESCE(SUM(t.total_amount), 0) AS income
@@ -69,7 +69,7 @@ def daily_details(start, end):
     ]
 
 
-def recent_transactions(start, end, limit=5):
+def fetch_recent_transactions(start, end, limit=5):
     rows = fetch_all(
         f"""
         SELECT t.order_code, t.transaction_date, t.transaction_time, t.customer_name,
@@ -100,7 +100,7 @@ def recent_transactions(start, end, limit=5):
     ]
 
 
-def hourly_sales(start, end):
+def fetch_hourly_sales(start, end):
     rows = fetch_all(
         f"""
         SELECT t.transaction_time, t.total_amount
@@ -137,14 +137,14 @@ def shift_month(source, delta):
     return date(source.year + index // 12, index % 12 + 1, 1)
 
 
-def monthly_summary(end):
+def build_monthly_summary(end):
     months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
     current = end.replace(day=1)
     rows = []
     for delta in (-2, -1, 0):
         start = shift_month(current, delta)
         month_end = shift_month(start, 1) - timedelta(days=1)
-        result = totals(start, month_end)
+        result = get_period_totals(start, month_end)
         rows.append(
             {
                 "month": f"{months[start.month - 1]} {start.year}",
@@ -156,19 +156,19 @@ def monthly_summary(end):
     return rows
 
 
-def build_report(args):
-    start, end = resolve_period(args)
+def build_financial_report(args):
+    start, end = resolve_report_period(args)
     now = datetime.now()
-    current = totals(start, end)
+    current = get_period_totals(start, end)
     days = max((end - start).days + 1, 1)
     previous_end = start - timedelta(days=1)
-    previous = totals(previous_end - timedelta(days=days - 1), previous_end)
-    today = totals(date.today(), date.today())
+    previous = get_period_totals(previous_end - timedelta(days=days - 1), previous_end)
+    today = get_period_totals(date.today(), date.today())
     average = current["revenue"] // days
     previous_average = previous["revenue"] // days
     period = format_period(start, end)
-    details = daily_details(start, end)
-    recent = recent_transactions(start, end, 5)
+    details = fetch_daily_details(start, end)
+    recent = fetch_recent_transactions(start, end, 5)
     metrics = [
         ("Total Pendapatan", current["revenue"], previous["revenue"]),
         ("Laba Bersih", current["profit"], previous["profit"]),
@@ -205,12 +205,11 @@ def build_report(args):
         ],
         "net_profit": format_currency(current["profit"]),
         "net_profit_trend": trend_text(current["profit"], previous["profit"], "Belum ada data periode lalu"),
-        "hourly_sales": hourly_sales(start, end),
+        "hourly_sales": fetch_hourly_sales(start, end),
         "daily_details": details,
         "daily_totals": {"transactions": str(current["transactions"]), "income": format_currency(current["revenue"]), "profit": format_currency(current["profit"])},
         "recent_transactions": recent,
-        "print_transactions": recent_transactions(start, end, 20),
-        "monthly_summary": monthly_summary(end),
+        "print_transactions": fetch_recent_transactions(start, end, 20),
+        "monthly_summary": build_monthly_summary(end),
         "daily_income_rows": details[:6],
     }
-

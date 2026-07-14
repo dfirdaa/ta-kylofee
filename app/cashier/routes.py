@@ -18,7 +18,7 @@ from app.utils.decorators import owner_required
 bp = Blueprint("cashier", __name__)
 
 
-def _owner_name():
+def cashier_owner_name():
     return session.get("full_name") or "Owner"
 
 
@@ -33,7 +33,7 @@ def owner_users():
         return redirect(url_for("cashier.owner_staff", page=total_pages))
     return render_template(
         "owner_staff.html",
-        owner_name=_owner_name(),
+        owner_name=cashier_owner_name(),
         active_page="staff",
         staff_members=staff_members,
         invitations=list_invitations(),
@@ -71,7 +71,7 @@ def owner_users_add():
             return redirect(url_for("cashier.owner_staff"))
     return render_template(
         "owner_staff_add.html",
-        owner_name=_owner_name(),
+        owner_name=cashier_owner_name(),
         active_page="staff",
         form_data=form_data,
         staff_positions=STAFF_POSITIONS,
@@ -96,7 +96,7 @@ def owner_users_edit(staff_id):
             return redirect(url_for("cashier.owner_staff"))
     return render_template(
         "owner_staff_edit.html",
-        owner_name=_owner_name(),
+        owner_name=cashier_owner_name(),
         active_page="staff",
         staff=staff,
         form_data=form_data,

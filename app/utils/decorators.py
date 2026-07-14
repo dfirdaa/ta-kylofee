@@ -2,20 +2,9 @@ from functools import wraps
 
 from flask import flash, redirect, session, url_for
 
-from app.auth.services import CASHIER_ROLE, normalize_role, role_label
+from app.auth.services import redirect_for_role, set_authenticated_session
 from app.database import fetch_one
-
-
-def set_authenticated_session(user):
-    role = normalize_role(user.get("role"))
-    session.permanent = True
-    session["user_id"] = user.get("id")
-    session["full_name"] = user.get("full_name")
-    session["name"] = user.get("full_name")
-    session["username"] = user.get("full_name")
-    session["role"] = role
-    session["role_label"] = role_label(role)
-    session["owner_id"] = user.get("id") if role == "owner" else user.get("owner_id")
+from app.utils.roles import CASHIER_ROLE, normalize_role
 
 
 def current_user():
@@ -38,30 +27,21 @@ def current_user():
     return user
 
 
-def redirect_for_role():
-    if normalize_role(session.get("role")) == "owner":
-        return redirect(url_for("menu.owner_menu"))
-    if normalize_role(session.get("role")) == CASHIER_ROLE:
-        return redirect(url_for("pos.pos"))
-    session.clear()
-    return redirect(url_for("auth.login"))
-
-
 def login_required(view):
     @wraps(view)
-    def wrapped(*args, **kwargs):
+    def login_checked_view(*args, **kwargs):
         if not current_user():
             flash("Silakan login terlebih dahulu.", "error")
             return redirect(url_for("auth.login"))
         return view(*args, **kwargs)
 
-    return wrapped
+    return login_checked_view
 
 
 def role_required(required_role):
     def decorator(view):
         @wraps(view)
-        def wrapped(*args, **kwargs):
+        def role_checked_view(*args, **kwargs):
             user = current_user()
             if not user:
                 flash("Silakan login terlebih dahulu.", "error")
@@ -70,7 +50,7 @@ def role_required(required_role):
                 return redirect_for_role()
             return view(*args, **kwargs)
 
-        return wrapped
+        return role_checked_view
 
     return decorator
 

@@ -1,31 +1,18 @@
 from datetime import datetime
 
-from flask import current_app
+from flask import current_app, redirect, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.database import fetch_one, is_duplicate_key, transaction
+from app.utils.roles import CASHIER_ROLE, normalize_role, role_label
 from app.utils.validators import normalize_invite_code, validate_auth_fields
-
-
-CASHIER_ROLE = "staff"
-CASHIER_ROLE_ALIASES = ("staff", "kasir", "cashier")
-
-
-def normalize_role(role):
-    value = str(role or "").strip().lower()
-    return CASHIER_ROLE if value in CASHIER_ROLE_ALIASES else value
-
-
-def role_label(role):
-    role = normalize_role(role)
-    return "Owner" if role == "owner" else "Kasir" if role == CASHIER_ROLE else "Pengguna"
 
 
 def find_user_by_email(email):
     return fetch_one("SELECT * FROM users WHERE LOWER(email) = LOWER(%s) LIMIT 1", (email,))
 
 
-def authenticate(email_input, password):
+def authenticate_user(email_input, password):
     email, errors = validate_auth_fields(email=email_input, password=password)
     if errors:
         return None, email, errors
@@ -39,6 +26,27 @@ def authenticate(email_input, password):
     if normalize_role(user.get("role")) not in {"owner", CASHIER_ROLE}:
         return None, email, ["Role akun tidak memiliki akses ke aplikasi ini."]
     return user, email, []
+
+
+def set_authenticated_session(user):
+    role = normalize_role(user.get("role"))
+    session.permanent = True
+    session["user_id"] = user.get("id")
+    session["full_name"] = user.get("full_name")
+    session["name"] = user.get("full_name")
+    session["username"] = user.get("full_name")
+    session["role"] = role
+    session["role_label"] = role_label(role)
+    session["owner_id"] = user.get("id") if role == "owner" else user.get("owner_id")
+
+
+def redirect_for_role():
+    if normalize_role(session.get("role")) == "owner":
+        return redirect(url_for("menu.owner_menu"))
+    if normalize_role(session.get("role")) == CASHIER_ROLE:
+        return redirect(url_for("pos.pos"))
+    session.clear()
+    return redirect(url_for("auth.login"))
 
 
 def register_user(role, form):
@@ -77,27 +85,9 @@ def register_user(role, form):
             owner_id = None
             invitation = None
             if role == CASHIER_ROLE:
-                cursor.execute(
-                    """
-                    SELECT id, owner_id, status, expires_at
-                    FROM cashier_invitations
-                    WHERE invite_code = %s
-                    FOR UPDATE
-                    """,
-                    (invite_code,),
-                )
-                invitation = cursor.fetchone()
-                if not invitation:
-                    raise ValueError("Kode undangan kasir tidak ditemukan.")
-                if str(invitation.get("status") or "").lower() != "aktif":
-                    raise ValueError("Kode undangan kasir sudah digunakan atau tidak aktif.")
-                expires_at = invitation.get("expires_at")
-                if expires_at and expires_at < now:
-                    cursor.execute(
-                        "UPDATE cashier_invitations SET status = 'Kedaluwarsa' WHERE id = %s",
-                        (invitation["id"],),
-                    )
-                    raise ValueError("Kode undangan kasir sudah kedaluwarsa.")
+                from app.cashier.services import lock_valid_invitation
+
+                invitation = lock_valid_invitation(cursor, invite_code, now)
                 owner_id = invitation["owner_id"]
 
             cursor.execute(
@@ -124,16 +114,9 @@ def register_user(role, form):
             user_id = cursor.lastrowid
 
             if invitation:
-                cursor.execute(
-                    """
-                    UPDATE cashier_invitations
-                    SET status = 'Digunakan', used_at = %s, used_by_cashier_id = %s
-                    WHERE id = %s AND status = 'Aktif'
-                    """,
-                    (now, user_id, invitation["id"]),
-                )
-                if cursor.rowcount != 1:
-                    raise ValueError("Kode undangan baru saja digunakan pengguna lain.")
+                from app.cashier.services import consume_invitation
+
+                consume_invitation(cursor, invitation["id"], user_id, now)
     except ValueError as exc:
         return None, form_data, [str(exc)]
     except Exception as exc:

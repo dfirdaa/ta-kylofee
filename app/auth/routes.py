@@ -1,8 +1,14 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
-from app.auth.services import authenticate, register_user, role_label
-from app.integrations import send_email
-from app.utils.decorators import current_user, redirect_for_role, set_authenticated_session
+from app.auth.services import (
+    authenticate_user,
+    redirect_for_role,
+    register_user,
+    set_authenticated_session,
+)
+from app.utils.decorators import current_user
+from app.utils.email import send_email
+from app.utils.roles import role_label
 
 
 bp = Blueprint("auth", __name__)
@@ -24,7 +30,7 @@ def login():
         session.clear()
 
     if request.method == "POST":
-        user, email, errors = authenticate(request.form.get("email"), request.form.get("password", ""))
+        user, email, errors = authenticate_user(request.form.get("email"), request.form.get("password", ""))
         if errors:
             for error in errors:
                 flash(error, "error")
@@ -75,7 +81,7 @@ def register_cashier():
 
 @bp.route("/register/staff", methods=["GET", "POST"])
 def register_staff():
-    return register_cashier()
+    return redirect(url_for("auth.register_cashier"), code=307 if request.method == "POST" else 302)
 
 
 @bp.route("/dashboard")

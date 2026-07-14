@@ -6,20 +6,21 @@ Aplikasi Flask modular untuk autentikasi Owner/Kasir, manajemen kategori dan men
 
 ```text
 .
-|-- app.py                 # entry point kompatibel
-|-- run.py                 # entry point utama
+|-- app.py                 # entry point WSGI/Vercel
+|-- run.py                 # launcher lokal (main function)
 |-- config.py              # konfigurasi environment
 |-- app/
 |   |-- __init__.py        # application factory
 |   |-- database.py        # koneksi dan transaksi TiDB
 |   |-- schema.py          # pemeriksaan/migrasi skema idempoten
+|   |-- routing.py         # inventaris dan deteksi duplicate route
 |   |-- auth/              # login, registrasi, logout
 |   |-- owner/             # shell/dashboard owner
 |   |-- cashier/           # akun kasir dan kode undangan
 |   |-- menu/              # kategori dan menu
 |   |-- pos/               # transaksi POS, QRIS, struk
 |   |-- reports/           # laporan global semua owner
-|   `-- utils/             # decorator, validator, formatter
+|   `-- utils/             # decorator, validator, formatter, role, email
 |-- migrations/
 |   `-- 001_tidb_centralization.sql
 |-- templates/
@@ -68,6 +69,20 @@ CLOUDINARY_FOLDER=kyloffee/menu
 python -m venv .venv
 pip install -r requirements.txt
 python run.py
+```
+
+Audit route dan jalankan pengujian:
+
+```bash
+flask --app app.py routes
+flask --app app.py audit-routes
+python -m unittest discover -s tests -v
+```
+
+Deployment Vercel menggunakan satu entry point dari `vercel.json`:
+
+```bash
+vercel --prod
 ```
 
 Aplikasi memeriksa dan melengkapi skema secara idempoten pada request pertama. Backup database sebelum deployment pertama. SQL referensi tersedia di `migrations/001_tidb_centralization.sql`.

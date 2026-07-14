@@ -1,7 +1,6 @@
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, session, url_for
 
 from app.database import commit
-from app.integrations import save_menu_image
 from app.menu.services import (
     category_options,
     create_category,
@@ -11,6 +10,7 @@ from app.menu.services import (
     get_menu,
     list_categories,
     list_menus,
+    save_menu_image,
     update_category,
     update_menu,
 )
@@ -20,7 +20,7 @@ from app.utils.decorators import owner_required
 bp = Blueprint("menu", __name__)
 
 
-def _owner_name():
+def menu_owner_name():
     return session.get("full_name") or "Owner"
 
 
@@ -32,7 +32,7 @@ def owner_menu():
     menus, total = list_menus(page, per_page)
     return render_template(
         "owner_menu.html",
-        owner_name=_owner_name(),
+        owner_name=menu_owner_name(),
         active_page="menu",
         menus=menus,
         page=page,
@@ -73,7 +73,7 @@ def owner_menu_add():
                 return redirect(url_for("menu.owner_menu"))
     return render_template(
         "owner_menu_add.html",
-        owner_name=_owner_name(),
+        owner_name=menu_owner_name(),
         active_page="menu",
         category_options=options,
         form_data=form_data,
@@ -103,7 +103,7 @@ def owner_menu_edit(menu_id):
                 return redirect(url_for("menu.owner_menu"))
     return render_template(
         "owner_menu_edit.html",
-        owner_name=_owner_name(),
+        owner_name=menu_owner_name(),
         active_page="menu",
         category_options=category_options(),
         menu=existing,
@@ -127,7 +127,7 @@ def _render_categories(category_form=None):
     search = request.args.get("q", "").strip()
     return render_template(
         "owner_categories.html",
-        owner_name=_owner_name(),
+        owner_name=menu_owner_name(),
         active_page="categories",
         categories=list_categories(search),
         search=search,
@@ -233,4 +233,3 @@ def owner_menu_api(menu_id):
     if errors:
         return jsonify({"success": False, "message": errors[0]}), 400
     return jsonify({"success": True, "message": "Menu berhasil diperbarui.", "menu": menu})
-

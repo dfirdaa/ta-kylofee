@@ -8,7 +8,6 @@ from app.utils.validators import normalize_menu_code
 
 
 _schema_lock = Lock()
-_schema_ready = False
 
 
 CREATE_STATEMENTS = (
@@ -363,12 +362,11 @@ def _create_indexes():
 
 
 def ensure_schema():
-    global _schema_ready
-    if _schema_ready:
+    if current_app.extensions.get("tidb_schema_ready"):
         return
 
     with _schema_lock:
-        if _schema_ready:
+        if current_app.extensions.get("tidb_schema_ready"):
             return
         connection = get_db()
         try:
@@ -391,10 +389,9 @@ def ensure_schema():
         _backfill_item_codes()
         commit("ALTER TABLE menus MODIFY COLUMN code VARCHAR(100) NOT NULL")
         _create_indexes()
-        _schema_ready = True
+        current_app.extensions["tidb_schema_ready"] = True
         current_app.logger.info("Skema TiDB siap digunakan.")
 
 
-def reset_schema_state_for_tests():
-    global _schema_ready
-    _schema_ready = False
+def reset_schema_state_for_tests(app):
+    app.extensions.pop("tidb_schema_ready", None)

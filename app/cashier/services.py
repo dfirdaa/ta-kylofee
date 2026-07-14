@@ -4,9 +4,9 @@ from datetime import date, datetime, timedelta
 from flask import current_app
 from werkzeug.security import generate_password_hash
 
-from app.auth.services import CASHIER_ROLE, CASHIER_ROLE_ALIASES, find_user_by_email
 from app.database import commit, fetch_all, fetch_one, fetch_value, is_duplicate_key
 from app.utils.formatters import format_short_date
+from app.utils.roles import CASHIER_ROLE, CASHIER_ROLE_ALIASES
 from app.utils.validators import validate_email
 
 
@@ -122,7 +122,7 @@ def validate_cashier_form(data, *, exclude_id=None):
     if email_error:
         errors.append(email_error)
     else:
-        existing = find_user_by_email(clean_email)
+        existing = fetch_one("SELECT id FROM users WHERE LOWER(email) = LOWER(%s) LIMIT 1", (clean_email,))
         if existing and int(existing["id"]) != int(exclude_id or 0):
             errors.append("Email sudah digunakan akun lain.")
     if not data["staff_phone"]:
@@ -216,6 +216,40 @@ def create_invitation(owner_id, expires_days=7):
             if not is_duplicate_key(exc):
                 raise
     raise RuntimeError("Gagal membuat kode undangan unik setelah 5 percobaan.")
+
+
+def lock_valid_invitation(cursor, invite_code, now=None):
+    now = now or datetime.now()
+    cursor.execute(
+        """
+        SELECT id, owner_id, status, expires_at
+        FROM cashier_invitations
+        WHERE invite_code = %s
+        FOR UPDATE
+        """,
+        (invite_code,),
+    )
+    invitation = cursor.fetchone()
+    if not invitation:
+        raise ValueError("Kode undangan kasir tidak ditemukan.")
+    if str(invitation.get("status") or "").lower() != "aktif":
+        raise ValueError("Kode undangan kasir sudah digunakan atau tidak aktif.")
+    if invitation.get("expires_at") and invitation["expires_at"] < now:
+        raise ValueError("Kode undangan kasir sudah kedaluwarsa.")
+    return invitation
+
+
+def consume_invitation(cursor, invitation_id, cashier_id, now=None):
+    cursor.execute(
+        """
+        UPDATE cashier_invitations
+        SET status = 'Digunakan', used_at = %s, used_by_cashier_id = %s
+        WHERE id = %s AND status = 'Aktif'
+        """,
+        (now or datetime.now(), cashier_id, invitation_id),
+    )
+    if cursor.rowcount != 1:
+        raise ValueError("Kode undangan baru saja digunakan pengguna lain.")
 
 
 def list_invitations(limit=10):

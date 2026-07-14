@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, session
 
-from app.reports.services import build_report
+from app.reports.services import build_financial_report
 from app.utils.decorators import owner_required
 
 
@@ -14,7 +14,7 @@ def owner_reports():
         "owner_financial_reports.html",
         owner_name=session.get("full_name") or "Owner",
         active_page="reports",
-        report=build_report(request.args),
+        report=build_financial_report(request.args),
     )
 
 
@@ -25,6 +25,5 @@ def owner_reports_print():
         "owner_financial_report_print.html",
         owner_name=session.get("full_name") or "Owner",
         active_page="reports",
-        report=build_report(request.args),
+        report=build_financial_report(request.args),
     )
-

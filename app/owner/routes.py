@@ -6,6 +6,12 @@ from app.utils.decorators import owner_required
 bp = Blueprint("owner", __name__)
 
 
+@bp.route("/owner")
+@owner_required
+def owner_root():
+    return redirect(url_for("menu.owner_menu"))
+
+
 @bp.route("/owner/dashboard")
 @owner_required
 def owner_dashboard():

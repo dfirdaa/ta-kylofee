@@ -9,8 +9,8 @@
             <p>Halo, <strong>{{ full_name }}</strong></p>
             <p>Role: <strong>{{ role }}</strong></p>
         </div>
-        <a href="{{ url_for('owner_menu') if role == 'Owner' else url_for('pos') }}" class="auth-button auth-button--link">Lanjut</a>
-        <a href="{{ url_for('logout') }}" class="secondary-link">Logout</a>
+        <a href="{{ url_for('menu.owner_menu') if role == 'Owner' else url_for('pos.pos') }}" class="auth-button auth-button--link">Lanjut</a>
+        <a href="{{ url_for('auth.logout') }}" class="secondary-link">Logout</a>
     </section>
 </main>
 {% endblock %}

@@ -26,7 +26,7 @@
 
     <nav class="owner-nav" aria-label="Owner navigation">
         <a
-            href="{{ url_for('owner_menu') }}"
+            href="{{ url_for('menu.owner_menu') }}"
             class="owner-nav__link {% if active_page == 'menu' %}active{% endif %}"
             data-owner-nav-link
             data-tooltip="Menu Management"
@@ -41,7 +41,7 @@
         </a>
 
         <a
-            href="{{ url_for('owner_categories') }}"
+            href="{{ url_for('menu.owner_categories') }}"
             class="owner-nav__link {% if active_page == 'categories' %}active{% endif %}"
             data-owner-nav-link
             data-tooltip="Category Management"
@@ -56,7 +56,7 @@
         </a>
 
         <a
-            href="{{ url_for('owner_reports') }}"
+            href="{{ url_for('reports.owner_reports') }}"
             class="owner-nav__link {% if active_page == 'reports' %}active{% endif %}"
             data-owner-nav-link
             data-tooltip="Financial Reports"
@@ -71,7 +71,7 @@
         </a>
 
         <a
-            href="{{ url_for('owner_staff') }}"
+            href="{{ url_for('cashier.owner_staff') }}"
             class="owner-nav__link {% if active_page == 'staff' %}active{% endif %}"
             data-owner-nav-link
             data-tooltip="Cashier Management"
@@ -86,7 +86,7 @@
         </a>
     </nav>
 
-    <a href="{{ url_for('logout') }}" class="owner-logout" data-owner-logout data-tooltip="Log Out" title="Log Out">
+    <a href="{{ url_for('auth.logout') }}" class="owner-logout" data-owner-logout data-tooltip="Log Out" title="Log Out">
         <span class="owner-logout__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" focusable="false">
                 <path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9" />

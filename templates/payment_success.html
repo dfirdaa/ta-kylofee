@@ -36,8 +36,8 @@
         </div>
 
         <div class="payment-success-actions">
-            <a href="{{ url_for('pos_receipt', order_code=transaction.order_code) }}" class="pos-checkout-button">Print Receipt</a>
-            <a href="{{ url_for('pos') }}" class="secondary-payment-button">New Transaction</a>
+            <a href="{{ url_for('pos.pos_receipt', order_code=transaction.order_code) }}" class="pos-checkout-button">Print Receipt</a>
+            <a href="{{ url_for('pos.pos') }}" class="secondary-payment-button">New Transaction</a>
         </div>
     </section>
 </main>

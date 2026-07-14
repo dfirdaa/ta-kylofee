@@ -39,7 +39,7 @@
                 {% set current_status = form_data.get('staff_status') if form_data else staff.status %}
                 {% set current_active = form_data.get('is_active') if form_data else staff.is_active %}
 
-                <form action="{{ url_for('owner_users_edit', staff_id=staff.id) }}" method="POST" class="staff-form">
+                <form action="{{ url_for('cashier.owner_users_edit', staff_id=staff.id) }}" method="POST" class="staff-form">
                     <div class="form-card staff-form-card staff-form-card--edit">
                         <div class="staff-form-body staff-form-body--edit">
                             <div class="staff-field-row">
@@ -49,7 +49,7 @@
                                 </div>
                                 <div class="field-group">
                                     <label for="email">Email</label>
-                                    <input type="email" id="email" name="email" value="{{ current_email }}" required>
+                                    <input type="email" id="email" name="email" value="{{ current_email }}" autocapitalize="none" pattern="[^A-Z]*" title="Email harus menggunakan huruf kecil semua." required>
                                 </div>
                             </div>
 
@@ -94,7 +94,7 @@
                             <hr>
 
                             <div class="staff-form-actions">
-                                <a href="{{ url_for('owner_staff') }}" class="secondary-button">Batal</a>
+                                <a href="{{ url_for('cashier.owner_staff') }}" class="secondary-button">Batal</a>
                                 <button type="submit" class="submit-button">Simpan Perubahan</button>
                             </div>
                         </div>

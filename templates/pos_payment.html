@@ -4,11 +4,11 @@
 <main
     class="payment-page"
     data-payment-page
-    data-pos-url="{{ url_for('pos') }}"
-    data-checkout-url="{{ url_for('pos_checkout') }}"
-    data-qris-url="{{ url_for('pos_qris_payload') }}"
+    data-pos-url="{{ url_for('pos.pos') }}"
+    data-checkout-url="{{ url_for('pos.pos_checkout') }}"
+    data-qris-url="{{ url_for('pos.pos_qris_payload') }}"
 >
-    <a href="{{ url_for('pos') }}" class="payment-page-back" data-payment-back aria-label="Kembali ke POS">
+    <a href="{{ url_for('pos.pos') }}" class="payment-page-back" data-payment-back aria-label="Kembali ke POS">
         <span aria-hidden="true">&larr;</span>
         <strong>Kembali</strong>
     </a>

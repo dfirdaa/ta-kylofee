@@ -34,7 +34,7 @@
                         <p class="page-subtitle">Daftar produk minuman dan makanan yang tersedia untuk dipesan pelanggan.</p>
                     </div>
 
-                    <a href="{{ url_for('owner_menu_add') }}" class="primary-button">
+                    <a href="{{ url_for('menu.owner_menu_add') }}" class="primary-button">
                         <span>+</span>
                         Add New Menu
                     </a>
@@ -83,7 +83,7 @@
                                                 {% endif %}
                                             </td>
                                             <td class="action-cell">
-                                                <a href="{{ url_for('owner_menu_edit', menu_id=menu.id) }}" class="icon-button" title="Edit menu">&#9998;</a>
+                                                <a href="{{ url_for('menu.owner_menu_edit', menu_id=menu.id) }}" class="icon-button" title="Edit menu">&#9998;</a>
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -108,8 +108,8 @@
                     <footer class="table-footer">
                         <p>Menampilkan {{ start_item }} sampai {{ end_item }} dari {{ total }} menu</p>
                         <div class="pagination">
-                            <a class="page-button {% if page <= 1 %}disabled{% endif %}" href="{{ url_for('owner_menu', page=page-1) if page > 1 else '#' }}">&lsaquo;</a>
-                            <a class="page-button {% if page >= total_pages %}disabled{% endif %}" href="{{ url_for('owner_menu', page=page+1) if page < total_pages else '#' }}">&rsaquo;</a>
+                            <a class="page-button {% if page <= 1 %}disabled{% endif %}" href="{{ url_for('menu.owner_menu', page=page-1) if page > 1 else '#' }}">&lsaquo;</a>
+                            <a class="page-button {% if page >= total_pages %}disabled{% endif %}" href="{{ url_for('menu.owner_menu', page=page+1) if page < total_pages else '#' }}">&rsaquo;</a>
                         </div>
                     </footer>
                 </section>

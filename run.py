@@ -1,5 +1,3 @@
-"""Compatibility entry point. The application implementation lives in app/ Blueprints."""
-
 from app import create_app
 
 
@@ -8,3 +6,4 @@ app = create_app()
 
 if __name__ == "__main__":
     app.run(debug=True)
+

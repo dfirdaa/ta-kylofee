@@ -15,12 +15,12 @@
             <header class="owner-topbar owner-topbar--spread">
                 <div class="topbar-actions report-topbar-actions">
                     <a
-                        href="{{ url_for('owner_reports_print', date_from=report.date_from, date_to=report.date_to) }}"
+                        href="{{ url_for('reports.owner_reports_print', date_from=report.date_from, date_to=report.date_to) }}"
                         class="topbar-button topbar-button--dark"
                     >
                         &#9635; Cetak PDF
                     </a>
-                    <form class="period-form" action="{{ url_for('owner_reports') }}" method="get">
+                    <form class="period-form" action="{{ url_for('reports.owner_reports') }}" method="get">
                         <label for="date_from">Periode</label>
                         <input id="date_from" type="date" name="date_from" value="{{ report.date_from }}">
                         <span>s/d</span>

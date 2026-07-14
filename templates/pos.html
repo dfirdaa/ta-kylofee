@@ -4,7 +4,7 @@
 <main
     class="pos-page pos-page--mockup"
     data-pos-cart
-    data-payment-url="{{ url_for('pos_payment') }}"
+    data-payment-url="{{ url_for('pos.pos_payment') }}"
 >
     <aside class="pos-sidebar-mock" id="posSidebar" data-pos-sidebar>
         <button
@@ -20,13 +20,13 @@
         </button>
 
         <nav class="pos-sidebar-nav" aria-label="POS navigation">
-            <a href="{{ url_for('pos') }}" class="pos-sidebar-nav-link active">
+            <a href="{{ url_for('pos.pos') }}" class="pos-sidebar-nav-link active">
                 <span class="pos-sidebar-nav-icon" aria-hidden="true">&#9635;</span>
                 <strong class="pos-sidebar-nav-text">Order Input</strong>
             </a>
         </nav>
 
-        <a href="{{ url_for('logout') }}" class="pos-sidebar-logout">
+        <a href="{{ url_for('auth.logout') }}" class="pos-sidebar-logout">
             <span class="pos-sidebar-logout-icon" aria-hidden="true">&larr;</span>
             <span class="pos-sidebar-logout-text">Log Out</span>
         </a>
@@ -77,6 +77,7 @@
                                 class="pos-product-card pos-product-card--mock {% if product_stock <= 0 %}is-out{% endif %}"
                                 data-product-card
                                 data-menu-id="{{ product.id }}"
+                                data-code="{{ product.code }}"
                                 data-name="{{ product.name }}"
                                 data-price="{{ product.price|int }}"
                                 data-stock="{{ product_stock }}"
@@ -96,6 +97,7 @@
                                 <div class="mock-product-body">
                                     <div class="mock-product-info">
                                         <span class="mock-product-category">{{ product.category }}</span>
+                                        <small class="mock-product-code">{{ product.code }}</small>
                                         <h3>{{ product.name }}</h3>
                                         <p>{{ product.description or product.category }}</p>
                                     </div>

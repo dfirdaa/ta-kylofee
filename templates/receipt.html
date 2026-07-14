@@ -46,6 +46,7 @@
                         <tr>
                             <td>
                                 <strong>{{ item.menu_name }}</strong>
+                                {% if item.menu_code %}<small>{{ item.menu_code }}</small>{% endif %}
                                 <span>{{ item.unit_price_display }}</span>
                             </td>
                             <td>{{ item.quantity }}</td>
@@ -85,9 +86,9 @@
         </article>
 
         <div class="receipt-actions no-print">
-            <a href="{{ url_for('payment_success', order_code=transaction.order_code) }}" class="secondary-payment-button">Back</a>
+            <a href="{{ url_for('pos.payment_success', order_code=transaction.order_code) }}" class="secondary-payment-button">Back</a>
             <button type="button" onclick="window.print()" class="pos-checkout-button">Print Receipt</button>
-            <a href="{{ url_for('pos') }}" class="secondary-payment-button">New Transaction</a>
+            <a href="{{ url_for('pos.pos') }}" class="secondary-payment-button">New Transaction</a>
         </div>
     </section>
 </main>

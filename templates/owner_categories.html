@@ -40,14 +40,14 @@
                     </button>
                 </div>
 
-                <form action="{{ url_for('owner_categories') }}" method="GET" class="category-toolbar">
+                <form action="{{ url_for('menu.owner_categories') }}" method="GET" class="category-toolbar">
                     <label class="category-search" for="categorySearch">
                         <span aria-hidden="true">&#8981;</span>
                         <input id="categorySearch" type="search" name="q" value="{{ search }}" placeholder="Search kategori" aria-label="Search kategori">
                     </label>
                     <button type="submit" class="secondary-button">Search</button>
                     {% if search %}
-                        <a href="{{ url_for('owner_categories') }}" class="category-clear-link">Reset</a>
+                        <a href="{{ url_for('menu.owner_categories') }}" class="category-clear-link">Reset</a>
                     {% endif %}
                 </form>
 
@@ -127,9 +127,9 @@
                     class="category-form"
                     data-category-form
                     data-current-id="{{ category_form.get('id', '') }}"
-                    data-create-action="{{ url_for('owner_categories') }}"
-                    data-edit-action-template="{{ url_for('owner_category_edit', category_id=0) }}"
-                    action="{{ url_for('owner_category_edit', category_id=category_form.get('id')) if is_edit_mode and category_form.get('id') else url_for('owner_categories') }}"
+                    data-create-action="{{ url_for('menu.owner_categories') }}"
+                    data-edit-action-template="{{ url_for('menu.owner_category_edit', category_id=0) }}"
+                    action="{{ url_for('menu.owner_category_edit', category_id=category_form.get('id')) if is_edit_mode and category_form.get('id') else url_for('menu.owner_categories') }}"
                 >
                     <div class="category-form__body">
                         <div class="field-group">

@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .map(function (item) {
                 return {
                     id: Number(item.id || item.menu_id || 0),
+                    code: String(item.code || item.menu_code || ""),
                     name: String(item.name || "Menu"),
                     price: Math.max(0, Number(item.price || 0) || 0),
                     stock: Math.max(0, Number(item.stock || 0) || 0),
@@ -124,6 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (matchingCard) {
                 item.stock = Math.max(0, Number(matchingCard.dataset.stock || item.stock || 0) || 0);
                 item.name = matchingCard.dataset.name || item.name;
+                item.code = matchingCard.dataset.code || item.code;
                 item.price = Math.max(0, Number(matchingCard.dataset.price || item.price || 0) || 0);
             }
             if (item.stock > 0) {
@@ -225,6 +227,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const category = normalizeFilterValue(card.dataset.category || "");
                 const searchableText = [
                     card.dataset.name || "",
+                    card.dataset.code || "",
                     card.dataset.category || "",
                     card.dataset.description || "",
                 ].join(" ").toLowerCase().replace(/\s+/g, " ");
@@ -261,7 +264,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         '<article class="pos-cart-item">',
                             '<div>',
                                 '<strong>' + escapeHtml(item.name) + '</strong>',
-                                '<small>' + formatCurrency(item.price) + ' / item</small>',
+                                '<small>' + (item.code ? escapeHtml(item.code) + ' &middot; ' : '') + formatCurrency(item.price) + ' / item</small>',
                             '</div>',
                             '<div class="cart-qty-control">',
                                 '<button type="button" data-cart-action="minus" data-menu-id="' + item.id + '">-</button>',
@@ -292,6 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             cart.set(id, {
                 id,
+                code: card.dataset.code || "",
                 name: card.dataset.name || "Menu",
                 price: Number(card.dataset.price || 0),
                 stock,

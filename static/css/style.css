@@ -2845,3 +2845,11 @@ input[type="password"]::-ms-clear { display: none; }
         margin: 0;
     }
 }
+.mock-product-code {
+    display: block;
+    margin-top: 0.2rem;
+    color: #6f544b;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}

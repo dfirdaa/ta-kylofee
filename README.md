@@ -1,34 +1,102 @@
 # Kyloffee POS
 
-Project Flask untuk autentikasi Owner/Staff, Owner Menu Management, dan POS sederhana.
+Aplikasi Flask modular untuk autentikasi Owner/Kasir, manajemen kategori dan menu, POS, kode undangan kasir, serta laporan keuangan bersama. Seluruh data aplikasi menggunakan satu database TiDB/MySQL; tidak ada fallback ke database lokal lain.
 
-## Jalankan lokal
+## Struktur utama
+
+```text
+.
+|-- app.py                 # entry point kompatibel
+|-- run.py                 # entry point utama
+|-- config.py              # konfigurasi environment
+|-- app/
+|   |-- __init__.py        # application factory
+|   |-- database.py        # koneksi dan transaksi TiDB
+|   |-- schema.py          # pemeriksaan/migrasi skema idempoten
+|   |-- auth/              # login, registrasi, logout
+|   |-- owner/             # shell/dashboard owner
+|   |-- cashier/           # akun kasir dan kode undangan
+|   |-- menu/              # kategori dan menu
+|   |-- pos/               # transaksi POS, QRIS, struk
+|   |-- reports/           # laporan global semua owner
+|   `-- utils/             # decorator, validator, formatter
+|-- migrations/
+|   `-- 001_tidb_centralization.sql
+|-- templates/
+`-- static/
+```
+
+## Environment
+
+Salin `.env.example` menjadi `.env`, lalu isi salah satu bentuk koneksi berikut:
+
+```env
+DATABASE_URL=mysql://user:password@host:4000/database?ssl_ca=certs/tidb-ca.pem
+```
+
+atau variabel terpisah:
+
+```env
+TIDB_HOST=
+TIDB_PORT=4000
+TIDB_USER=
+TIDB_PASSWORD=
+TIDB_DATABASE=
+TIDB_SSL_CA=certs/tidb-ca.pem
+TIDB_SSL_VERIFY_CERT=1
+```
+
+Alias lama `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, dan `DB_SSL_CA` masih dibaca untuk mempermudah deployment lama, tetapi semuanya tetap diarahkan ke koneksi TiDB yang sama.
+
+Variabel aplikasi lainnya:
+
+```env
+SECRET_KEY=
+SESSION_COOKIE_SECURE=0
+STAFF_DEFAULT_PASSWORD=kyloffee123
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+CLOUDINARY_FOLDER=kyloffee/menu
+```
+
+## Menjalankan
 
 ```bash
+python -m venv .venv
 pip install -r requirements.txt
-python app.py
+python run.py
 ```
 
-Buka `http://127.0.0.1:5000`.
+Aplikasi memeriksa dan melengkapi skema secara idempoten pada request pertama. Backup database sebelum deployment pertama. SQL referensi tersedia di `migrations/001_tidb_centralization.sql`.
 
-## Database
+## Perubahan aturan data
 
-Default lokal memakai SQLite `database.db`. Untuk menghindari error TiDB saat credential belum benar, pakai:
+- Email harus diketik lowercase; backend menolak input yang mengandung huruf kapital dan tidak mengubahnya diam-diam.
+- Password minimal enam karakter dan selalu disimpan sebagai hash Werkzeug.
+- Semua owner membaca laporan, kasir, menu, kategori, transaksi, dan undangan yang sama. `owner_id` dipertahankan hanya sebagai audit.
+- Daftar kasir menggunakan filter role global, bukan `owner_id`.
+- Registrasi kasir memerlukan kode undangan. Kode dikunci dengan `SELECT ... FOR UPDATE`, lalu akun dibuat dan kode ditandai digunakan dalam satu transaksi.
+- Kode menu dibuat dari sequence per-prefix dengan row locking, retry terbatas, dan unique index database.
+- POS menggunakan `menu_id` sebagai foreign key bisnis transaksi dan menyimpan `menu_code` sebagai snapshot untuk struk/pelacakan.
 
-```env
-DB_FORCE_SQLITE=1
-DB_FALLBACK_SQLITE=1
+## Query laporan: sebelum dan sesudah
+
+Sebelumnya query menambahkan filter `t.owner_id = owner_id` (atau owner kasir), sehingga Owner B tidak melihat transaksi Owner A. Sekarang laporan hanya memfilter periode dan status selesai:
+
+```sql
+WHERE t.transaction_date BETWEEN %s AND %s
+  AND LOWER(t.status) IN ('selesai', 'paid', 'completed', 'complete')
 ```
 
-Kalau ingin database online/shared, isi credential TiDB di `.env`, lalu ubah:
+## Query kasir: sebelum dan sesudah
 
-```env
-DB_FORCE_SQLITE=0
-DB_FALLBACK_SQLITE=0
+Sebelumnya daftar menggunakan `WHERE role IN (...) AND owner_id = %s`. Sekarang identitas utama adalah `users.id` dan seluruh kasir dibaca berdasarkan role:
+
+```sql
+WHERE LOWER(u.role) IN (%s, %s, %s)
 ```
 
-## Akun
-
-- Owner: `/register/owner`
-- Staff: `/register/staff`
-- Kode staff: `KYLOFFEE-STAFF`
+Kode undangan ditampilkan melalui relasi `cashier_invitations.used_by_cashier_id` bila tersedia.

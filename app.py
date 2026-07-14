@@ -1886,10 +1886,10 @@ def build_monthly_summary(end_date, owner_id=None):
         )
     return rows
 
-
+# untuk membangun laporan keuangan berdasarkan periode tertentu, termasuk total pendapatan, laba bersih, jumlah transaksi, dan tren dibandingkan periode sebelumnya.
 def build_financial_report(args=None):
     init_pos_tables()
-    args = args or request.args
+    args = args or request.args 
     start_date, end_date = resolve_report_period(args)
     now = datetime.now()
     owner_id = session.get("user_id") if session.get("role") == "owner" else None
@@ -1907,7 +1907,7 @@ def build_financial_report(args=None):
     daily_details = fetch_daily_details(start_date, end_date, owner_id)
     recent_transactions = fetch_recent_transactions(start_date, end_date, limit=5, owner_id=owner_id)
 
-    return {
+    return { 
         "period": period_label,
         "calendar_label": period_label,
         "printed_at": format_report_datetime(now),
@@ -1967,49 +1967,49 @@ def build_financial_report(args=None):
         "daily_income_rows": daily_details[:6],
     }
 
-
+# untuk memvalidasi dan mengubah format harga menu menjadi bilangan bulat, serta memastikan harga tersebut memenuhi batas minimum dan kelipatan yang ditentukan.
 def parse_menu_price(price_value):
-    price = int(price_value)
-    if price < MIN_MENU_PRICE or price % MIN_MENU_PRICE != 0:
+    price = int(price_value) #supaya jadi bilangan bulat
+    if price < MIN_MENU_PRICE or price % MIN_MENU_PRICE != 0: #Operator % mencari sisa pembagian.
         raise ValueError
     return price
 
-
+# untuk membangun prefix kode menu berdasarkan kategori atau nama menu.
 def build_menu_code_prefix(category, name=""):
     source = str(category or name or "Menu").upper()
     cleaned = re.sub(r"[^A-Z0-9]+", " ", source).strip()
     first_word = cleaned.split()[0] if cleaned else "MENU"
-    prefix = re.sub(r"[^A-Z0-9]", "", first_word)[:3]
+    prefix = re.sub(r"[^A-Z0-9]", "", first_word)[:3] #bagian awal kode yang digunakan sebagai penanda kategori
     return (prefix or "MNU").ljust(3, "X")
 
-
-def generate_menu_code(category, name=""):
+# untuk menghasilkan kode menu unik berdasarkan kategori dan nama menu.
+def generate_menu_code(category, name=""): #menerima data category dan name, lalu menghasilkan kode menu unik berdasarkan kategori dan nama menu.
     db = get_db()
     prefix = build_menu_code_prefix(category, name)
-    rows = fetch_all_dict(
+    rows = fetch_all_dict( #mengambil semua kode menu yang sudah ada di database yang memiliki prefix yang sama, untuk menentukan nomor urut berikutnya.
         db.execute(
             "SELECT code FROM menus WHERE code LIKE ?",
             (f"{prefix}-%",),
         )
     )
     highest_number = 0
-    pattern = re.compile(rf"^{re.escape(prefix)}-(\d+)$")
-    for row in rows:
+    pattern = re.compile(rf"^{re.escape(prefix)}-(\d+)$") #membuat pola regex untuk mencocokkan kode menu yang memiliki format prefix diikuti oleh nomor urut.
+    for row in rows: 
         match = pattern.match(str(row.get("code") or "").upper())
         if match:
             highest_number = max(highest_number, int(match.group(1)))
 
     next_number = highest_number + 1
     while True:
-        candidate = f"{prefix}-{next_number:03d}"
-        exists = db.execute("SELECT id FROM menus WHERE code = ?", (candidate,)).fetchone()
-        if not exists:
+        candidate = f"{prefix}-{next_number:03d}" #membuat kandidat kode menu baru dengan format prefix diikuti oleh nomor urut 3 digit.
+        exists = db.execute("SELECT id FROM menus WHERE code = ?", (candidate,)).fetchone() #memeriksa apakah kandidat kode menu sudah ada di database.
+        if not exists: #jika kandidat kode menu belum ada di database, maka kandidat tersebut dikembalikan sebagai kode menu baru yang unik.
             return candidate
         next_number += 1
 
-
-def parse_staff_date(value):
-    value = str(value or "").strip()
+# untuk memvalidasi dan mengubah format tanggal bergabung staf menjadi format ISO (YYYY-MM-DD) jika valid, atau mengembalikan string kosong jika tidak valid.
+def parse_staff_date(value): #menerima input tanggal dalam format string dan mengembalikan tanggal dalam format ISO (YYYY-MM-DD) jika valid, atau string kosong jika tidak valid.
+    value = str(value or "").strip() 
     if not value:
         return ""
     for date_format in ("%Y-%m-%d", "%m/%d/%Y"):
@@ -2019,18 +2019,18 @@ def parse_staff_date(value):
             continue
     return ""
 
-
-def format_staff_date(value):
+# untuk menampilkan tanggal bergabung staf dalam format pendek (DD Mon YYYY) jika valid, atau tanda "-" jika tidak valid.
+def format_staff_date(value): #menerima input tanggal dalam format string dan mengembalikan tanggal dalam format pendek (DD Mon YYYY) jika valid, atau tanda "-" jika tidak valid.
     value = str(value or "").strip()
     if not value:
         return "-"
-    date_part = value[:10]
+    date_part = value[:10] #mengambil 10 karakter pertama dari string tanggal, yang diharapkan berisi tanggal dalam format YYYY-MM-DD.
     parsed_date = parse_report_date(date_part)
     if parsed_date:
         return format_short_date(parsed_date)
     return value
 
-
+# untuk menormalkan status staf, mengembalikan "Aktif" jika status tidak valid, dan "Nonaktif" jika staf tidak aktif.
 def normalize_staff_status(status, is_active=True):
     status = str(status or "Aktif").strip().title()
     if status not in STAFF_STATUSES:
@@ -2484,16 +2484,16 @@ def opening():
         session.clear()
     return render_template("opening.html")
 
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
+# untuk menangani proses login pengguna, termasuk validasi input, autentikasi, dan pengaturan sesi.
+@app.route("/login", methods=["GET", "POST"]) 
+def login(): 
     init_db()
     if session.get("user_id") and refresh_authenticated_session():
         return redirect_for_role()
     if session.get("user_id"):
         session.clear()
 
-    if request.method == "POST":
+    if request.method == "POST": # memeriksa apakah metode permintaan adalah POST, yang menunjukkan bahwa pengguna mengirimkan data login melalui formulir.
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
 
@@ -2526,7 +2526,7 @@ def login():
     query_email = request.args.get("email", "").strip().lower()
     return render_template("login.html", email=query_email or registered_email)
 
-
+# untuk menangani proses registrasi pengguna baru, termasuk validasi input, pembuatan akun, dan pengiriman email konfirmasi.
 def register_user(role):
     init_db()
     role = normalize_role_value(role)
@@ -2583,7 +2583,7 @@ def register_user(role):
                     1,
                 ),
             )
-            cashier_id = cursor.lastrowid
+            cashier_id = cursor.lastrowid # mendapatkan ID kasir yang baru saja dibuat
         else:
             cursor = db.execute(
                 """
@@ -2620,11 +2620,11 @@ def register_user(role):
         """
     )
 
-    flash(f"Registrasi {role_label} berhasil, silakan login.", "success")
+    flash(f"Registrasi {role_label} berhasil, silakan login.", "success") 
     session["registered_email"] = email
     return redirect(url_for("login", email=email))
 
-
+# untuk menangani proses registrasi akun Owner, termasuk validasi input, pembuatan akun, dan pengiriman email konfirmasi.
 @app.route("/register/owner", methods=["GET", "POST"])
 def register_owner():
     init_db()
@@ -2636,7 +2636,7 @@ def register_owner():
         return register_user("owner")
     return render_template("register_owner.html")
 
-
+# untuk menangani proses registrasi akun Kasir, termasuk validasi input, pembuatan akun, dan pengiriman email konfirmasi.
 @app.route("/register/kasir", methods=["GET", "POST"])
 def register_cashier():
     init_db()
@@ -2804,7 +2804,7 @@ def owner_menu_add():
         errors=[],
     )
 
-
+# untuk menangani proses pengeditan menu oleh pemilik, termasuk validasi input, pembaruan data menu, dan pengelolaan gambar menu.
 @app.route("/owner/menu/<int:menu_id>/edit", methods=["GET", "POST"])
 @owner_required
 def owner_menu_edit(menu_id):

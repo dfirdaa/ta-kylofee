@@ -284,6 +284,17 @@ class AcceptanceTests(unittest.TestCase):
                 self.assertEqual(response.status_code, 200)
                 response.close()
 
+    def test_owner_sidebar_stays_in_viewport_while_main_content_scrolls(self):
+        source = (Path(__file__).resolve().parent.parent / "static" / "css" / "owner_shell.css").read_text()
+        compact = " ".join(source.split())
+        self.assertIn("body { margin: 0;", compact)
+        self.assertIn("overflow: hidden;", compact)
+        self.assertIn(".owner-page {", compact)
+        self.assertIn("height: 100dvh;", compact)
+        self.assertIn(".owner-main {", compact)
+        self.assertIn("overflow-y: auto;", compact)
+        self.assertIn(".owner-sidebar { position: relative;", compact)
+
     def test_menu_code_renders_on_pos_and_checkout_route_is_wired(self):
         cashier = {"id": 2, "full_name": "Kasir", "role": "staff", "is_active": 1}
         product = {

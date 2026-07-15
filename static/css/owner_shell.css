@@ -21,6 +21,7 @@
 
 html,
 body {
+    height: 100%;
     min-height: 100%;
 }
 
@@ -29,7 +30,7 @@ body {
     background: #fbfaf8;
     color: var(--kyloffee-text);
     font-family: Arial, Helvetica, sans-serif;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 a {
@@ -38,10 +39,12 @@ a {
 
 .owner-page {
     --current-sidebar-width: var(--sidebar-expanded-width);
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
     display: flex;
     align-items: stretch;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 .owner-page.owner-sidebar-collapsed {
@@ -49,14 +52,13 @@ a {
 }
 
 .owner-sidebar {
-    position: sticky;
-    top: 0;
+    position: relative;
     z-index: 20;
     flex: 0 0 var(--current-sidebar-width);
     width: var(--current-sidebar-width);
     min-width: var(--current-sidebar-width);
-    min-height: 100vh;
-    height: 100vh;
+    min-height: 0;
+    height: 100%;
     background: var(--kyloffee-cream);
     border-right: 1px solid var(--kyloffee-line);
     border-top-right-radius: 16px;
@@ -358,7 +360,12 @@ a {
     flex: 1 1 auto;
     width: auto;
     min-width: 0;
-    min-height: 100vh;
+    min-height: 0;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
 }
 
 .owner-topbar {
@@ -617,7 +624,7 @@ a {
     .owner-page.owner-sidebar-collapsed {
         --current-sidebar-width: 0px;
         display: block;
-        min-height: 100vh;
+        min-height: 0;
     }
 
     .owner-sidebar {
@@ -667,5 +674,20 @@ a {
 
     .owner-content {
         padding: 22px 18px 48px;
+    }
+}
+
+@media print {
+    html,
+    body {
+        height: auto;
+        overflow: visible;
+    }
+
+    .owner-page,
+    .owner-main {
+        height: auto;
+        min-height: 0;
+        overflow: visible;
     }
 }

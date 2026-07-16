@@ -6,8 +6,8 @@ Aplikasi Flask modular untuk autentikasi Owner/Kasir, manajemen kategori dan men
 
 ```text
 .
-|-- app.py                 # entry point WSGI/Vercel
-|-- run.py                 # launcher lokal (main function)
+|-- index.py               # entry point WSGI/Vercel
+|-- run.py                 # launcher lokal
 |-- config.py              # konfigurasi environment
 |-- app/
 |   |-- __init__.py        # application factory
@@ -75,24 +75,25 @@ python run.py
 Audit route dan jalankan pengujian:
 
 ```bash
-flask --app app.py routes
-flask --app app.py audit-routes
+flask --app index.py routes
+flask --app index.py audit-routes
 python -m unittest discover -s tests -v
 ```
 
-Deployment Vercel menggunakan satu entry point dari `vercel.json`. Pastikan semua
-environment variable ditambahkan untuk Production (dan Preview bila dipakai), lalu
-uji entry point dan migrasi dari mesin tepercaya sebelum deploy:
+Deployment Vercel menggunakan auto-detection Flask melalui top-level `app` di
+`index.py`; konfigurasi legacy `builds` tidak diperlukan. Pastikan semua environment
+variable ditambahkan untuk Production (dan Preview bila dipakai), lalu uji entry
+point dan migrasi dari mesin tepercaya sebelum deploy:
 
 ```powershell
-python -c "from app import create_app; app = create_app(); print('import ok')"
+python -c "from index import app; print('Vercel entrypoint berhasil:', app.name)"
 $env:AUTO_MIGRATE = "0"
-flask --app app.py migrate-db
+flask --app index.py migrate-db
 vercel --prod --force
 ```
 
 Di Vercel, `AUTO_MIGRATE` default-nya nonaktif agar beberapa cold start tidak
-menjalankan DDL bersamaan. Jalankan `flask --app app.py migrate-db` sekali setelah
+menjalankan DDL bersamaan. Jalankan `flask --app index.py migrate-db` sekali setelah
 backup database, lalu biarkan `AUTO_MIGRATE=0` di Production. Jika migrasi otomatis
 sengaja diaktifkan dan gagal, aplikasi mencatat traceback, melanjutkan request, dan
 mencoba lagi setelah `SCHEMA_RETRY_SECONDS`. Status konfigurasi aman dapat diperiksa

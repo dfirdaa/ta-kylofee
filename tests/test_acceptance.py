@@ -5,6 +5,7 @@ import threading
 import unittest
 from contextlib import contextmanager
 from datetime import datetime, timedelta
+from pathlib import Path
 from unittest.mock import patch
 
 import pymysql
@@ -205,17 +206,11 @@ class AcceptanceTests(unittest.TestCase):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
 
-    def test_vercel_loader_can_import_app_py_despite_package_name_collision(self):
+    def test_vercel_loader_can_import_index_app(self):
         project_root = str(__import__("pathlib").Path(__file__).resolve().parent.parent)
         loader_code = """
-import importlib.util
-import sys
-
-spec = importlib.util.spec_from_file_location("app", "app.py")
-module = importlib.util.module_from_spec(spec)
-sys.modules["app"] = module
-spec.loader.exec_module(module)
-assert module.app.__class__.__name__ == "Flask"
+from index import app
+assert app.__class__.__name__ == "Flask"
 print("VERCEL_LOADER_OK")
 """
         result = subprocess.run(

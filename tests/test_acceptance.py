@@ -364,13 +364,12 @@ print("VERCEL_LOADER_OK")
             "LOWER(REPLACE(TRIM(COALESCE(c.description, '')), ' ', '')) LIKE %s",
             search_query,
         )
-        self.assertIn("c.normalized_name LIKE %s", search_query)
+        self.assertNotIn("c.normalized_name", search_query)
         self.assertEqual(
             search_params,
             (
                 "%black series%",
                 "%black series%",
-                "%blackseries%",
                 "%blackseries%",
                 "%blackseries%",
             ),

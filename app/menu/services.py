@@ -278,12 +278,10 @@ def list_categories(search=""):
            OR LOWER(TRIM(COALESCE(c.description, ''))) LIKE %s
            OR LOWER(REPLACE(TRIM(c.name), ' ', '')) LIKE %s
            OR LOWER(REPLACE(TRIM(COALESCE(c.description, '')), ' ', '')) LIKE %s
-           OR c.normalized_name LIKE %s
         """
         params = (
             keyword,
             keyword,
-            normalized_keyword,
             normalized_keyword,
             normalized_keyword,
         )

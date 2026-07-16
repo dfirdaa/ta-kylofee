@@ -4,7 +4,7 @@ Aplikasi Flask modular untuk autentikasi Owner/Kasir, manajemen kategori dan men
 
 ## Struktur utama
 
-```text
+```text/
 .
 |-- index.py               # entry point WSGI/Vercel
 |-- run.py                 # launcher lokal

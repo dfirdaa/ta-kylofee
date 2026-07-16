@@ -1,4 +1,3 @@
-from datetime import datetime
 from io import BytesIO
 
 from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, send_file, session, url_for
@@ -18,6 +17,7 @@ from app.pos.services import (
 )
 from app.utils.decorators import cashier_required
 from app.utils.formatters import format_currency
+from app.utils.timezone import jakarta_now
 
 
 bp = Blueprint("pos", __name__)
@@ -93,7 +93,7 @@ def pos_qris_payload():
         return jsonify({"success": False, "message": str(exc)}), 400
     if total <= 0:
         return jsonify({"success": False, "message": "Total pembayaran harus lebih dari Rp 0."}), 400
-    timestamp = datetime.now().replace(microsecond=0).isoformat(timespec="minutes")
+    timestamp = jakarta_now().replace(microsecond=0).isoformat(timespec="minutes")
     order_code = normalize_order_code(data.get("order_code")) or generate_invoice_code()
     return jsonify(
         {
@@ -117,7 +117,7 @@ def pos_qris_code(order_code):
         total = parse_amount(request.args.get("total"), "Total pembayaran")
     except ValueError as exc:
         return str(exc), 400
-    timestamp = request.args.get("timestamp", datetime.now().isoformat(timespec="minutes"))
+    timestamp = request.args.get("timestamp", jakarta_now().isoformat(timespec="minutes"))
     order_code = normalize_order_code(order_code) or generate_invoice_code()
     qr = qrcode.QRCode(version=None, box_size=12, border=2)
     qr.add_data(build_qris_payload(order_code, total, timestamp))
@@ -164,4 +164,3 @@ def pos_receipt(order_code):
         received_display=format_currency(payment["received_amount"]),
         change_display=format_currency(payment["change_amount"]),
     )
-

@@ -1,10 +1,10 @@
 import uuid
-from datetime import datetime
 
 from flask import session
 
 from app.database import fetch_all, fetch_one, get_db
 from app.utils.formatters import format_currency, format_short_date
+from app.utils.timezone import jakarta_now_naive, transaction_datetime_jakarta
 
 
 def parse_amount(value, label):
@@ -38,12 +38,12 @@ def normalize_items(raw_items):
 
 
 def generate_order_code(now=None):
-    now = now or datetime.now()
+    now = now or jakarta_now_naive()
     return f"POS-{now:%Y%m%d%H%M%S}-{uuid.uuid4().hex[:6].upper()}"
 
 
 def generate_invoice_code(now=None):
-    now = now or datetime.now()
+    now = now or jakarta_now_naive()
     return f"INV{now:%Y%m%d%H%M%S}{uuid.uuid4().hex[:3].upper()}"
 
 
@@ -58,7 +58,7 @@ def build_qris_payload(order_code, total_amount, timestamp):
 
 
 def current_shift():
-    hour = datetime.now().hour
+    hour = jakarta_now_naive().hour
     return "Pagi" if 5 <= hour < 12 else "Siang" if 12 <= hour < 17 else "Malam"
 
 
@@ -136,7 +136,7 @@ def create_transaction(data):
     if payment_method == "Cash" and parse_amount(data.get("received_amount"), "Nominal diterima") < total:
         raise ValueError("Nominal diterima kurang dari total pembayaran.")
 
-    now = datetime.now()
+    now = jakarta_now_naive()
     order_code = normalize_order_code(data.get("order_code")) or generate_order_code(now)
     connection = get_db()
     try:
@@ -246,8 +246,19 @@ def transaction_detail(order_code):
         """,
         (transaction["id"],),
     )
-    transaction["date_display"] = format_short_date(transaction.get("transaction_date"))
-    transaction["time_display"] = str(transaction.get("transaction_time") or "")[:5]
+    local_datetime = transaction_datetime_jakarta(
+        transaction.get("transaction_date"),
+        transaction.get("transaction_time"),
+        transaction.get("created_at"),
+    )
+    transaction["date_display"] = format_short_date(
+        local_datetime.date() if local_datetime else transaction.get("transaction_date")
+    )
+    transaction["time_display"] = (
+        local_datetime.strftime("%H:%M")
+        if local_datetime
+        else str(transaction.get("transaction_time") or "")[:5]
+    )
     transaction["total_display"] = format_currency(transaction.get("total_amount"))
     transaction["subtotal_display"] = format_currency(transaction.get("subtotal_amount"))
     for item in items:
@@ -255,4 +266,3 @@ def transaction_detail(order_code):
         item["subtotal_display"] = format_currency(item.get("subtotal"))
     transaction["items"] = items
     return transaction
-

@@ -4,7 +4,7 @@ import sys
 import threading
 import unittest
 from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
@@ -23,6 +23,7 @@ from app.reports import routes as report_routes
 from app.reports import services as report_services
 from app.routing import find_duplicate_routes, route_inventory
 from app.utils.validators import validate_email, validate_password
+from app.utils.timezone import transaction_datetime_jakarta
 from werkzeug.security import check_password_hash
 
 
@@ -1097,6 +1098,90 @@ print("VERCEL_LOADER_OK")
         self.assertIn('"menu_id"', source)
         self.assertIn('"menu_code"', source)
         self.assertIn("INSERT INTO pos_transaction_items", source)
+
+    def test_receipt_converts_legacy_vercel_utc_time_to_wib(self):
+        local_datetime = transaction_datetime_jakarta(
+            date(2026, 7, 16),
+            time(8, 20, 1),
+            datetime(2026, 7, 16, 8, 20, 2),
+        )
+        self.assertEqual(local_datetime, datetime(2026, 7, 16, 15, 20, 1))
+
+        with patch.object(
+            pos_services,
+            "fetch_one",
+            return_value={
+                "id": 31,
+                "order_code": "POS-20260716082001-0E89F3",
+                "transaction_date": date(2026, 7, 16),
+                "transaction_time": time(8, 20, 1),
+                "created_at": datetime(2026, 7, 16, 8, 20, 2),
+                "total_amount": 20000,
+                "subtotal_amount": 20000,
+            },
+        ), patch.object(pos_services, "fetch_all", return_value=[]):
+            transaction = pos_services.transaction_detail("POS-20260716082001-0E89F3")
+        self.assertEqual(transaction["date_display"], "16 Jul 2026")
+        self.assertEqual(transaction["time_display"], "15:20")
+
+    def test_receipt_keeps_new_jakarta_transaction_time(self):
+        local_datetime = transaction_datetime_jakarta(
+            date(2026, 7, 16),
+            time(15, 20, 1),
+            datetime(2026, 7, 16, 8, 20, 2),
+        )
+        self.assertEqual(local_datetime, datetime(2026, 7, 16, 15, 20, 1))
+
+    def test_new_pos_transaction_uses_jakarta_business_time(self):
+        state = {"transaction_params": None}
+
+        class Cursor:
+            lastrowid = 31
+            rowcount = 1
+
+            def execute(self, query, params):
+                compact = " ".join(query.split())
+                if compact.startswith("INSERT INTO pos_transactions"):
+                    state["transaction_params"] = params
+
+        class Connection:
+            def cursor(self):
+                return Cursor()
+
+            def commit(self):
+                return None
+
+            def rollback(self):
+                return None
+
+        menu_row = {
+            "id": 7,
+            "code": "COF-007",
+            "name": "Americano",
+            "price": 20000,
+            "stock": 5,
+            "is_active": 1,
+        }
+        fixed_now = datetime(2026, 7, 16, 15, 20, 1)
+        with self.app.test_request_context("/api/pos/checkout"):
+            from flask import session
+
+            session["user_id"] = 2
+            session["owner_id"] = 1
+            with patch.object(pos_services, "fetch_all", return_value=[menu_row]), patch.object(
+                pos_services, "get_db", return_value=Connection()
+            ), patch.object(pos_services, "jakarta_now_naive", return_value=fixed_now):
+                result = pos_services.create_transaction(
+                    {
+                        "payment_method": "Cash",
+                        "received_amount": 20000,
+                        "items": [{"menu_id": 7, "quantity": 1}],
+                    }
+                )
+
+        self.assertTrue(result["order_code"].startswith("POS-20260716152001-"))
+        self.assertEqual(state["transaction_params"][1], date(2026, 7, 16))
+        self.assertEqual(state["transaction_params"][2], time(15, 20, 1))
 
     def test_checkout_service_saves_transaction_reduces_stock_and_feeds_global_report(self):
         state = {"stock": 5, "transactions": [], "items": []}

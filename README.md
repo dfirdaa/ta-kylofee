@@ -45,6 +45,7 @@ TIDB_PASSWORD=
 TIDB_DATABASE=
 TIDB_SSL_CA=certs/tidb-ca.pem
 TIDB_SSL_VERIFY_CERT=1
+AUTO_MIGRATE=0
 ```
 
 Alias lama `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, dan `DB_SSL_CA` masih dibaca untuk mempermudah deployment lama, tetapi semuanya tetap diarahkan ke koneksi TiDB yang sama.
@@ -79,13 +80,23 @@ flask --app app.py audit-routes
 python -m unittest discover -s tests -v
 ```
 
-Deployment Vercel menggunakan satu entry point dari `vercel.json`:
+Deployment Vercel menggunakan satu entry point dari `vercel.json`. Pastikan semua
+environment variable ditambahkan untuk Production (dan Preview bila dipakai), lalu
+uji entry point dan migrasi dari mesin tepercaya sebelum deploy:
 
-```bash
-vercel --prod
+```powershell
+python -c "from app import create_app; app = create_app(); print('import ok')"
+$env:AUTO_MIGRATE = "0"
+flask --app app.py migrate-db
+vercel --prod --force
 ```
 
-Aplikasi memeriksa dan melengkapi skema secara idempoten pada request pertama. Backup database sebelum deployment pertama. SQL referensi tersedia di `migrations/001_tidb_centralization.sql`.
+Di Vercel, `AUTO_MIGRATE` default-nya nonaktif agar beberapa cold start tidak
+menjalankan DDL bersamaan. Jalankan `flask --app app.py migrate-db` sekali setelah
+backup database, lalu biarkan `AUTO_MIGRATE=0` di Production. Jika migrasi otomatis
+sengaja diaktifkan dan gagal, aplikasi mencatat traceback, melanjutkan request, dan
+mencoba lagi setelah `SCHEMA_RETRY_SECONDS`. Status konfigurasi aman dapat diperiksa
+melalui `/_health`. SQL referensi tersedia di `migrations/001_tidb_centralization.sql`.
 
 ## Perubahan aturan data
 

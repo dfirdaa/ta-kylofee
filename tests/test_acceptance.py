@@ -1,9 +1,10 @@
 import inspect
+import subprocess
+import sys
 import threading
 import unittest
 from contextlib import contextmanager
 from datetime import datetime, timedelta
-from pathlib import Path
 from unittest.mock import patch
 
 from app import create_app
@@ -192,14 +193,53 @@ class AcceptanceTests(unittest.TestCase):
         self.assertEqual(len(self.app.teardown_appcontext_funcs), 1)
         inventory = route_inventory(self.app)
         self.assertTrue(any(item["endpoint"] == "reports.owner_reports" for item in inventory))
-        legacy_database = Path(__file__).resolve().parent.parent / ("database" + ".db")
-        self.assertFalse(legacy_database.exists())
+        database_source = inspect.getsource(__import__("app.database", fromlist=["get_db"]))
+        self.assertNotIn("sqlite3", database_source)
+        self.assertNotIn("database.db", database_source)
 
     def test_public_auth_pages_open_without_database_access(self):
         for path in ("/login", "/register/owner", "/register/kasir"):
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
+
+    def test_vercel_loader_can_import_app_py_despite_package_name_collision(self):
+        project_root = str(__import__("pathlib").Path(__file__).resolve().parent.parent)
+        loader_code = """
+import importlib.util
+import sys
+
+spec = importlib.util.spec_from_file_location("app", "app.py")
+module = importlib.util.module_from_spec(spec)
+sys.modules["app"] = module
+spec.loader.exec_module(module)
+assert module.app.__class__.__name__ == "Flask"
+print("VERCEL_LOADER_OK")
+"""
+        result = subprocess.run(
+            [sys.executable, "-c", loader_code],
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("VERCEL_LOADER_OK", result.stdout)
+
+    def test_auto_migrate_failure_is_logged_but_does_not_block_public_route(self):
+        class AutoMigrateConfig(TestConfig):
+            AUTO_MIGRATE = True
+            SCHEMA_RETRY_SECONDS = 60
+
+        app = create_app(AutoMigrateConfig)
+        with patch("app.ensure_schema", side_effect=RuntimeError("simulated migration failure")):
+            with self.assertLogs(app.logger, level="ERROR") as logs:
+                response = app.test_client().get("/login")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(app.extensions["tidb_schema_last_error"], "RuntimeError")
+        self.assertTrue(any("AUTO_MIGRATE gagal" in message for message in logs.output))
 
     def test_register_staff_is_redirect_alias(self):
         response = self.client.get("/register/staff")

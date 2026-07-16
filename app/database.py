@@ -28,6 +28,10 @@ def _ssl_options():
 
 
 def _validate_config():
+    config_errors = current_app.config.get("DB_CONFIG_ERRORS", ())
+    if config_errors:
+        raise DatabaseUnavailable("Konfigurasi database tidak valid: " + " ".join(config_errors))
+
     missing = [
         name
         for name in ("TIDB_HOST", "TIDB_USER", "TIDB_PASSWORD", "TIDB_DATABASE")

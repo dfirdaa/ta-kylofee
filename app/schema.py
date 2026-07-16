@@ -4,6 +4,7 @@ from threading import Lock
 from flask import current_app
 
 from app.database import commit, execute, fetch_all, fetch_one, fetch_value, get_db, transaction
+from app.menu.services import normalize_menu_name
 from app.utils.validators import normalize_menu_code
 
 
@@ -41,6 +42,7 @@ CREATE_STATEMENTS = (
     CREATE TABLE IF NOT EXISTS menus (
         id BIGINT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(255) NOT NULL,
+        normalized_name VARCHAR(255) NULL,
         category VARCHAR(100) NOT NULL,
         category_id BIGINT NULL,
         code VARCHAR(100) NOT NULL,
@@ -125,6 +127,7 @@ REQUIRED_COLUMNS = {
     },
     "menus": {
         "name": "VARCHAR(255) NULL",
+        "normalized_name": "VARCHAR(255) NULL",
         "category": "VARCHAR(100) NULL",
         "category_id": "BIGINT NULL",
         "code": "VARCHAR(100) NULL",
@@ -178,10 +181,8 @@ INDEXES = (
     ),
 )
 
-
 def table_columns(table_name):
     return {row["Field"] for row in fetch_all(f"SHOW COLUMNS FROM `{table_name}`")}
-
 
 def index_exists(table_name, index_name):
     return bool(
@@ -196,14 +197,12 @@ def index_exists(table_name, index_name):
         )
     )
 
-
 def _add_missing_columns():
     for table_name, definitions in REQUIRED_COLUMNS.items():
         columns = table_columns(table_name)
         for column_name, definition in definitions.items():
             if column_name not in columns:
                 commit(f"ALTER TABLE `{table_name}` ADD COLUMN `{column_name}` {definition}")
-
 
 def _normalize_users():
     duplicate = fetch_one(
@@ -230,7 +229,6 @@ def _normalize_users():
         WHERE LOWER(TRIM(role)) IN ('staff', 'kasir', 'cashier')
         """
     )
-
 
 def _backfill_legacy_menu_columns():
     columns = table_columns("menus")
@@ -261,6 +259,11 @@ def _backfill_legacy_menu_columns():
     commit("UPDATE menus SET category = 'Uncategorized' WHERE category IS NULL OR TRIM(category) = ''")
     commit("UPDATE menus SET price = 0 WHERE price IS NULL")
 
+def _relax_legacy_menu_columns():
+    """Keep old TiDB schemas insert-compatible after canonical columns exist."""
+    columns = table_columns("menus")
+    if "menu_name" in columns:
+        commit("ALTER TABLE menus MODIFY COLUMN menu_name VARCHAR(255) NULL")
 
 def _migrate_menu_categories():
     rows = fetch_all("SELECT id, category, category_id FROM menus ORDER BY id")
@@ -355,6 +358,54 @@ def _backfill_item_codes():
     )
 
 
+def audit_menu_name_duplicates(rows=None):
+    """Return all legacy duplicate groups using the backend normalization."""
+    if rows is None:
+        rows = fetch_all("SELECT id, code, name FROM menus ORDER BY id ASC")
+    grouped = {}
+    for row in rows:
+        normalized_name = normalize_menu_name(row.get("name"))
+        if normalized_name:
+            grouped.setdefault(normalized_name, []).append(row)
+    return [
+        {"normalized_name": key, "menus": items}
+        for key, items in sorted(grouped.items())
+        if len(items) > 1
+    ]
+
+
+def backfill_menu_normalized_names():
+    """Backfill atomically; leave every legacy key untouched when duplicates exist."""
+    rows = fetch_all("SELECT id, code, name FROM menus ORDER BY id ASC")
+    duplicates = audit_menu_name_duplicates(rows)
+    if duplicates:
+        return False, duplicates
+
+    with transaction() as connection:
+        cursor = connection.cursor()
+        for row in rows:
+            cursor.execute(
+                "UPDATE menus SET normalized_name = %s WHERE id = %s",
+                (normalize_menu_name(row.get("name")), row["id"]),
+            )
+    return True, []
+
+
+def migrate_menu_name_uniqueness():
+    """Perform the staged backfill and add the unique index only after a clean audit."""
+    success, duplicates = backfill_menu_normalized_names()
+    if not success:
+        return {
+            "backfill": "blocked",
+            "unique_index": "not_created",
+            "duplicates": duplicates,
+        }
+
+    if not index_exists("menus", "uq_menus_normalized_name"):
+        commit("CREATE UNIQUE INDEX uq_menus_normalized_name ON menus (normalized_name)")
+    return {"backfill": "complete", "unique_index": "ready", "duplicates": []}
+
+
 def _create_indexes():
     for table_name, index_name, statement in INDEXES:
         if not index_exists(table_name, index_name):
@@ -380,6 +431,7 @@ def ensure_schema():
 
         _add_missing_columns()
         _backfill_legacy_menu_columns()
+        _relax_legacy_menu_columns()
         _normalize_users()
         _normalize_categories()
         if not index_exists("categories", "uq_categories_name_key"):
@@ -389,6 +441,12 @@ def ensure_schema():
         _backfill_item_codes()
         commit("ALTER TABLE menus MODIFY COLUMN code VARCHAR(100) NOT NULL")
         _create_indexes()
+        menu_name_migration = migrate_menu_name_uniqueness()
+        if menu_name_migration["duplicates"]:
+            current_app.logger.warning(
+                "Unique nama menu ditunda: %s kelompok duplikat harus diperbaiki manual.",
+                len(menu_name_migration["duplicates"]),
+            )
         current_app.extensions["tidb_schema_ready"] = True
         current_app.logger.info("Skema TiDB siap digunakan.")
 

@@ -7,6 +7,8 @@ from contextlib import contextmanager
 from datetime import datetime, timedelta
 from unittest.mock import patch
 
+import pymysql
+
 from app import create_app
 from app.auth import services as auth_services
 from app.auth import routes as auth_routes
@@ -322,6 +324,17 @@ print("VERCEL_LOADER_OK")
                 self.assertEqual(response.status_code, 200)
                 response.close()
 
+    def test_owner_sidebar_stays_in_viewport_while_main_content_scrolls(self):
+        source = (Path(__file__).resolve().parent.parent / "static" / "css" / "owner_shell.css").read_text()
+        compact = " ".join(source.split())
+        self.assertIn("body { margin: 0;", compact)
+        self.assertIn("overflow: hidden;", compact)
+        self.assertIn(".owner-page {", compact)
+        self.assertIn("height: 100dvh;", compact)
+        self.assertIn(".owner-main {", compact)
+        self.assertIn("overflow-y: auto;", compact)
+        self.assertIn(".owner-sidebar { position: relative;", compact)
+
     def test_menu_code_renders_on_pos_and_checkout_route_is_wired(self):
         cashier = {"id": 2, "full_name": "Kasir", "role": "staff", "is_active": 1}
         product = {
@@ -383,6 +396,191 @@ print("VERCEL_LOADER_OK")
         schema_source = inspect.getsource(__import__("app.schema", fromlist=["ensure_schema"]))
         self.assertIn("CREATE UNIQUE INDEX uq_menus_code", schema_source)
 
+    def test_menu_name_normalization_collapses_case_and_whitespace(self):
+        variants = (
+            "DARK CHOCO",
+            "Dark Choco",
+            " dark   choco ",
+            "DARK    CHOCO",
+            "darkchoco",
+        )
+        self.assertEqual({menu_services.normalize_menu_name(value) for value in variants}, {"darkchoco"})
+        self.assertEqual(menu_services.clean_menu_name(" Dark   Choco "), "Dark Choco")
+
+    def test_create_rejects_all_duplicate_menu_name_variants_before_generating_code(self):
+        existing = {"id": 5, "code": "NON-005", "name": "Dark Choco"}
+        variants = ("DARK CHOCO", "dark choco", " Dark Choco ", "Dark   Choco", "darkchoco")
+        for name in variants:
+            with self.subTest(name=name), patch.object(
+                menu_services, "get_category", return_value={"id": 1, "name": "Non Coffee"}
+            ), patch.object(
+                menu_services, "find_menu_by_normalized_name", return_value=existing
+            ), patch.object(menu_services, "transaction") as transaction_mock:
+                menu, payload, errors = menu_services.create_menu(
+                    {"name": name, "category_id": 1, "price": 10000, "stock": 5}
+                )
+            self.assertIsNone(menu)
+            self.assertEqual(payload["normalized_name"], "darkchoco")
+            self.assertIn(menu_services.MENU_NAME_CREATE_DUPLICATE, errors)
+            transaction_mock.assert_not_called()
+
+    def test_edit_allows_own_name_but_rejects_another_menu_name(self):
+        existing = {
+            "id": 5,
+            "name": "Dark Choco",
+            "category_id": 1,
+            "category_name": "Non Coffee",
+            "code": "NON-005",
+            "price": 10000,
+            "stock": 5,
+            "description": "Chocolate",
+            "image": "",
+            "is_active": 1,
+        }
+        with patch.object(menu_services, "get_menu", side_effect=[existing, existing]), patch.object(
+            menu_services, "get_category", return_value={"id": 1, "name": "Non Coffee"}
+        ), patch.object(menu_services, "find_menu_by_normalized_name", return_value=None) as duplicate_check, patch.object(
+            menu_services, "commit"
+        ) as commit_mock:
+            updated, payload, errors = menu_services.update_menu(5, {"name": " Dark   Choco "})
+        self.assertEqual(errors, [])
+        self.assertEqual(updated["id"], 5)
+        self.assertEqual(payload["name"], "Dark Choco")
+        duplicate_check.assert_called_once_with("darkchoco", exclude_id=5)
+        self.assertIn("normalized_name = %s", " ".join(commit_mock.call_args.args[0].split()))
+
+        with patch.object(menu_services, "get_menu", return_value=existing), patch.object(
+            menu_services, "get_category", return_value={"id": 1, "name": "Non Coffee"}
+        ), patch.object(
+            menu_services,
+            "find_menu_by_normalized_name",
+            return_value={"id": 8, "name": "Dark Choco", "code": "NON-008"},
+        ), patch.object(menu_services, "commit") as rejected_commit:
+            updated, _payload, errors = menu_services.update_menu(5, {"name": "dark choco"})
+        self.assertIsNone(updated)
+        self.assertIn(menu_services.MENU_NAME_EDIT_DUPLICATE, errors)
+        rejected_commit.assert_not_called()
+
+    def test_menu_name_queries_use_normalized_column_and_exclude_edited_id(self):
+        queries = []
+
+        def fake_fetch_one(query, params):
+            queries.append((" ".join(query.split()), params))
+            return None
+
+        with patch.object(menu_services, "fetch_one", side_effect=fake_fetch_one), patch.object(
+            menu_services, "fetch_all", return_value=[]
+        ):
+            menu_services.find_menu_by_normalized_name("darkchoco")
+            menu_services.find_menu_by_normalized_name("darkchoco", exclude_id=5)
+        self.assertIn("WHERE normalized_name = %s", queries[0][0])
+        self.assertNotIn("id <>", queries[0][0])
+        self.assertIn("AND id <> %s", queries[1][0])
+        self.assertEqual(queries[1][1], ("darkchoco", 5))
+
+    def test_legacy_duplicate_audit_uses_python_whitespace_normalization(self):
+        from app.schema import audit_menu_name_duplicates
+
+        rows = [
+            {"id": 3, "code": "NON-006", "name": "DARK CHOCO"},
+            {"id": 4, "code": "NON-007", "name": " dark   choco "},
+            {"id": 8, "code": "BLA-011", "name": "Coffee Ginger"},
+        ]
+        duplicates = audit_menu_name_duplicates(rows)
+        self.assertEqual(len(duplicates), 1)
+        self.assertEqual(duplicates[0]["normalized_name"], "darkchoco")
+        self.assertEqual([menu["id"] for menu in duplicates[0]["menus"]], [3, 4])
+
+    def test_migration_defers_backfill_and_unique_index_when_legacy_duplicates_exist(self):
+        from app import schema
+
+        rows = [
+            {"id": 3, "code": "NON-006", "name": "DARK CHOCO"},
+            {"id": 4, "code": "NON-007", "name": "Dark   Choco"},
+        ]
+        with patch.object(schema, "fetch_all", return_value=rows), patch.object(
+            schema, "transaction"
+        ) as transaction_mock, patch.object(schema, "commit") as commit_mock:
+            result = schema.migrate_menu_name_uniqueness()
+        self.assertEqual(result["backfill"], "blocked")
+        self.assertEqual(result["unique_index"], "not_created")
+        transaction_mock.assert_not_called()
+        commit_mock.assert_not_called()
+
+    def test_legacy_menu_name_column_is_made_nullable_for_canonical_inserts(self):
+        from app import schema
+
+        with patch.object(schema, "table_columns", return_value={"id", "menu_name", "name"}), patch.object(
+            schema, "commit"
+        ) as commit_mock:
+            schema._relax_legacy_menu_columns()
+        commit_mock.assert_called_once_with("ALTER TABLE menus MODIFY COLUMN menu_name VARCHAR(255) NULL")
+
+    def test_pos_does_not_hide_duplicate_rows_and_search_is_case_insensitive(self):
+        pos_query_source = inspect.getsource(pos_services.list_active_menus).upper()
+        self.assertNotIn("DISTINCT", pos_query_source)
+        self.assertNotIn("GROUP BY", pos_query_source)
+        script_source = (Path(__file__).resolve().parent.parent / "static" / "js" / "script.js").read_text()
+        self.assertIn(".toLowerCase().replace(/\\s+/g, \" \")", script_source)
+
+    def test_database_unique_name_index_allows_only_one_concurrent_insert(self):
+        stored_names = set()
+        lock = threading.Lock()
+
+        class Cursor:
+            lastrowid = 1
+
+            def execute(self, query, params):
+                if "INSERT INTO menus" not in " ".join(query.split()):
+                    return
+                with lock:
+                    if params[1] in stored_names:
+                        raise pymysql.err.IntegrityError(
+                            1062,
+                            "Duplicate entry 'coffee latte' for key 'menus.uq_menus_normalized_name'",
+                        )
+                    stored_names.add(params[1])
+
+        class Connection:
+            def cursor(self):
+                return Cursor()
+
+        @contextmanager
+        def fake_transaction():
+            yield Connection()
+
+        results = []
+
+        def worker():
+            results.append(
+                menu_services.create_menu(
+                    {
+                        "name": "Coffee Latte",
+                        "category_id": 1,
+                        "code": "LAT-001",
+                        "price": 10000,
+                        "stock": 5,
+                    }
+                )
+            )
+
+        with patch.object(menu_services, "get_category", return_value={"id": 1, "name": "Coffee"}), patch.object(
+            menu_services, "find_menu_by_normalized_name", return_value=None
+        ), patch.object(menu_services, "transaction", fake_transaction), patch.object(
+            menu_services, "get_menu", return_value={"id": 1, "code": "LAT-001"}
+        ):
+            threads = [threading.Thread(target=worker) for _ in range(2)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+
+        self.assertEqual(sum(1 for menu, _payload, errors in results if menu and not errors), 1)
+        self.assertEqual(
+            sum(1 for _menu, _payload, errors in results if menu_services.MENU_NAME_CONCURRENT_DUPLICATE in errors),
+            1,
+        )
+
     def test_concurrent_menu_creation_produces_distinct_codes(self):
         state = {"next": 1, "menus": {}, "last_id": 0}
         lock = threading.Lock()
@@ -400,7 +598,7 @@ print("VERCEL_LOADER_OK")
                 elif compact.startswith("INSERT INTO menus"):
                     state["last_id"] += 1
                     self.lastrowid = state["last_id"]
-                    state["menus"][self.lastrowid] = params[3]
+                    state["menus"][self.lastrowid] = params[4]
 
             def fetchone(self):
                 return {"next_value": self.selected}
@@ -419,17 +617,19 @@ print("VERCEL_LOADER_OK")
 
         results = []
 
-        def worker():
+        def worker(number):
             menu, _payload, errors = menu_services.create_menu(
-                {"name": "Americano", "category_id": 1, "price": 10000, "stock": 5}
+                {"name": f"Americano {number}", "category_id": 1, "price": 10000, "stock": 5}
             )
             self.assertEqual(errors, [])
             results.append(menu["code"])
 
         with patch.object(menu_services, "get_category", return_value={"id": 1, "name": "Coffee"}), patch.object(
+            menu_services, "find_menu_by_normalized_name", return_value=None
+        ), patch.object(
             menu_services, "transaction", locked_transaction
         ), patch.object(menu_services, "get_menu", side_effect=fake_get_menu):
-            threads = [threading.Thread(target=worker) for _ in range(8)]
+            threads = [threading.Thread(target=worker, args=(number,)) for number in range(8)]
             for thread in threads:
                 thread.start()
             for thread in threads:

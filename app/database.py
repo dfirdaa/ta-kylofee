@@ -126,6 +126,10 @@ def is_duplicate_key(exc):
     return isinstance(exc, pymysql.err.IntegrityError) and bool(exc.args) and exc.args[0] == 1062
 
 
+def is_duplicate_key_for(exc, index_name):
+    """Return True when MySQL/TiDB reports a duplicate for a named index."""
+    return is_duplicate_key(exc) and str(index_name or "").lower() in str(exc).lower()
+
+
 def init_app(app):
     app.teardown_appcontext(close_db)
-

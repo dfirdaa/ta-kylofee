@@ -5,7 +5,15 @@ from pathlib import Path
 from flask import current_app, url_for
 from werkzeug.utils import secure_filename
 
-from app.database import commit, fetch_all, fetch_one, fetch_value, is_duplicate_key, transaction
+from app.database import (
+    commit,
+    fetch_all,
+    fetch_one,
+    fetch_value,
+    is_duplicate_key,
+    is_duplicate_key_for,
+    transaction,
+)
 from app.utils.formatters import format_short_date
 from app.utils.validators import normalize_menu_code
 
@@ -13,6 +21,55 @@ from app.utils.validators import normalize_menu_code
 MIN_MENU_PRICE = 500
 CATEGORY_NAME_MAX_LENGTH = 100
 MAX_CODE_RETRIES = 5
+MENU_NAME_CREATE_DUPLICATE = "Nama menu sudah digunakan. Gunakan nama menu yang berbeda."
+MENU_NAME_EDIT_DUPLICATE = "Nama menu sudah digunakan oleh menu lain."
+MENU_NAME_CONCURRENT_DUPLICATE = "Nama menu sudah digunakan. Silakan gunakan nama lain."
+
+
+def clean_menu_name(value):
+    """Collapse whitespace while preserving the display capitalization."""
+    return " ".join(str(value or "").strip().split())
+
+
+def normalize_menu_name(value):
+    """Canonical key: case-insensitive and independent of whitespace count."""
+    return "".join(clean_menu_name(value).lower().split())
+
+
+def find_menu_by_normalized_name(normalized_name, exclude_id=None):
+    """Find a duplicate, including legacy rows not backfilled by the migration."""
+    params = [normalized_name]
+    exclude_sql = ""
+    if exclude_id is not None:
+        exclude_sql = " AND id <> %s"
+        params.append(exclude_id)
+
+    duplicate = fetch_one(
+        f"""
+        SELECT id, name, code
+        FROM menus
+        WHERE normalized_name = %s{exclude_sql}
+        LIMIT 1
+        """,
+        tuple(params),
+    )
+    if duplicate:
+        return duplicate
+
+    # During a staged migration, legacy keys may be NULL or may use an older
+    # normalization rule. Recheck every remaining row with the current helper.
+    legacy_rows = fetch_all(
+        f"""
+        SELECT id, name, code
+        FROM menus
+        WHERE (normalized_name IS NULL OR normalized_name <> %s){exclude_sql}
+        """,
+        tuple(params),
+    )
+    return next(
+        (row for row in legacy_rows if normalize_menu_name(row.get("name")) == normalized_name),
+        None,
+    )
 
 
 def save_menu_image(uploaded_file):
@@ -192,12 +249,15 @@ def build_code_prefix(category, name=""):
     return (prefix or "MNU").ljust(3, "X")
 
 
-def validate_menu_payload(data, *, require_stock=False):
-    name = str(data.get("name") or "").strip()
+def validate_menu_payload(data, *, require_stock=False, exclude_id=None):
+    name = clean_menu_name(data.get("name"))
+    normalized_name = normalize_menu_name(name)
     category = get_category(data.get("category_id"), data.get("category"))
     errors = []
     if not name:
         errors.append("Nama item wajib diisi.")
+    elif find_menu_by_normalized_name(normalized_name, exclude_id=exclude_id):
+        errors.append(MENU_NAME_EDIT_DUPLICATE if exclude_id is not None else MENU_NAME_CREATE_DUPLICATE)
     if not category:
         errors.append("Kategori wajib dipilih dan harus valid.")
     try:
@@ -220,6 +280,7 @@ def validate_menu_payload(data, *, require_stock=False):
         errors.append("Deskripsi wajib diisi.")
     return {
         "name": name,
+        "normalized_name": normalized_name,
         "category": category,
         "price": price,
         "stock": stock,
@@ -234,11 +295,12 @@ def _insert_menu(cursor, payload, code):
     cursor.execute(
         """
         INSERT INTO menus (
-            name, category, category_id, code, price, stock, description, image, is_active
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            name, normalized_name, category, category_id, code, price, stock, description, image, is_active
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """,
         (
             payload["name"],
+            payload["normalized_name"],
             payload["category"]["name"],
             payload["category"]["id"],
             code,
@@ -264,6 +326,8 @@ def create_menu(data, *, require_stock=False):
                 menu_id = _insert_menu(connection.cursor(), payload, manual_code)
             return get_menu(menu_id), payload, []
         except Exception as exc:
+            if is_duplicate_key_for(exc, "uq_menus_normalized_name"):
+                return None, payload, [MENU_NAME_CONCURRENT_DUPLICATE]
             if is_duplicate_key(exc):
                 return None, payload, ["Kode menu sudah digunakan. Gunakan kode lain."]
             raise
@@ -291,6 +355,8 @@ def create_menu(data, *, require_stock=False):
                 menu_id = _insert_menu(cursor, payload, code)
             return get_menu(menu_id), payload, []
         except Exception as exc:
+            if is_duplicate_key_for(exc, "uq_menus_normalized_name"):
+                return None, payload, [MENU_NAME_CONCURRENT_DUPLICATE]
             if is_duplicate_key(exc):
                 current_app.logger.warning("Benturan kode menu %s; mencoba ulang.", code)
                 continue
@@ -325,7 +391,7 @@ def update_menu(menu_id, data, *, require_stock=False):
         "is_active": bool(existing.get("is_active")),
     }
     merged.update(data)
-    payload, errors = validate_menu_payload(merged, require_stock=require_stock)
+    payload, errors = validate_menu_payload(merged, require_stock=require_stock, exclude_id=menu_id)
     if errors:
         return None, payload, errors
     code = payload["code"] or normalize_menu_code(existing["code"])
@@ -333,12 +399,13 @@ def update_menu(menu_id, data, *, require_stock=False):
         commit(
             """
             UPDATE menus
-            SET name = %s, category = %s, category_id = %s, code = %s, price = %s,
+            SET name = %s, normalized_name = %s, category = %s, category_id = %s, code = %s, price = %s,
                 stock = %s, description = %s, image = %s, is_active = %s
             WHERE id = %s
             """,
             (
                 payload["name"],
+                payload["normalized_name"],
                 payload["category"]["name"],
                 payload["category"]["id"],
                 code,
@@ -351,6 +418,8 @@ def update_menu(menu_id, data, *, require_stock=False):
             ),
         )
     except Exception as exc:
+        if is_duplicate_key_for(exc, "uq_menus_normalized_name"):
+            return None, payload, [MENU_NAME_CONCURRENT_DUPLICATE]
         if is_duplicate_key(exc):
             return None, payload, ["Kode menu sudah digunakan. Gunakan kode lain."]
         raise

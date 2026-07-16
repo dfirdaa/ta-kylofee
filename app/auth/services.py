@@ -4,6 +4,7 @@ from flask import current_app, redirect, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.database import fetch_one, is_duplicate_key, transaction
+from app.cashier.services import STATUS_INACTIVE, STATUS_LEAVE, normalize_status
 from app.utils.roles import CASHIER_ROLE, normalize_role, role_label
 from app.utils.validators import normalize_invite_code, validate_auth_fields
 
@@ -21,8 +22,13 @@ def authenticate_user(email_input, password):
     if not user or not check_password_hash(user["password_hash"], password):
         return None, email, ["Email atau password salah. Cek kembali data login Anda."]
     active_value = user.get("is_active")
-    if normalize_role(user.get("role")) == CASHIER_ROLE and int(1 if active_value is None else active_value) != 1:
-        return None, email, ["Akun kasir ini sedang nonaktif. Silakan hubungi Owner."]
+    if normalize_role(user.get("role")) == CASHIER_ROLE:
+        is_active = int(1 if active_value is None else active_value) == 1
+        status = normalize_status(user.get("staff_status"), is_active)
+        if status == STATUS_LEAVE:
+            return None, email, ["Akun kasir sedang berstatus cuti dan belum dapat digunakan."]
+        if status == STATUS_INACTIVE or not is_active:
+            return None, email, ["Akun kasir telah dinonaktifkan."]
     if normalize_role(user.get("role")) not in {"owner", CASHIER_ROLE}:
         return None, email, ["Role akun tidak memiliki akses ke aplikasi ini."]
     return user, email, []
@@ -107,7 +113,7 @@ def register_user(role, form):
                     staff_phone or None,
                     "Kasir" if role == CASHIER_ROLE else None,
                     now.date() if role == CASHIER_ROLE else None,
-                    "Aktif" if role == CASHIER_ROLE else None,
+                    "active" if role == CASHIER_ROLE else None,
                     1,
                 ),
             )

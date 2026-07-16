@@ -2,6 +2,7 @@ from flask import Blueprint, flash, jsonify, redirect, render_template, request,
 
 from app.database import commit
 from app.menu.services import (
+    CATEGORY_DUPLICATE_MESSAGE,
     category_options,
     create_category,
     create_menu,
@@ -124,13 +125,13 @@ def owner_menu_delete(menu_id):
 
 
 def _render_categories(category_form=None):
-    search = request.args.get("q", "").strip()
+    search_query = " ".join(request.args.get("q", "").strip().split())
     return render_template(
         "owner_categories.html",
         owner_name=menu_owner_name(),
         active_page="categories",
-        categories=list_categories(search),
-        search=search,
+        categories=list_categories(search_query),
+        search_query=search_query,
         category_form=category_form or {},
     )
 
@@ -141,6 +142,8 @@ def owner_categories():
     if request.method == "POST":
         category, payload, errors = create_category(request.form)
         if errors:
+            if errors.get("name") == CATEGORY_DUPLICATE_MESSAGE:
+                flash(CATEGORY_DUPLICATE_MESSAGE, "error")
             return _render_categories({"mode": "create", **payload, "errors": errors})
         flash("Kategori berhasil ditambahkan.", "success")
         return redirect(url_for("menu.owner_categories"))
@@ -155,6 +158,8 @@ def owner_category_edit(category_id):
         return redirect(url_for("menu.owner_categories"))
     category, payload, errors = update_category(category_id, request.form)
     if errors:
+        if errors.get("name") == CATEGORY_DUPLICATE_MESSAGE:
+            flash(CATEGORY_DUPLICATE_MESSAGE, "error")
         return _render_categories({"mode": "edit", "id": category_id, **payload, "errors": errors})
     flash("Kategori berhasil diperbarui.", "success")
     return redirect(url_for("menu.owner_categories"))
@@ -175,7 +180,8 @@ def owner_category_delete(category_id):
 @owner_required
 def owner_categories_api():
     if request.method == "GET":
-        return jsonify({"success": True, "categories": list_categories(request.args.get("q", "").strip())})
+        search_query = " ".join(request.args.get("q", "").strip().split())
+        return jsonify({"success": True, "categories": list_categories(search_query)})
     category, _payload, errors = create_category(request.get_json(silent=True) or {})
     if errors:
         return jsonify({"success": False, "message": next(iter(errors.values())), "errors": errors}), 400

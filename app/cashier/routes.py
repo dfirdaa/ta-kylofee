@@ -2,7 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, request, session,
 
 from app.cashier.services import (
     STAFF_POSITIONS,
-    STAFF_STATUSES,
+    STAFF_STATUS_OPTIONS,
     cashier_form_data,
     create_cashier,
     create_invitation,
@@ -101,6 +101,6 @@ def owner_users_edit(staff_id):
         staff=staff,
         form_data=form_data,
         staff_positions=STAFF_POSITIONS,
-        staff_statuses=STAFF_STATUSES,
+        staff_statuses=STAFF_STATUS_OPTIONS,
         errors=errors,
     )

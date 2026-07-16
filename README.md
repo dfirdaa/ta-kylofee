@@ -89,12 +89,17 @@ point dan migrasi dari mesin tepercaya sebelum deploy:
 python -c "from index import app; print('Vercel entrypoint berhasil:', app.name)"
 $env:AUTO_MIGRATE = "0"
 flask --app index.py migrate-db
+python migrations/004_category_uniqueness.py
+python migrations/004_category_uniqueness.py --apply
 vercel --prod --force
 ```
 
 Di Vercel, `AUTO_MIGRATE` default-nya nonaktif agar beberapa cold start tidak
 menjalankan DDL bersamaan. Jalankan `flask --app index.py migrate-db` sekali setelah
-backup database, lalu biarkan `AUTO_MIGRATE=0` di Production. Jika migrasi otomatis
+backup database. Audit kategori dengan migrasi `004` tanpa flag, periksa keeper yang
+dipilih, lalu jalankan kembali dengan `--apply` untuk memindahkan relasi menu,
+membersihkan kategori duplikat, dan membuat unique index. Biarkan `AUTO_MIGRATE=0`
+di Production. Jika migrasi otomatis
 sengaja diaktifkan dan gagal, aplikasi mencatat traceback, melanjutkan request, dan
 mencoba lagi setelah `SCHEMA_RETRY_SECONDS`. Status konfigurasi aman dapat diperiksa
 melalui `/_health`. SQL referensi tersedia di `migrations/001_tidb_centralization.sql`.

@@ -4,7 +4,7 @@ from threading import Lock
 from flask import current_app
 
 from app.database import commit, execute, fetch_all, fetch_one, fetch_value, get_db, transaction
-from app.menu.services import normalize_menu_name
+from app.menu.services import normalize_category_name, normalize_menu_name
 from app.utils.validators import normalize_menu_code
 
 
@@ -23,7 +23,7 @@ CREATE_STATEMENTS = (
         staff_phone VARCHAR(40) NULL,
         staff_position VARCHAR(100) DEFAULT 'Kasir',
         joined_date DATE NULL,
-        staff_status VARCHAR(40) DEFAULT 'Aktif',
+        staff_status VARCHAR(40) DEFAULT 'active',
         is_active TINYINT NOT NULL DEFAULT 1,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
@@ -33,6 +33,7 @@ CREATE_STATEMENTS = (
         id BIGINT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(100) NOT NULL,
         name_key VARCHAR(255) NOT NULL,
+        normalized_name VARCHAR(255) NULL,
         description TEXT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -115,12 +116,13 @@ REQUIRED_COLUMNS = {
         "staff_phone": "VARCHAR(40) NULL",
         "staff_position": "VARCHAR(100) DEFAULT 'Kasir'",
         "joined_date": "DATE NULL",
-        "staff_status": "VARCHAR(40) DEFAULT 'Aktif'",
+        "staff_status": "VARCHAR(40) DEFAULT 'active'",
         "is_active": "TINYINT NOT NULL DEFAULT 1",
         "created_at": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
     },
     "categories": {
         "name_key": "VARCHAR(255) NULL",
+        "normalized_name": "VARCHAR(255) NULL",
         "description": "TEXT NULL",
         "created_at": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
         "updated_at": "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
@@ -156,7 +158,6 @@ REQUIRED_COLUMNS = {
 INDEXES = (
     ("users", "uq_users_email", "CREATE UNIQUE INDEX uq_users_email ON users (email)"),
     ("users", "idx_users_role", "CREATE INDEX idx_users_role ON users (role)"),
-    ("categories", "uq_categories_name_key", "CREATE UNIQUE INDEX uq_categories_name_key ON categories (name_key)"),
     ("menus", "uq_menus_code", "CREATE UNIQUE INDEX uq_menus_code ON menus (code)"),
     ("menus", "idx_menus_category_id", "CREATE INDEX idx_menus_category_id ON menus (category_id)"),
     (
@@ -229,6 +230,27 @@ def _normalize_users():
         WHERE LOWER(TRIM(role)) IN ('staff', 'kasir', 'cashier')
         """
     )
+    commit(
+        """
+        UPDATE users
+        SET staff_status = CASE
+            WHEN LOWER(TRIM(COALESCE(staff_status, ''))) IN ('cuti', 'leave') THEN 'leave'
+            WHEN LOWER(REPLACE(TRIM(COALESCE(staff_status, '')), ' ', ''))
+                 IN ('nonaktif', 'non-aktif', 'inactive') THEN 'inactive'
+            WHEN LOWER(TRIM(COALESCE(staff_status, ''))) IN ('aktif', 'active') THEN 'active'
+            WHEN is_active = 0 THEN 'inactive'
+            ELSE 'active'
+        END
+        WHERE LOWER(role) = 'staff'
+        """
+    )
+    commit(
+        """
+        UPDATE users
+        SET is_active = CASE WHEN staff_status = 'active' THEN 1 ELSE 0 END
+        WHERE LOWER(role) = 'staff'
+        """
+    )
 
 def _backfill_legacy_menu_columns():
     columns = table_columns("menus")
@@ -268,23 +290,52 @@ def _relax_legacy_menu_columns():
 def _migrate_menu_categories():
     rows = fetch_all("SELECT id, category, category_id FROM menus ORDER BY id")
     for row in rows:
-        category_name = " ".join(str(row.get("category") or "Uncategorized").strip().split())
+        category_name, normalized_name = normalize_category_name(
+            row.get("category") or "Uncategorized"
+        )
         existing = None
         if row.get("category_id"):
             existing = fetch_one("SELECT id, name FROM categories WHERE id = %s", (row["category_id"],))
         if not existing:
-            key = category_name.lower()
-            existing = fetch_one("SELECT id, name FROM categories WHERE name_key = %s", (key,))
-            if not existing:
-                commit(
-                    """
-                    INSERT INTO categories (name, name_key, description)
-                    VALUES (%s, %s, NULL)
-                    ON DUPLICATE KEY UPDATE name = name
-                    """,
-                    (category_name, key),
-                )
-                existing = fetch_one("SELECT id, name FROM categories WHERE name_key = %s", (key,))
+            existing = fetch_one(
+                """
+                SELECT id, name
+                FROM categories
+                WHERE normalized_name = %s OR name_key = %s
+                ORDER BY id
+                LIMIT 1
+                """,
+                (normalized_name, normalized_name),
+            )
+        if not existing:
+            legacy_categories = fetch_all("SELECT id, name FROM categories ORDER BY id")
+            existing = next(
+                (
+                    category
+                    for category in legacy_categories
+                    if normalize_category_name(category.get("name"))[1] == normalized_name
+                ),
+                None,
+            )
+        if not existing:
+            commit(
+                """
+                INSERT INTO categories (name, name_key, normalized_name, description)
+                VALUES (%s, %s, %s, NULL)
+                ON DUPLICATE KEY UPDATE name = name
+                """,
+                (category_name, normalized_name, normalized_name),
+            )
+            existing = fetch_one(
+                """
+                SELECT id, name
+                FROM categories
+                WHERE normalized_name = %s OR name_key = %s
+                ORDER BY id
+                LIMIT 1
+                """,
+                (normalized_name, normalized_name),
+            )
         commit(
             "UPDATE menus SET category_id = %s, category = %s WHERE id = %s",
             (existing["id"], existing["name"], row["id"]),
@@ -334,17 +385,141 @@ def _repair_menu_codes():
         )
 
 
-def _normalize_categories():
-    rows = fetch_all("SELECT id, name FROM categories ORDER BY id ASC")
-    used = set()
+def category_rows_with_menu_counts():
+    return fetch_all(
+        """
+        SELECT c.id, c.name, c.description, c.created_at, COUNT(m.id) AS menu_count
+        FROM categories c
+        LEFT JOIN menus m ON m.category_id = c.id
+        GROUP BY c.id, c.name, c.description, c.created_at
+        ORDER BY c.id
+        """
+    )
+
+
+def audit_category_name_duplicates(rows=None):
+    rows = category_rows_with_menu_counts() if rows is None else rows
+    grouped = {}
     for row in rows:
-        key = " ".join(str(row.get("name") or "").strip().split()).lower()
-        if not key:
-            key = f"category-{row['id']}"
-        if key in used:
-            key = f"{key}-{row['id']}"
-        used.add(key)
-        commit("UPDATE categories SET name_key = %s WHERE id = %s", (key, row["id"]))
+        display_name, normalized_name = normalize_category_name(row.get("name"))
+        if not normalized_name:
+            display_name = f"Category {row['id']}"
+            normalized_name = f"category{row['id']}"
+        item = dict(row)
+        item["display_name"] = display_name
+        item["normalized_name"] = normalized_name
+        item["menu_count"] = int(item.get("menu_count") or 0)
+        grouped.setdefault(normalized_name, []).append(item)
+    return [
+        {"normalized_name": normalized_name, "categories": categories}
+        for normalized_name, categories in sorted(grouped.items())
+        if len(categories) > 1
+    ]
+
+
+def _category_keeper(categories):
+    return min(
+        categories,
+        key=lambda category: (-int(category.get("menu_count") or 0), int(category["id"])),
+    )
+
+
+def migrate_category_name_uniqueness(cleanup_duplicates=False):
+    rows = category_rows_with_menu_counts()
+    duplicates = audit_category_name_duplicates(rows)
+    if duplicates and not cleanup_duplicates:
+        return {
+            "backfill": "blocked",
+            "unique_index": "not_created",
+            "duplicates": duplicates,
+            "moved_menus": 0,
+            "deleted_categories": 0,
+        }
+
+    moved_menus = 0
+    deleted_categories = 0
+    deleted_ids = set()
+    keeper_overrides = {}
+
+    with transaction() as connection:
+        cursor = connection.cursor()
+        if rows:
+            placeholders = ", ".join(["%s"] * len(rows))
+            cursor.execute(
+                f"SELECT id FROM categories WHERE id IN ({placeholders}) FOR UPDATE",
+                tuple(row["id"] for row in rows),
+            )
+            cursor.fetchall()
+
+        for group in duplicates:
+            keeper = _category_keeper(group["categories"])
+            keeper_id = int(keeper["id"])
+            keeper_name = keeper["display_name"]
+            keeper_description = keeper.get("description") or next(
+                (
+                    category.get("description")
+                    for category in group["categories"]
+                    if category.get("description")
+                ),
+                None,
+            )
+            keeper_overrides[keeper_id] = (keeper_name, keeper_description)
+
+            for duplicate in group["categories"]:
+                duplicate_id = int(duplicate["id"])
+                if duplicate_id == keeper_id:
+                    continue
+                cursor.execute(
+                    """
+                    UPDATE menus
+                    SET category_id = %s, category = %s
+                    WHERE category_id = %s
+                    """,
+                    (keeper_id, keeper_name, duplicate_id),
+                )
+                moved_menus += int(cursor.rowcount or 0)
+                cursor.execute("DELETE FROM categories WHERE id = %s", (duplicate_id,))
+                deleted_categories += int(cursor.rowcount or 0)
+                deleted_ids.add(duplicate_id)
+
+        for row in rows:
+            category_id = int(row["id"])
+            if category_id in deleted_ids:
+                continue
+            display_name, normalized_name = normalize_category_name(row.get("name"))
+            if not normalized_name:
+                display_name = f"Category {category_id}"
+                normalized_name = f"category{category_id}"
+            description = row.get("description")
+            if category_id in keeper_overrides:
+                display_name, description = keeper_overrides[category_id]
+            cursor.execute(
+                """
+                UPDATE categories
+                SET name = %s, name_key = %s, normalized_name = %s,
+                    description = %s, updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+                """,
+                (display_name, normalized_name, normalized_name, description, category_id),
+            )
+            cursor.execute(
+                "UPDATE menus SET category = %s WHERE category_id = %s",
+                (display_name, category_id),
+            )
+
+    if not index_exists("categories", "uq_categories_name_key"):
+        commit("CREATE UNIQUE INDEX uq_categories_name_key ON categories (name_key)")
+    if not index_exists("categories", "uq_categories_normalized_name"):
+        commit(
+            "CREATE UNIQUE INDEX uq_categories_normalized_name ON categories (normalized_name)"
+        )
+    return {
+        "backfill": "complete",
+        "unique_index": "ready",
+        "duplicates": duplicates,
+        "moved_menus": moved_menus,
+        "deleted_categories": deleted_categories,
+    }
 
 
 def _backfill_item_codes():
@@ -433,9 +608,13 @@ def ensure_schema():
         _backfill_legacy_menu_columns()
         _relax_legacy_menu_columns()
         _normalize_users()
-        _normalize_categories()
-        if not index_exists("categories", "uq_categories_name_key"):
-            commit("CREATE UNIQUE INDEX uq_categories_name_key ON categories (name_key)")
+        category_name_migration = migrate_category_name_uniqueness()
+        if category_name_migration["duplicates"]:
+            current_app.logger.warning(
+                "Unique nama kategori ditunda: %s kelompok duplikat harus dibersihkan "
+                "dengan migrations/004_category_uniqueness.py.",
+                len(category_name_migration["duplicates"]),
+            )
         _migrate_menu_categories()
         _repair_menu_codes()
         _backfill_item_codes()

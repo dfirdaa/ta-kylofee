@@ -4,7 +4,6 @@ import argparse
 import sys
 from pathlib import Path
 
-
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -14,14 +13,12 @@ from app.database import fetch_all, transaction
 from app.menu.services import normalize_menu_name
 from config import Config
 
-
 DUPLICATE_GROUPS = {
     30005: (150001, 150002, 150003, 150004, 150005, 150006, 150007, 150008),
     180001: (180002, 180003),
     90002: (210001,),
     180004: (180005, 180006),
 }
-
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -99,7 +96,6 @@ def main():
         print(f"REFERENSI_TRANSAKSI_DIPINDAH={moved_references}")
         print(f"MENU_DUPLIKAT_DIHAPUS={deleted_menus}")
         return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

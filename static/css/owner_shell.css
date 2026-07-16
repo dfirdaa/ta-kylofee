@@ -9,7 +9,7 @@
     --kyloffee-white: #ffffff;
     --kyloffee-danger: #b83a2f;
     --kyloffee-success: #2f7d4f;
-    --sidebar-expanded-width: 272px;
+    --sidebar-expanded-width: 280px;
     --sidebar-collapsed-width: 88px;
     --sidebar-width: var(--sidebar-expanded-width);
     --topbar-height: 82px;
@@ -64,6 +64,7 @@ a {
     border-top-right-radius: 16px;
     border-bottom-right-radius: 16px;
     padding: 18px 16px 24px;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
@@ -164,24 +165,29 @@ a {
 }
 
 .owner-nav {
+    width: 100%;
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     gap: 12px;
     min-height: 0;
+    box-sizing: border-box;
 }
 
 .owner-nav__link,
 .owner-logout {
-    min-height: 48px;
+    width: 100%;
+    min-height: 52px;
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     text-decoration: none;
     color: #443631;
     border: 1px solid transparent;
     border-radius: 14px;
-    padding: 0 12px;
+    padding: 6px 12px;
+    box-sizing: border-box;
     font-size: 15px;
     font-weight: 800;
     transition: background 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease;
@@ -208,8 +214,9 @@ a {
 }
 
 .owner-nav__icon {
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
     flex: 0 0 auto;
     display: grid;
     place-items: center;
@@ -237,7 +244,7 @@ a {
 .owner-nav__text,
 .owner-sidebar__text,
 .owner-logout span:last-child {
-    flex: 1 1 auto;
+    flex: 1 1 0;
     min-width: 0;
     max-width: none;
     overflow: visible;
@@ -251,8 +258,9 @@ a {
 }
 
 .owner-logout__icon {
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
     flex: 0 0 auto;
     display: grid;
     place-items: center;
@@ -581,8 +589,8 @@ a {
 
 @media (max-width: 980px) {
     :root {
-        --sidebar-expanded-width: 244px;
-        --sidebar-collapsed-width: 76px;
+        --sidebar-expanded-width: 272px;
+        --sidebar-collapsed-width: 80px;
     }
 
     .owner-sidebar {
@@ -631,7 +639,7 @@ a {
         position: fixed;
         inset: 0 auto 0 0;
         z-index: 50;
-        width: min(280px, 84vw);
+        width: min(288px, 86vw);
         min-width: 0;
         height: 100vh;
         min-height: 100vh;

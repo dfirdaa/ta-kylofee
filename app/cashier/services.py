@@ -11,7 +11,25 @@ from app.utils.validators import validate_email
 
 
 STAFF_POSITIONS = ("Kasir",)
-STAFF_STATUSES = ("Aktif", "Cuti", "Nonaktif")
+STATUS_ACTIVE = "active"
+STATUS_LEAVE = "leave"
+STATUS_INACTIVE = "inactive"
+STAFF_STATUS_LABELS = {
+    STATUS_ACTIVE: "Aktif",
+    STATUS_LEAVE: "Cuti",
+    STATUS_INACTIVE: "Nonaktif",
+}
+STAFF_STATUSES = tuple(STAFF_STATUS_LABELS)
+STAFF_STATUS_OPTIONS = tuple(STAFF_STATUS_LABELS.items())
+STATUS_ALIASES = {
+    "active": STATUS_ACTIVE,
+    "aktif": STATUS_ACTIVE,
+    "leave": STATUS_LEAVE,
+    "cuti": STATUS_LEAVE,
+    "inactive": STATUS_INACTIVE,
+    "nonaktif": STATUS_INACTIVE,
+    "non-aktif": STATUS_INACTIVE,
+}
 
 
 def cashier_role_sql(column="u.role"):
@@ -29,15 +47,25 @@ def parse_staff_date(value):
         return None
 
 
-def normalize_status(status, is_active=True):
-    value = str(status or "Aktif").strip().title()
-    if value not in STAFF_STATUSES:
-        value = "Aktif"
-    return value if is_active else "Nonaktif"
+def normalize_status(status, is_active=None):
+    value = STATUS_ALIASES.get(str(status or "").strip().casefold())
+    if value is None:
+        value = STATUS_ACTIVE if is_active is None or bool(is_active) else STATUS_INACTIVE
+    if value == STATUS_ACTIVE and is_active is not None and not bool(is_active):
+        return STATUS_INACTIVE
+    return value
+
+
+def status_label(status):
+    return STAFF_STATUS_LABELS.get(normalize_status(status), STAFF_STATUS_LABELS[STATUS_INACTIVE])
+
+
+def status_is_active(status):
+    return STATUS_ALIASES.get(str(status or "").strip().casefold()) == STATUS_ACTIVE
 
 
 def status_tone(status):
-    return {"aktif": "active", "cuti": "leave"}.get(str(status).lower(), "inactive")
+    return normalize_status(status)
 
 
 def format_cashier(row):
@@ -56,9 +84,10 @@ def format_cashier(row):
         "joined_date": format_short_date(joined),
         "joined_date_value": str(joined or "")[:10] or date.today().isoformat(),
         "created_at": row.get("created_at"),
-        "status": status,
+        "status": status_label(status),
+        "status_code": status,
         "status_tone": status_tone(status),
-        "is_active": is_active,
+        "is_active": status_is_active(status),
         "invite_code": row.get("invite_code") or "-",
     }
 
@@ -102,15 +131,22 @@ def get_cashier(cashier_id):
 
 
 def cashier_form_data(form):
-    active = str(form.get("is_active", "1")) == "1"
+    raw_status = form.get("staff_status")
+    if raw_status is None or not str(raw_status).strip():
+        staff_status = STATUS_ACTIVE
+    else:
+        staff_status = STATUS_ALIASES.get(
+            str(raw_status).strip().casefold(),
+            str(raw_status).strip().casefold(),
+        )
     return {
         "full_name": str(form.get("full_name") or "").strip(),
         "email": str(form.get("email") or "").strip(),
         "staff_phone": str(form.get("staff_phone") or "").strip(),
         "staff_position": "Kasir",
         "joined_date": str(form.get("joined_date") or "").strip(),
-        "staff_status": normalize_status(form.get("staff_status"), active),
-        "is_active": active,
+        "staff_status": staff_status,
+        "is_active": status_is_active(staff_status),
     }
 
 
@@ -148,7 +184,7 @@ def create_cashier(data, creator_owner_id):
             INSERT INTO users (
                 full_name, email, password_hash, role, owner_id, staff_phone,
                 staff_position, joined_date, staff_status, is_active
-            ) VALUES (%s, %s, %s, %s, %s, %s, 'Kasir', %s, 'Aktif', 1)
+            ) VALUES (%s, %s, %s, %s, %s, %s, 'Kasir', %s, %s, %s)
             """,
             (
                 data["full_name"],
@@ -158,6 +194,8 @@ def create_cashier(data, creator_owner_id):
                 creator_owner_id,
                 data["staff_phone"],
                 joined_date,
+                data["staff_status"],
+                1 if status_is_active(data["staff_status"]) else 0,
             ),
         )
     except Exception as exc:
@@ -186,7 +224,7 @@ def update_cashier(cashier_id, data):
                 data["staff_phone"],
                 joined_date,
                 data["staff_status"],
-                1 if data["is_active"] else 0,
+                1 if status_is_active(data["staff_status"]) else 0,
                 cashier_id,
                 *CASHIER_ROLE_ALIASES,
             ),

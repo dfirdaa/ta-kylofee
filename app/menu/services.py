@@ -24,6 +24,7 @@ MAX_CODE_RETRIES = 5
 MENU_NAME_CREATE_DUPLICATE = "Nama menu sudah digunakan. Gunakan nama menu yang berbeda."
 MENU_NAME_EDIT_DUPLICATE = "Nama menu sudah digunakan oleh menu lain."
 MENU_NAME_CONCURRENT_DUPLICATE = "Nama menu sudah digunakan. Silakan gunakan nama lain."
+CATEGORY_DUPLICATE_MESSAGE = "Kategori dengan nama tersebut sudah tersedia."
 
 
 def clean_menu_name(value):
@@ -118,11 +119,13 @@ def menu_image_url(image_path):
 
 
 def normalize_category_name(value):
-    return " ".join(str(value or "").strip().split())
+    display_name = " ".join(str(value or "").strip().split())
+    normalized_name = "".join(display_name.split()).casefold()
+    return display_name, normalized_name
 
 
 def category_key(value):
-    return normalize_category_name(value).lower()
+    return normalize_category_name(value)[1]
 
 
 def get_category_by_id(category_id):
@@ -133,8 +136,45 @@ def get_category_by_id(category_id):
     return fetch_one("SELECT * FROM categories WHERE id = %s", (category_id,))
 
 
+def find_category_by_normalized_name(normalized_name, exclude_id=None):
+    params = [normalized_name]
+    exclude_sql = ""
+    if exclude_id is not None:
+        exclude_sql = " AND id <> %s"
+        params.append(exclude_id)
+
+    duplicate = fetch_one(
+        f"""
+        SELECT *
+        FROM categories
+        WHERE normalized_name = %s{exclude_sql}
+        LIMIT 1
+        """,
+        tuple(params),
+    )
+    if duplicate:
+        return duplicate
+
+    legacy_rows = fetch_all(
+        f"""
+        SELECT *
+        FROM categories
+        WHERE (normalized_name IS NULL OR normalized_name <> %s){exclude_sql}
+        """,
+        tuple(params),
+    )
+    return next(
+        (
+            row
+            for row in legacy_rows
+            if normalize_category_name(row.get("name"))[1] == normalized_name
+        ),
+        None,
+    )
+
+
 def get_category_by_name(name):
-    return fetch_one("SELECT * FROM categories WHERE name_key = %s", (category_key(name),))
+    return find_category_by_normalized_name(category_key(name))
 
 
 def get_category(category_id=None, category_name=None):
@@ -146,7 +186,7 @@ def category_options():
 
 
 def validate_category(data, exclude_id=None):
-    name = normalize_category_name(data.get("name"))
+    name, normalized_name = normalize_category_name(data.get("name"))
     description = str(data.get("description") or "").strip() or None
     errors = {}
     if not name:
@@ -154,10 +194,14 @@ def validate_category(data, exclude_id=None):
     elif len(name) > CATEGORY_NAME_MAX_LENGTH:
         errors["name"] = f"Nama kategori maksimal {CATEGORY_NAME_MAX_LENGTH} karakter."
     else:
-        duplicate = get_category_by_name(name)
-        if duplicate and int(duplicate["id"]) != int(exclude_id or 0):
-            errors["name"] = "Nama kategori sudah digunakan."
-    return {"name": name, "description": description}, errors
+        duplicate = find_category_by_normalized_name(normalized_name, exclude_id=exclude_id)
+        if duplicate:
+            errors["name"] = CATEGORY_DUPLICATE_MESSAGE
+    return {
+        "name": name,
+        "normalized_name": normalized_name,
+        "description": description,
+    }, errors
 
 
 def create_category(data):
@@ -166,13 +210,21 @@ def create_category(data):
         return None, payload, errors
     try:
         cursor = commit(
-            "INSERT INTO categories (name, name_key, description) VALUES (%s, %s, %s)",
-            (payload["name"], category_key(payload["name"]), payload["description"]),
+            """
+            INSERT INTO categories (name, name_key, normalized_name, description)
+            VALUES (%s, %s, %s, %s)
+            """,
+            (
+                payload["name"],
+                payload["normalized_name"],
+                payload["normalized_name"],
+                payload["description"],
+            ),
         )
         return get_category_by_id(cursor.lastrowid), payload, {}
     except Exception as exc:
         if is_duplicate_key(exc):
-            return None, payload, {"name": "Nama kategori sudah digunakan."}
+            return None, payload, {"name": CATEGORY_DUPLICATE_MESSAGE}
         raise
 
 
@@ -186,15 +238,22 @@ def update_category(category_id, data):
             cursor.execute(
                 """
                 UPDATE categories
-                SET name = %s, name_key = %s, description = %s, updated_at = CURRENT_TIMESTAMP
+                SET name = %s, name_key = %s, normalized_name = %s,
+                    description = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
                 """,
-                (payload["name"], category_key(payload["name"]), payload["description"], category_id),
+                (
+                    payload["name"],
+                    payload["normalized_name"],
+                    payload["normalized_name"],
+                    payload["description"],
+                    category_id,
+                ),
             )
             cursor.execute("UPDATE menus SET category = %s WHERE category_id = %s", (payload["name"], category_id))
     except Exception as exc:
         if is_duplicate_key(exc):
-            return None, payload, {"name": "Nama kategori sudah digunakan."}
+            return None, payload, {"name": CATEGORY_DUPLICATE_MESSAGE}
         raise
     return get_category_by_id(category_id), payload, {}
 
@@ -208,12 +267,26 @@ def delete_category(category_id):
 
 
 def list_categories(search=""):
+    search_query = " ".join(str(search or "").strip().split())
     where = ""
     params = ()
-    if search:
-        where = "WHERE c.name LIKE %s OR COALESCE(c.description, '') LIKE %s"
-        keyword = f"%{search}%"
-        params = (keyword, keyword)
+    if search_query:
+        keyword = f"%{search_query.casefold()}%"
+        normalized_keyword = f"%{category_key(search_query)}%"
+        where = """
+        WHERE LOWER(TRIM(c.name)) LIKE %s
+           OR LOWER(TRIM(COALESCE(c.description, ''))) LIKE %s
+           OR LOWER(REPLACE(TRIM(c.name), ' ', '')) LIKE %s
+           OR LOWER(REPLACE(TRIM(COALESCE(c.description, '')), ' ', '')) LIKE %s
+           OR c.normalized_name LIKE %s
+        """
+        params = (
+            keyword,
+            keyword,
+            normalized_keyword,
+            normalized_keyword,
+            normalized_keyword,
+        )
     rows = fetch_all(
         f"""
         SELECT c.id, c.name, c.description, c.created_at, c.updated_at, COUNT(m.id) AS menu_count

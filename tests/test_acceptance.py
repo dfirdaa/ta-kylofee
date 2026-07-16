@@ -13,7 +13,9 @@ import pymysql
 from app import create_app
 from app.auth import services as auth_services
 from app.auth import routes as auth_routes
+from app.cashier import routes as cashier_routes
 from app.cashier import services as cashier_services
+from app.menu import routes as menu_routes
 from app.menu import services as menu_services
 from app.pos import routes as pos_routes
 from app.pos import services as pos_services
@@ -329,6 +331,448 @@ print("VERCEL_LOADER_OK")
         self.assertIn(".owner-main {", compact)
         self.assertIn("overflow-y: auto;", compact)
         self.assertIn(".owner-sidebar { position: relative;", compact)
+        self.assertIn("--sidebar-expanded-width: 280px;", compact)
+        self.assertIn(".owner-nav { width: 100%;", compact)
+        self.assertIn(".owner-nav__link, .owner-logout { width: 100%;", compact)
+        self.assertIn("min-height: 52px;", compact)
+        self.assertIn(".owner-nav__icon { width: 40px; min-width: 40px;", compact)
+        self.assertNotIn("fit-content", source)
+
+    def test_category_search_normalizes_query_and_uses_bound_parameters(self):
+        calls = []
+
+        def fake_fetch_all(query, params=()):
+            calls.append((" ".join(query.split()), params))
+            return []
+
+        with patch.object(menu_services, "fetch_all", side_effect=fake_fetch_all):
+            menu_services.list_categories("black")
+            menu_services.list_categories("BLACK")
+            menu_services.list_categories("series")
+            menu_services.list_categories("  BLACK   Series  ")
+            menu_services.list_categories("")
+
+        for index, expected_keyword in enumerate(("%black%", "%black%", "%series%")):
+            self.assertEqual(calls[index][1][0], expected_keyword)
+            self.assertEqual(calls[index][1][1], expected_keyword)
+
+        search_query, search_params = calls[3]
+        self.assertIn("LOWER(TRIM(c.name)) LIKE %s", search_query)
+        self.assertIn("LOWER(TRIM(COALESCE(c.description, ''))) LIKE %s", search_query)
+        self.assertIn("LOWER(REPLACE(TRIM(c.name), ' ', '')) LIKE %s", search_query)
+        self.assertIn(
+            "LOWER(REPLACE(TRIM(COALESCE(c.description, '')), ' ', '')) LIKE %s",
+            search_query,
+        )
+        self.assertIn("c.normalized_name LIKE %s", search_query)
+        self.assertEqual(
+            search_params,
+            (
+                "%black series%",
+                "%black series%",
+                "%blackseries%",
+                "%blackseries%",
+                "%blackseries%",
+            ),
+        )
+        self.assertNotIn("WHERE", calls[4][0])
+        self.assertEqual(calls[4][1], ())
+
+    def test_category_search_page_handles_empty_query_results_and_reset(self):
+        owner = {"id": 1, "full_name": "Owner", "role": "owner", "is_active": 1}
+        with self.client.session_transaction() as session:
+            session["user_id"] = 1
+            session["role"] = "owner"
+
+        with patch("app.utils.decorators.current_user", return_value=owner), patch.object(
+            menu_routes, "list_categories", return_value=[]
+        ) as list_mock:
+            response = self.client.get("/owner/categories?q=%20%20BLACK%20%20series%20%20")
+        self.assertEqual(response.status_code, 200)
+        list_mock.assert_called_once_with("BLACK series")
+        html = response.get_data(as_text=True)
+        self.assertIn('value="BLACK series"', html)
+        self.assertIn('autocomplete="off"', html)
+        self.assertIn("Kategori tidak ditemukan.", html)
+        self.assertIn(">Reset</a>", html)
+        self.assertNotIn("Belum ada kategori.", html)
+
+        with patch("app.utils.decorators.current_user", return_value=owner), patch.object(
+            menu_routes, "list_categories", return_value=[]
+        ) as empty_mock:
+            empty_response = self.client.get("/owner/categories?q=")
+        empty_mock.assert_called_once_with("")
+        empty_html = empty_response.get_data(as_text=True)
+        self.assertIn("Belum ada kategori.", empty_html)
+        self.assertNotIn("Kategori tidak ditemukan.", empty_html)
+        self.assertNotIn(">Reset</a>", empty_html)
+
+    def test_category_name_normalization_ignores_case_and_all_spaces(self):
+        variants = (
+            "Black Series",
+            "black series",
+            "blackseries",
+            " Black   Series ",
+            "BLACKSERIES",
+        )
+        normalized = {menu_services.normalize_category_name(value)[1] for value in variants}
+        self.assertEqual(normalized, {"blackseries"})
+        self.assertEqual(
+            menu_services.normalize_category_name(" Black   Series "),
+            ("Black Series", "blackseries"),
+        )
+
+    def test_category_create_allows_only_one_normalized_variant(self):
+        stored = {}
+        insert_count = 0
+
+        def fake_find(normalized_name, exclude_id=None):
+            if normalized_name in stored and stored[normalized_name]["id"] != exclude_id:
+                return stored[normalized_name]
+            return None
+
+        class Cursor:
+            lastrowid = 1
+
+        def fake_commit(_query, params=()):
+            nonlocal insert_count
+            insert_count += 1
+            stored[params[2]] = {"id": 1, "name": params[0]}
+            return Cursor()
+
+        variants = (
+            "Black Series",
+            "black series",
+            "blackseries",
+            " Black   Series ",
+            "BLACKSERIES",
+        )
+        results = []
+        with patch.object(
+            menu_services, "find_category_by_normalized_name", side_effect=fake_find
+        ), patch.object(menu_services, "commit", side_effect=fake_commit), patch.object(
+            menu_services, "get_category_by_id", return_value={"id": 1, "name": "Black Series"}
+        ):
+            for value in variants:
+                results.append(menu_services.create_category({"name": value}))
+
+        self.assertEqual(insert_count, 1)
+        self.assertEqual(sum(1 for category, _payload, errors in results if category and not errors), 1)
+        self.assertEqual(
+            sum(
+                1
+                for _category, _payload, errors in results
+                if errors.get("name") == menu_services.CATEGORY_DUPLICATE_MESSAGE
+            ),
+            4,
+        )
+
+    def test_category_update_allows_own_name_and_rejects_another_category(self):
+        executed = []
+
+        class Cursor:
+            def execute(self, query, params=()):
+                executed.append((" ".join(query.split()), params))
+
+        class Connection:
+            def cursor(self):
+                return Cursor()
+
+        @contextmanager
+        def fake_transaction():
+            yield Connection()
+
+        with patch.object(
+            menu_services, "find_category_by_normalized_name", return_value=None
+        ) as duplicate_check, patch.object(
+            menu_services, "transaction", fake_transaction
+        ), patch.object(
+            menu_services,
+            "get_category_by_id",
+            return_value={"id": 1, "name": "Black Series"},
+        ):
+            category, payload, errors = menu_services.update_category(
+                1, {"name": " BLACK   SERIES ", "description": "Signature"}
+            )
+        self.assertEqual(errors, {})
+        self.assertEqual(category["id"], 1)
+        self.assertEqual(payload["name"], "BLACK SERIES")
+        duplicate_check.assert_called_once_with("blackseries", exclude_id=1)
+        self.assertTrue(any("normalized_name = %s" in query for query, _params in executed))
+
+        with patch.object(
+            menu_services,
+            "find_category_by_normalized_name",
+            return_value={"id": 2, "name": "Black Series"},
+        ), patch.object(menu_services, "transaction") as rejected_transaction:
+            category, _payload, errors = menu_services.update_category(
+                1, {"name": "blackseries"}
+            )
+        self.assertIsNone(category)
+        self.assertEqual(errors["name"], menu_services.CATEGORY_DUPLICATE_MESSAGE)
+        rejected_transaction.assert_not_called()
+
+    def test_category_unique_index_handles_concurrent_creation(self):
+        stored_names = set()
+        lock = threading.Lock()
+
+        class Cursor:
+            lastrowid = 1
+
+        def concurrent_commit(_query, params=()):
+            with lock:
+                if params[2] in stored_names:
+                    raise pymysql.err.IntegrityError(
+                        1062,
+                        "Duplicate entry 'blackseries' for key "
+                        "'categories.uq_categories_normalized_name'",
+                    )
+                stored_names.add(params[2])
+            return Cursor()
+
+        results = []
+
+        def worker(name):
+            results.append(menu_services.create_category({"name": name}))
+
+        with patch.object(
+            menu_services, "find_category_by_normalized_name", return_value=None
+        ), patch.object(menu_services, "commit", side_effect=concurrent_commit), patch.object(
+            menu_services,
+            "get_category_by_id",
+            return_value={"id": 1, "name": "Black Series"},
+        ):
+            threads = [
+                threading.Thread(target=worker, args=("Black Series",)),
+                threading.Thread(target=worker, args=("blackseries",)),
+            ]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+
+        self.assertEqual(sum(1 for category, _payload, errors in results if category and not errors), 1)
+        self.assertEqual(
+            sum(
+                1
+                for _category, _payload, errors in results
+                if errors.get("name") == menu_services.CATEGORY_DUPLICATE_MESSAGE
+            ),
+            1,
+        )
+
+    def test_category_cleanup_keeps_most_used_and_moves_menu_relations(self):
+        from app import schema
+
+        rows = [
+            {
+                "id": 10,
+                "name": "Black Series",
+                "description": "Utama",
+                "menu_count": 5,
+            },
+            {
+                "id": 11,
+                "name": "blackseries",
+                "description": None,
+                "menu_count": 2,
+            },
+            {
+                "id": 20,
+                "name": "Coffee",
+                "description": None,
+                "menu_count": 2,
+            },
+        ]
+        executed = []
+
+        class Cursor:
+            rowcount = 0
+
+            def execute(self, query, params=()):
+                compact = " ".join(query.split())
+                executed.append((compact, params))
+                if compact.startswith("UPDATE menus") and params[-1] == 11:
+                    self.rowcount = 2
+                elif compact.startswith("DELETE FROM categories"):
+                    self.rowcount = 1
+                else:
+                    self.rowcount = 0
+
+            def fetchall(self):
+                return []
+
+        class Connection:
+            def cursor(self):
+                return Cursor()
+
+        @contextmanager
+        def fake_transaction():
+            yield Connection()
+
+        with patch.object(schema, "category_rows_with_menu_counts", return_value=rows), patch.object(
+            schema, "transaction", fake_transaction
+        ), patch.object(schema, "index_exists", return_value=False), patch.object(
+            schema, "commit"
+        ) as commit_mock:
+            result = schema.migrate_category_name_uniqueness(cleanup_duplicates=True)
+
+        self.assertEqual(result["deleted_categories"], 1)
+        self.assertEqual(result["moved_menus"], 2)
+        self.assertEqual(
+            schema._category_keeper(
+                [
+                    {"id": 9, "menu_count": 2},
+                    {"id": 8, "menu_count": 2},
+                ]
+            )["id"],
+            8,
+        )
+        self.assertTrue(
+            any(
+                query.startswith("UPDATE menus SET category_id = %s")
+                and params == (10, "Black Series", 11)
+                for query, params in executed
+            )
+        )
+        self.assertTrue(
+            any(
+                query == "DELETE FROM categories WHERE id = %s" and params == (11,)
+                for query, params in executed
+            )
+        )
+        created_indexes = [call.args[0] for call in commit_mock.call_args_list]
+        self.assertIn(
+            "CREATE UNIQUE INDEX uq_categories_normalized_name ON categories (normalized_name)",
+            created_indexes,
+        )
+        self.assertFalse(any("pos_transactions" in query for query, _params in executed))
+
+    def test_cashier_status_is_single_source_and_syncs_is_active(self):
+        self.assertEqual(cashier_services.normalize_status("Aktif", True), "active")
+        self.assertEqual(cashier_services.normalize_status("Cuti", False), "leave")
+        self.assertEqual(cashier_services.normalize_status("Nonaktif", False), "inactive")
+
+        form_data = cashier_services.cashier_form_data(
+            {
+                "full_name": "Kasir",
+                "email": "kasir@gmail.com",
+                "staff_phone": "0812",
+                "joined_date": "2026-07-01",
+                "staff_status": "leave",
+                "is_active": "1",
+            }
+        )
+        self.assertEqual(form_data["staff_status"], "leave")
+        self.assertFalse(form_data["is_active"])
+
+        class Cursor:
+            rowcount = 1
+
+        with patch.object(
+            cashier_services,
+            "validate_cashier_form",
+            return_value=("kasir@gmail.com", datetime(2026, 7, 1).date(), []),
+        ), patch.object(cashier_services, "commit", return_value=Cursor()) as commit_mock:
+            errors = cashier_services.update_cashier(7, form_data)
+        self.assertEqual(errors, [])
+        query, params = commit_mock.call_args.args
+        self.assertIn("UPDATE users", query)
+        self.assertNotIn("pos_transactions", query)
+        self.assertNotIn("DELETE", query.upper())
+        self.assertEqual(params[4], "leave")
+        self.assertEqual(params[5], 0)
+
+    def test_invalid_cashier_status_is_rejected(self):
+        data = cashier_services.cashier_form_data(
+            {
+                "full_name": "Kasir",
+                "email": "kasir@gmail.com",
+                "staff_phone": "0812",
+                "joined_date": "2026-07-01",
+                "staff_status": "suspended",
+            }
+        )
+        with patch.object(cashier_services, "fetch_one", return_value=None):
+            _email, _joined_date, errors = cashier_services.validate_cashier_form(
+                data, exclude_id=7
+            )
+        self.assertIn("Status kasir tidak valid.", errors)
+
+    def test_cashier_login_respects_active_leave_and_inactive_status(self):
+        password_hash = auth_services.generate_password_hash("123456")
+        base_user = {
+            "id": 7,
+            "full_name": "Kasir",
+            "email": "kasir@gmail.com",
+            "password_hash": password_hash,
+            "role": "staff",
+            "owner_id": 1,
+        }
+        scenarios = (
+            ("active", 1, None),
+            ("leave", 0, "Akun kasir sedang berstatus cuti dan belum dapat digunakan."),
+            ("inactive", 0, "Akun kasir telah dinonaktifkan."),
+        )
+        for status, is_active, expected_error in scenarios:
+            with self.subTest(status=status), patch.object(
+                auth_services,
+                "find_user_by_email",
+                return_value={**base_user, "staff_status": status, "is_active": is_active},
+            ):
+                user, _email, errors = auth_services.authenticate_user(
+                    "kasir@gmail.com", "123456"
+                )
+            if expected_error:
+                self.assertIsNone(user)
+                self.assertEqual(errors, [expected_error])
+            else:
+                self.assertEqual(user["id"], 7)
+                self.assertEqual(errors, [])
+
+    def test_cashier_edit_form_has_only_status_dropdown(self):
+        template = (
+            Path(__file__).resolve().parent.parent / "templates" / "owner_staff_edit.html"
+        ).read_text()
+        self.assertEqual(template.count('name="staff_status"'), 1)
+        self.assertNotIn("Akun Aktif", template)
+        self.assertNotIn('name="is_active"', template)
+        self.assertNotIn('id="statusToggle"', template)
+
+        owner = {"id": 1, "full_name": "Owner", "role": "owner", "is_active": 1}
+        cashier_row = {
+            "id": 7,
+            "full_name": "Kasir Cuti",
+            "email": "kasir@gmail.com",
+            "role": "staff",
+            "staff_phone": "0812",
+            "staff_position": "Kasir",
+            "joined_date": datetime(2026, 7, 1).date(),
+            "staff_status": "leave",
+            "is_active": 0,
+            "created_at": datetime(2026, 7, 1),
+            "invite_code": "KASIR-TEST",
+        }
+        with self.client.session_transaction() as session:
+            session["user_id"] = 1
+            session["role"] = "owner"
+        with patch("app.utils.decorators.current_user", return_value=owner), patch.object(
+            cashier_routes, "get_cashier", return_value=cashier_row
+        ):
+            response = self.client.get("/owner/users/7/edit")
+        self.assertEqual(response.status_code, 200)
+        html = response.get_data(as_text=True)
+        self.assertIn('<option value="leave" selected>Cuti</option>', html)
+        self.assertNotIn("Akun Aktif", html)
+
+    def test_cashier_status_migration_uses_internal_values(self):
+        from app import schema
+
+        source = inspect.getsource(schema._normalize_users)
+        self.assertIn("THEN 'active'", source)
+        self.assertIn("THEN 'leave'", source)
+        self.assertIn("THEN 'inactive'", source)
+        self.assertIn("CASE WHEN staff_status = 'active' THEN 1 ELSE 0 END", source)
 
     def test_menu_code_renders_on_pos_and_checkout_route_is_wired(self):
         cashier = {"id": 2, "full_name": "Kasir", "role": "staff", "is_active": 1}

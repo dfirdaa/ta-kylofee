@@ -18,7 +18,7 @@
     }
 
     function nameKey(value) {
-        return normalizeName(value).toLowerCase();
+        return normalizeName(value).replace(/\s+/g, "").toLowerCase();
     }
 
     function categoryNames() {
@@ -101,7 +101,7 @@
 
         if (duplicate) {
             event.preventDefault();
-            setFieldError("Nama kategori sudah digunakan.");
+            setFieldError("Kategori dengan nama tersebut sudah tersedia.");
             if (nameInput) nameInput.focus();
             return;
         }

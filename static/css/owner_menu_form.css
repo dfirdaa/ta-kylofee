@@ -389,10 +389,6 @@
     letter-spacing: 1px;
 }
 
-.staff-status-toggle {
-    margin-top: 6px;
-}
-
 @media (max-width: 1040px) {
     .form-grid {
         grid-template-columns: 1fr;

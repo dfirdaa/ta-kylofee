@@ -43,10 +43,20 @@
                 <form action="{{ url_for('menu.owner_categories') }}" method="GET" class="category-toolbar">
                     <label class="category-search" for="categorySearch">
                         <span aria-hidden="true">&#8981;</span>
-                        <input id="categorySearch" type="search" name="q" value="{{ search }}" placeholder="Search kategori" aria-label="Search kategori">
+                        <input
+                            id="categorySearch"
+                            type="search"
+                            name="q"
+                            value="{{ search_query or '' }}"
+                            placeholder="Search kategori"
+                            aria-label="Search kategori"
+                            autocomplete="off"
+                            autocapitalize="none"
+                            spellcheck="false"
+                        >
                     </label>
                     <button type="submit" class="secondary-button">Search</button>
-                    {% if search %}
+                    {% if search_query %}
                         <a href="{{ url_for('menu.owner_categories') }}" class="category-clear-link">Reset</a>
                     {% endif %}
                 </form>
@@ -86,7 +96,7 @@
                                                     data-mode="edit"
                                                     data-id="{{ category.id }}"
                                                     data-name="{{ category.name }}"
-                                                    data-description="{{ category.description }}"
+                                                    data-description="{{ category.description or '' }}"
                                                 >
                                                     &#9998;
                                                 </button>
@@ -99,8 +109,13 @@
                                             <div class="empty-state__icon">
                                                 <img src="{{ url_for('static', filename='assets/logo-coffee.png') }}" alt="">
                                             </div>
-                                            <strong>Belum ada kategori.</strong>
-                                            <p>Tambahkan kategori baru untuk mengelompokkan menu.</p>
+                                            {% if search_query %}
+                                                <strong>Kategori tidak ditemukan.</strong>
+                                                <p>Coba gunakan nama atau deskripsi kategori yang berbeda.</p>
+                                            {% else %}
+                                                <strong>Belum ada kategori.</strong>
+                                                <p>Tambahkan kategori baru untuk mengelompokkan menu.</p>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% endif %}
@@ -140,6 +155,7 @@
                                 name="name"
                                 value="{{ category_form.get('name', '') }}"
                                 placeholder="Contoh: Coffee"
+                                autocomplete="off"
                                 required
                                 data-category-name
                             >
@@ -168,6 +184,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/owner_categories.js') }}?v=category-management-1"></script>
+    <script src="{{ url_for('static', filename='js/owner_categories.js') }}?v=category-management-2"></script>
 </body>
 </html>

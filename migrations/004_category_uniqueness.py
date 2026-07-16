@@ -13,8 +13,8 @@ from app import create_app
 from app.database import commit
 from app.schema import (
     audit_category_name_duplicates,
+    column_exists,
     migrate_category_name_uniqueness,
-    table_columns,
 )
 from config import Config
 
@@ -51,7 +51,7 @@ def main():
     app = create_app(Config)
     app.config["AUTO_MIGRATE"] = False
     with app.app_context():
-        if "normalized_name" not in table_columns("categories"):
+        if not column_exists("categories", "normalized_name"):
             if not args.apply:
                 print("Kolom normalized_name belum ada; jalankan dengan --apply setelah backup.")
             else:

@@ -185,6 +185,44 @@ INDEXES = (
 def table_columns(table_name):
     return {row["Field"] for row in fetch_all(f"SHOW COLUMNS FROM `{table_name}`")}
 
+
+def column_exists(table_name, column_name):
+    return bool(
+        fetch_value(
+            """
+            SELECT COUNT(*)
+            FROM information_schema.columns
+            WHERE table_schema = DATABASE()
+              AND table_name = %s
+              AND column_name = %s
+            """,
+            (table_name, column_name),
+            0,
+        )
+    )
+
+
+def column_is_nullable(table_name, column_name):
+    return (
+        str(
+            fetch_value(
+                """
+                SELECT is_nullable
+                FROM information_schema.columns
+                WHERE table_schema = DATABASE()
+                  AND table_name = %s
+                  AND column_name = %s
+                LIMIT 1
+                """,
+                (table_name, column_name),
+                "",
+            )
+            or ""
+        ).upper()
+        == "YES"
+    )
+
+
 def index_exists(table_name, index_name):
     return bool(
         fetch_value(
@@ -507,6 +545,44 @@ def migrate_category_name_uniqueness(cleanup_duplicates=False):
                 (display_name, category_id),
             )
 
+    null_count = int(
+        fetch_value(
+            """
+            SELECT COUNT(*)
+            FROM categories
+            WHERE normalized_name IS NULL OR TRIM(normalized_name) = ''
+            """,
+            (),
+            0,
+        )
+        or 0
+    )
+    duplicate_count = int(
+        fetch_value(
+            """
+            SELECT COUNT(*)
+            FROM (
+                SELECT normalized_name
+                FROM categories
+                GROUP BY normalized_name
+                HAVING COUNT(*) > 1
+            ) duplicate_names
+            """,
+            (),
+            0,
+        )
+        or 0
+    )
+    if null_count or duplicate_count:
+        raise RuntimeError(
+            "Migration kategori dihentikan karena normalized_name masih memiliki "
+            f"{null_count} nilai kosong dan {duplicate_count} kelompok duplikat."
+        )
+
+    if column_is_nullable("categories", "normalized_name"):
+        commit(
+            "ALTER TABLE categories MODIFY COLUMN normalized_name VARCHAR(255) NOT NULL"
+        )
     if not index_exists("categories", "uq_categories_name_key"):
         commit("CREATE UNIQUE INDEX uq_categories_name_key ON categories (name_key)")
     if not index_exists("categories", "uq_categories_normalized_name"):

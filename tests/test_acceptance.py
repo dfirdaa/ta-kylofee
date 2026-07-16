@@ -611,6 +611,8 @@ print("VERCEL_LOADER_OK")
 
         with patch.object(schema, "category_rows_with_menu_counts", return_value=rows), patch.object(
             schema, "transaction", fake_transaction
+        ), patch.object(schema, "fetch_value", return_value=0), patch.object(
+            schema, "column_is_nullable", return_value=True
         ), patch.object(schema, "index_exists", return_value=False), patch.object(
             schema, "commit"
         ) as commit_mock:
@@ -642,10 +644,24 @@ print("VERCEL_LOADER_OK")
         )
         created_indexes = [call.args[0] for call in commit_mock.call_args_list]
         self.assertIn(
+            "ALTER TABLE categories MODIFY COLUMN normalized_name VARCHAR(255) NOT NULL",
+            created_indexes,
+        )
+        self.assertIn(
             "CREATE UNIQUE INDEX uq_categories_normalized_name ON categories (normalized_name)",
             created_indexes,
         )
         self.assertFalse(any("pos_transactions" in query for query, _params in executed))
+
+    def test_category_migration_checks_column_through_information_schema(self):
+        from app import schema
+
+        with patch.object(schema, "fetch_value", return_value=1) as fetch_mock:
+            self.assertTrue(schema.column_exists("categories", "normalized_name"))
+        query, params, default = fetch_mock.call_args.args
+        self.assertIn("information_schema.columns", query)
+        self.assertEqual(params, ("categories", "normalized_name"))
+        self.assertEqual(default, 0)
 
     def test_cashier_status_is_single_source_and_syncs_is_active(self):
         self.assertEqual(cashier_services.normalize_status("Aktif", True), "active")
